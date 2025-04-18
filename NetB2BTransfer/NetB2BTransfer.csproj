@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net9.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DevExpress.Win.Design" Version="24.2.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\NetB2BTransfer.Core\NetB2BTransfer.Core.csproj" />
+    <ProjectReference Include="..\NetB2BTransfer.Data\NetB2BTransfer.Data.csproj" />
+    <ProjectReference Include="..\NetB2BTransfer.Logo.Library\NetB2BTransfer.Logo.Library.csproj" />
+  </ItemGroup>
+
+</Project>
