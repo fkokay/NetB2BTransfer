@@ -22,7 +22,7 @@ namespace NetB2BTransfer.UserControls
     public partial class TransferUserControl : DevExpress.XtraEditors.XtraUserControl
     {
         private readonly NetB2BTransferContext _context;
-        private Setting _setting;
+        private ErpSetting _erpSetting;
         public TransferUserControl()
         {
             InitializeComponent();
@@ -31,7 +31,7 @@ namespace NetB2BTransfer.UserControls
 
         private void btnTransfer_Click(object sender, EventArgs e)
         {
-            Transfer transfer = new Transfer(_setting);
+            Transfer transfer = new Transfer(_erpSetting);
             if (cmbTransferType.SelectedItem.ToString() == "Cari Aktarım")
             {
                 transfer.MusteriTransfer();
@@ -40,7 +40,7 @@ namespace NetB2BTransfer.UserControls
 
         private async void TransferUserControl_Load(object sender, EventArgs e)
         {
-            _setting = await _context.Setting.FirstAsync();   
+            _erpSetting = await _context.ErpSetting.FirstAsync();   
         }
     }
 }

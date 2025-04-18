@@ -10,7 +10,7 @@ namespace NetB2BTransfer.Core.Entities
     [Table("B2BSetting")]
     public class B2BSetting : BaseEntity
     {
-        public string Ip { get; set; }
+        public string Url { get; set; }
         public string User { get; set; }
         public string Password { get; set; }
     }

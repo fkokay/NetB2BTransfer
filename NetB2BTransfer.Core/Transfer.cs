@@ -12,18 +12,18 @@ namespace NetB2BTransfer.Core
 {
     public class Transfer
     {
-        private readonly Setting _setting;
+        private readonly ErpSetting _erpSetting;
 
-        public Transfer(Setting setting)
+        public Transfer(ErpSetting erpSetting)
         {
-            _setting = setting;
+            _erpSetting = erpSetting;
         }
 
         public void MusteriTransfer()
         {
             string errorMessage = string.Empty;
 
-            if (_setting.Erp == "Logo")
+            if (_erpSetting.Erp == "Logo")
             {
                 LogoQueryParam param = new LogoQueryParam
                 {
@@ -37,9 +37,9 @@ namespace NetB2BTransfer.Core
                     ascdesc = "ASC",
                 };
 
-                if (_setting.LastTransferDate != null)
+                if (_erpSetting.LastTransferDate != null)
                 {
-                    param.filter += " AND ((CLCARD.CAPIBLOCK_CREADEDDATE >= '" + _setting.LastTransferDate.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NULL) OR (CLCARD.CAPIBLOCK_MODIFIEDDATE >= '" + _setting.LastTransferDate.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NOT NULL)) ";
+                    param.filter += " AND ((CLCARD.CAPIBLOCK_CREADEDDATE >= '" + _erpSetting.LastTransferDate.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NULL) OR (CLCARD.CAPIBLOCK_MODIFIEDDATE >= '" + _erpSetting.LastTransferDate.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NOT NULL)) ";
                 }
 
                 var arpList = DataReader.ReadData<ArpModel>(LogoQuery.GetArpsQuery(param), ref errorMessage);

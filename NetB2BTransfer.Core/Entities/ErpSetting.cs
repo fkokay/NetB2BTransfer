@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace NetB2BTransfer.Core.Entities
 {
-    [Table("Setting")]
-    public class Setting : BaseEntity
+    [Table("ErpSetting")]
+    public class ErpSetting : BaseEntity
     {
         public string Erp { get; set; }
         public DateTime? LastTransferDate { get; set; }

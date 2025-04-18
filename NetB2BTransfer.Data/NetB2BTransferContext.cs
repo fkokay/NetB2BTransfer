@@ -43,7 +43,7 @@ namespace NetB2BTransfer.Data
         {
         }
 
-        public DbSet<Setting> Setting { get; set; }
+        public DbSet<ErpSetting> ErpSetting { get; set; }
         public DbSet<B2BSetting> B2BSetting { get; set; }
 
     }

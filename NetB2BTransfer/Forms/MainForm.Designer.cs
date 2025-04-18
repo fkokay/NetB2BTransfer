@@ -34,10 +34,10 @@
             accordionControlElement4 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             btnTransfer = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             accordionControlElement1 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
-            accordionControlElement6 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
-            accordionControlElement7 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
+            btnErpSetting = new DevExpress.XtraBars.Navigation.AccordionControlElement();
+            btnB2BSetting = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             accordionControlElement2 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
-            accordionControlElement5 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
+            btnLog = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             accordionControlElement3 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             fluentDesignFormControl1 = new DevExpress.XtraBars.FluentDesignSystem.FluentDesignFormControl();
             fluentFormDefaultManager1 = new DevExpress.XtraBars.FluentDesignSystem.FluentFormDefaultManager(components);
@@ -81,35 +81,38 @@
             // 
             // accordionControlElement1
             // 
-            accordionControlElement1.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { accordionControlElement6, accordionControlElement7 });
+            accordionControlElement1.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { btnErpSetting, btnB2BSetting });
             accordionControlElement1.Expanded = true;
             accordionControlElement1.Name = "accordionControlElement1";
             accordionControlElement1.Text = "Yapılandırma";
             // 
-            // accordionControlElement6
+            // btnErpSetting
             // 
-            accordionControlElement6.Name = "accordionControlElement6";
-            accordionControlElement6.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
-            accordionControlElement6.Text = "Ayarlar";
+            btnErpSetting.Name = "btnErpSetting";
+            btnErpSetting.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
+            btnErpSetting.Text = "Erp Ayarları";
+            btnErpSetting.Click += btnErpSetting_Click;
             // 
-            // accordionControlElement7
+            // btnB2BSetting
             // 
-            accordionControlElement7.Name = "accordionControlElement7";
-            accordionControlElement7.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
-            accordionControlElement7.Text = "B2B Ayarları";
+            btnB2BSetting.Name = "btnB2BSetting";
+            btnB2BSetting.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
+            btnB2BSetting.Text = "B2B Ayarları";
+            btnB2BSetting.Click += btnB2BSetting_Click;
             // 
             // accordionControlElement2
             // 
-            accordionControlElement2.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { accordionControlElement5 });
+            accordionControlElement2.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { btnLog });
             accordionControlElement2.Expanded = true;
             accordionControlElement2.Name = "accordionControlElement2";
             accordionControlElement2.Text = "Sistem";
             // 
-            // accordionControlElement5
+            // btnLog
             // 
-            accordionControlElement5.Name = "accordionControlElement5";
-            accordionControlElement5.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
-            accordionControlElement5.Text = "Günlük";
+            btnLog.Name = "btnLog";
+            btnLog.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
+            btnLog.Text = "Günlük";
+            btnLog.Click += btnLog_Click;
             // 
             // accordionControlElement3
             // 
@@ -161,9 +164,9 @@
         private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement4;
         private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement2;
         private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement3;
-        private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement6;
-        private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement5;
+        private DevExpress.XtraBars.Navigation.AccordionControlElement btnErpSetting;
+        private DevExpress.XtraBars.Navigation.AccordionControlElement btnLog;
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnTransfer;
-        private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement7;
+        private DevExpress.XtraBars.Navigation.AccordionControlElement btnB2BSetting;
     }
 }
