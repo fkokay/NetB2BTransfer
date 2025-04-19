@@ -44,6 +44,7 @@ namespace NetB2BTransfer.Data
         }
 
         public DbSet<ErpSetting> ErpSetting { get; set; }
+        public DbSet<LogoTransferSetting> LogoTransferSetting { get; set; }
         public DbSet<B2BSetting> B2BSetting { get; set; }
 
     }

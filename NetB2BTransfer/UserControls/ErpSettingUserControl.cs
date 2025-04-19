@@ -1,4 +1,5 @@
 ﻿using DevExpress.XtraEditors;
+using NetB2BTransfer.Core.Entities;
 using NetB2BTransfer.Data;
 using System;
 using System.Collections.Generic;
@@ -27,6 +28,13 @@ namespace NetB2BTransfer.UserControls
             if (erpSetting != null)
             {
                 cmbErp.Text = erpSetting.Erp;
+                txtSqlServer.Text = erpSetting.SqlServer;
+                txtSqlUser.Text = erpSetting.SqlUser;
+                txtSqlPassword.Text = erpSetting.SqlPassword;
+                txtSqlDatabase.Text = erpSetting.SqlDatabase;
+                txtRestUrl.Text = erpSetting.RestUrl;
+                txtErpUser.Text = erpSetting.ErpUser;
+                txtErpPassword.Text = erpSetting.ErpPassword;
 
                 switch (erpSetting.Erp)
                 {
@@ -37,6 +45,8 @@ namespace NetB2BTransfer.UserControls
                     case "Logo":
                         xtraTabPageNetsis.PageVisible = false;
                         xtraTabPageLogo.PageVisible = true;
+
+                        LoadLogoTransferSetting();
                         break;
                 }
             }
@@ -45,6 +55,8 @@ namespace NetB2BTransfer.UserControls
                 xtraTabPageNetsis.PageEnabled = false;
                 xtraTabPageLogo.PageEnabled = true;
             }
+
+
         }
 
         private void cmbErp_TextChanged(object sender, EventArgs e)
@@ -59,6 +71,75 @@ namespace NetB2BTransfer.UserControls
                     xtraTabPageNetsis.PageVisible = false;
                     xtraTabPageLogo.PageVisible = true;
                     break;
+            }
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            var erpSetting = _context.ErpSetting.FirstOrDefault();
+            if (erpSetting == null)
+            {
+                erpSetting = new ErpSetting();
+                erpSetting.Erp = cmbErp.Text;
+                erpSetting.Active = true;
+                _context.ErpSetting.Add(erpSetting);
+            }
+
+            erpSetting.Erp = cmbErp.Text;
+            erpSetting.SqlServer = txtSqlServer.Text;
+            erpSetting.SqlUser = txtSqlUser.Text;
+            erpSetting.SqlPassword = txtSqlPassword.Text;
+            erpSetting.SqlDatabase = txtSqlDatabase.Text;
+            erpSetting.RestUrl = txtRestUrl.Text;
+            erpSetting.ErpUser = txtErpUser.Text;
+            erpSetting.ErpPassword = txtErpPassword.Text;
+
+            _context.SaveChanges();
+
+            SaveLogoTransferSetting();
+
+
+
+            XtraMessageBox.Show("ERP ayarları başarıyla kaydedildi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+        private void SaveLogoTransferSetting()
+        {
+            var logoTransferSetting = _context.LogoTransferSetting.FirstOrDefault();
+            if (logoTransferSetting == null)
+            {
+                logoTransferSetting = new LogoTransferSetting
+                {
+                    CustomerTransferMinute = int.TryParse(txtCustomerTransferMinute.Text, out var minute) ? minute : 0,
+                    CustomerFilter = txtCustomerFilter.Text,
+                    CustomerLastTransfer = null
+                };
+                _context.LogoTransferSetting.Add(logoTransferSetting);
+            }
+            else
+            {
+                logoTransferSetting.CustomerTransferMinute = int.TryParse(txtCustomerTransferMinute.Text, out var minute) ? minute : 0;
+                logoTransferSetting.CustomerFilter = txtCustomerFilter.Text;
+            }
+
+            _context.SaveChanges();
+        }
+
+        private void LoadLogoTransferSetting()
+        {
+            var logoTransferSetting = _context.LogoTransferSetting.FirstOrDefault();
+            if (logoTransferSetting != null)
+            {
+                txtCustomerTransferMinute.Text = logoTransferSetting.CustomerTransferMinute.ToString();
+                txtCustomerFilter.Text = logoTransferSetting.CustomerFilter;
+                if (logoTransferSetting.CustomerLastTransfer.HasValue)
+                {
+                    txtCustomerLastTransfer.Text = logoTransferSetting.CustomerLastTransfer.Value.ToString("dd.MM.yyyy HH:mm:ss");
+                }
+            }
+            else
+            {
+                txtCustomerTransferMinute.Text = string.Empty;
+                txtCustomerFilter.Text = string.Empty;
             }
         }
     }
