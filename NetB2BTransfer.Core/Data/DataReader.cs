@@ -14,7 +14,7 @@ namespace NetB2BTransfer.Core.Data
         {
             try
             {
-                using (var connection = new SqlConnection("Data Source=(local);Initial Catalog=FEYZAN2025;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=sapass;Trust Server Certificate=True;"))
+                using (var connection = new SqlConnection("Data Source=(local);Initial Catalog=ERBABLTD2022;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=sapass;Trust Server Certificate=True;"))
                 {
                     return connection.Query<T>(queryString, commandTimeout: 9999999).ToList();
                 }

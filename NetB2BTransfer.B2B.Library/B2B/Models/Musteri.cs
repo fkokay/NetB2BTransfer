@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetB2BTransfer.B2B.Library.Models
+namespace NetB2BTransfer.B2B.Library.B2B.Models
 {
     public class Musteri
     {

@@ -1,5 +1,5 @@
 ﻿using Azure.Core;
-using NetB2BTransfer.B2B.Library.Models;
+using NetB2BTransfer.B2B.Library.B2B.Models;
 using NetB2BTransfer.Core.Entities;
 using Newtonsoft.Json;
 using System;
@@ -9,7 +9,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetB2BTransfer.B2B.Library
+namespace NetB2BTransfer.B2B.Library.B2B
 {
     public class B2BClient
     {
@@ -62,6 +62,49 @@ namespace NetB2BTransfer.B2B.Library
 
                 var json = JsonConvert.SerializeObject(new List<Musteri>() { musteri });
                 var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/musteriler/tanim", new StringContent(json, Encoding.UTF8, "application/json"));
+                if (response.IsSuccessStatusCode)
+                {
+                    string value = await response.Content.ReadAsStringAsync();
+                    ResponseData? result = JsonConvert.DeserializeObject<ResponseData>(value: value);
+
+
+                    return result;
+                }
+
+                return null;
+            }
+        }
+
+        public async Task<ResponseData?> MusteriBakiyeTransferAsync(List<MusteriBakiye> musteriBakiyeleri)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                var json = JsonConvert.SerializeObject(musteriBakiyeleri);
+                var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/musteriler/cari_bakiye_tanim", new StringContent(json, Encoding.UTF8, "application/json"));
+                if (response.IsSuccessStatusCode)
+                {
+                    string value = await response.Content.ReadAsStringAsync();
+                    ResponseData? result = JsonConvert.DeserializeObject<ResponseData>(value: value);
+
+
+                    return result;
+                }
+
+                return null;
+            }
+        }
+        public async Task<ResponseData?> MusteriBakiyeTransferAsync(List<Urun> urunler)
+        {
+            using (var client = new HttpClient())
+            {
+                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                var json = JsonConvert.SerializeObject(urunler);
+                var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/toplu/urun/tanim", new StringContent(json, Encoding.UTF8, "application/json"));
                 if (response.IsSuccessStatusCode)
                 {
                     string value = await response.Content.ReadAsStringAsync();

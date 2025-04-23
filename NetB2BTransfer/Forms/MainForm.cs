@@ -1,4 +1,5 @@
 ﻿using DevExpress.XtraBars;
+using NetB2BTransfer.B2B.Library.SmartStore;
 using NetB2BTransfer.UserControls;
 using System;
 using System.Collections.Generic;
@@ -53,6 +54,11 @@ namespace NetB2BTransfer.Forms
             logUserControl.Dock = DockStyle.Fill;
 
             container.Controls.Add(logUserControl);
+        }
+
+        private async void btnTest_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -86,6 +87,98 @@ namespace NetB2BTransfer.Logo.Library.Class
                         " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "PAYPLANS") + " AS PAYPLANS ON CLCARD.PAYMENTREF = PAYPLANS.LOGICALREF\r\n" +
                         " WHERE (CLCARD.CARDTYPE<>22) " + param.filter + "\r\n" +
                         " ORDER BY " + param.orderbyfieldname + " " + param.ascdesc + "" + offsetfilter + " ";
+
+            return query;
+        }
+        public static string GetItemsQuery(LogoQueryParam param)
+        {
+            var offsetfilter = "";
+            if (param.limit != "-1")
+            {
+                offsetfilter = " OFFSET " + param.offset + " ROWS \r\n" +
+                               " FETCH NEXT " + param.limit + " ROWS ONLY;";
+            }
+
+            var price = "";
+            if (!string.IsNullOrEmpty(param.data))
+            {
+                price = JsonConvert.DeserializeObject<string>(param.data);
+
+            }
+
+            var coksatilanqueery = "";
+            if (param.coksatilan == "CS")
+            {
+
+                coksatilanqueery = " AND (ITEMS.LOGICALREF IN(SELECT TOP 100  \r\n" +
+                        " STL.STOCKREF \r\n" +
+                        " FROM " + LogoUtils.TableNameWithFirmPlusPeriod(param.DbName, param.firmnr, param.periodnr, "STLINE") +
+                        " AS STL WITH (NOLOCK) \r\n" +
+                        " WHERE (STL.TRCODE IN(7,8)) AND (STL.LINETYPE = 0) AND (STL.CANCELLED = 0)  \r\n" +
+                        " GROUP BY STL.STOCKREF " +
+                        " ORDER BY SUM(STL.AMOUNT) DESC)) ";
+            }
+
+
+
+            var query = "SELECT \r\n" +
+                        "(SELECT COUNT(ITEMS.LOGICALREF) FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "ITEMS") +
+                        " AS ITEMS WITH (NOLOCK) WHERE (ITEMS.ACTIVE = 0) " + param.filter + ") AS TOTALCOUNT,\r\n" +
+                        "ITEMS.LOGICALREF,\r\n" +
+                        "ITEMS.CODE,\r\n" +
+                        "ITEMS.NAME,\r\n" +
+                        "ITEMS.NAME2,\r\n" +
+                        "ITEMS.NAME3,\r\n" +
+                        "MARK.CODE AS MARKCODE,\r\n" +
+                        "MARK.DESCR AS MARKNAME,\r\n" +
+                        "ITEMS.STGRPCODE,\r\n" +
+                        "(SELECT ISNULL(DEFINITION_,'DİĞER') FROM "+ LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "SPECODES") + " WHERE  (CODETYPE = 4) AND SPECODE =ITEMS.STGRPCODE) AS STGRPNAME,\r\n" +
+                        "ITEMS.CYPHCODE,\r\n" +
+                        "ITEMS.PRODUCERCODE,\r\n" +
+                        "ITEMS.SPECODE,\r\n" +
+                        "SPE.DEFINITION_ AS SPECODENAME,\r\n" +
+                        "ITEMS.SPECODE2,\r\n" +
+                        "ITEMS.SPECODE3,\r\n" +
+                        "ITEMS.SPECODE4,\r\n" +
+                        "ITEMS.SPECODE5,\r\n" +
+                        "ITEMS.KEYWORD1,\r\n" +
+                        "ITEMS.KEYWORD2,\r\n" +
+                        "ITEMS.KEYWORD3,\r\n" +
+                        "ITEMS.KEYWORD4,\r\n" +
+                        "ITEMS.KEYWORD5,\r\n" +
+                        "ITEMS.DEDUCTCODE,\r\n" +
+                        "ITEMS.CANDEDUCT,\r\n" +
+                        "ITEMS.SALEDEDUCTPART1,\r\n" +
+                        "ITEMS.SALEDEDUCTPART2,\r\n" +
+                        "ITEMS.TRACKTYPE,\r\n" +
+                        "ITEMS.LOCTRACKING,\r\n" +
+                        "ITEMS.VAT, \r\n" +
+                        "ITEMS.SELLVAT, \r\n" +
+                        "ITEMS.UNITSETREF,\r\n" +
+                        "UNITSETL.LOGICALREF AS UOMREF,\r\n" +
+                        "UNITSETL.CODE AS UNITCODE,\r\n" +
+                        "ITEMS.EXTACCESSFLAGS,\r\n" +
+                        "(SELECT TOP 1 UNITBCODE.BARCODE FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "UNITBARCODE") + " UNITBCODE WITH(NOLOCK) WHERE " +
+                        "(ITEMREF = ITEMS.LOGICALREF AND UNITLINEREF = UNITSETL.LOGICALREF)) AS BARCODE," +
+                         price +
+
+                        "(SELECT ISNULL((SUM (GNSTITOT.ONHAND)-SUM (GNSTITOT.RESERVED)),0) AS STOCKAMOUNT FROM " +
+                               LogoUtils.TableViewNameWithFirmPlusPeriod(param.DbName, param.firmnr, param.periodnr, "GNTOTST") +
+                               " GNSTITOT WITH(NOLOCK) WHERE (GNSTITOT.STOCKREF = ITEMS.LOGICALREF) AND (GNSTITOT.INVENNO = -1)) AS GNTOTSTOCK," +
+
+                        "(SELECT ISNULL((SUM (GNSTITOT.ONHAND)-SUM (GNSTITOT.RESERVED)),0) AS STOCKAMOUNT FROM " +
+                               LogoUtils.TableViewNameWithFirmPlusPeriod(param.DbName, param.firmnr, param.periodnr, "GNTOTST") +
+                               " GNSTITOT WITH(NOLOCK) WHERE (GNSTITOT.STOCKREF = ITEMS.LOGICALREF) AND (GNSTITOT.INVENNO IN (" + (string.IsNullOrEmpty(param.usstocknr) ? "-1" : param.usstocknr) + ")) ) AS USTOTSTOCK" +
+
+                        " FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "ITEMS") + " AS ITEMS WITH(NOLOCK) \r\n" +
+                        " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "UNITSETL") +
+                        " AS UNITSETL WITH(NOLOCK) ON (UNITSETL.UNITSETREF=ITEMS.UNITSETREF)  \r\n" +
+                        " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "MARK") +
+                        " AS MARK WITH(NOLOCK) ON MARK.LOGICALREF = ITEMS.MARKREF " +
+                        " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "SPECODES") + " AS SPE WITH(NOLOCK) ON ITEMS.SPECODE = SPE.SPECODE AND SPE.CODETYPE = 1 AND SPE.SPECODETYPE = 14 " +
+                        " WHERE (ITEMS.ACTIVE=0) AND (UNITSETL.MAINUNIT=1) AND (ITEMS.CARDTYPE NOT IN(4,20,21)) " + coksatilanqueery + " " + param.filter + "  \r\n" +
+                        " ORDER BY " + param.orderbyfieldname + " " + param.ascdesc + "" + offsetfilter + " ";
+
 
             return query;
         }

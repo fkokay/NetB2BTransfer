@@ -60,7 +60,7 @@ namespace NetB2BTransfer.UserControls
                         { new StringContent(txtPassword.Text), "sifre" }
                     };
 
-                    var response = await client.PostAsync(txtUrl.Text+"/entegrasyon/giris", formData);
+                    var response = await client.PostAsync(txtUrl.Text + "/entegrasyon/giris", formData);
                     if (response.IsSuccessStatusCode)
                     {
                         XtraMessageBox.Show("Bağlantı başarılı.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);

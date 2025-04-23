@@ -41,6 +41,7 @@
             accordionControlElement3 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             fluentDesignFormControl1 = new DevExpress.XtraBars.FluentDesignSystem.FluentDesignFormControl();
             fluentFormDefaultManager1 = new DevExpress.XtraBars.FluentDesignSystem.FluentFormDefaultManager(components);
+            btnTest = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             ((System.ComponentModel.ISupportInitialize)accordionControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fluentDesignFormControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fluentFormDefaultManager1).BeginInit();
@@ -116,6 +117,8 @@
             // 
             // accordionControlElement3
             // 
+            accordionControlElement3.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { btnTest });
+            accordionControlElement3.Expanded = true;
             accordionControlElement3.Name = "accordionControlElement3";
             accordionControlElement3.Text = "Eklentiler";
             // 
@@ -132,6 +135,13 @@
             // fluentFormDefaultManager1
             // 
             fluentFormDefaultManager1.Form = this;
+            // 
+            // btnTest
+            // 
+            btnTest.Name = "btnTest";
+            btnTest.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
+            btnTest.Text = "Test";
+            btnTest.Click += btnTest_Click;
             // 
             // MainForm
             // 
@@ -168,5 +178,6 @@
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnLog;
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnTransfer;
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnB2BSetting;
+        private DevExpress.XtraBars.Navigation.AccordionControlElement btnTest;
     }
 }

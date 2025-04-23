@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetB2BTransfer.B2B.Library.Models
+namespace NetB2BTransfer.B2B.Library.SmartStore.Models
 {
-    public class Person
+    public class ResponseSmart<T>
     {
-        public string token { get; set; }
+        public List<T> value { get; set; }
     }
 }

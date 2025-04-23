@@ -29,6 +29,8 @@
         private void InitializeComponent()
         {
             groupControl1 = new DevExpress.XtraEditors.GroupControl();
+            cmbB2B = new DevExpress.XtraEditors.ComboBoxEdit();
+            labelControl4 = new DevExpress.XtraEditors.LabelControl();
             simpleButtonSave = new DevExpress.XtraEditors.SimpleButton();
             simpleButtonTest = new DevExpress.XtraEditors.SimpleButton();
             txtPassword = new DevExpress.XtraEditors.TextEdit();
@@ -39,6 +41,7 @@
             labelControl1 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)groupControl1).BeginInit();
             groupControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)cmbB2B.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtPassword.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtUser.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtUrl.Properties).BeginInit();
@@ -46,6 +49,8 @@
             // 
             // groupControl1
             // 
+            groupControl1.Controls.Add(cmbB2B);
+            groupControl1.Controls.Add(labelControl4);
             groupControl1.Controls.Add(simpleButtonSave);
             groupControl1.Controls.Add(simpleButtonTest);
             groupControl1.Controls.Add(txtPassword);
@@ -57,13 +62,30 @@
             groupControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             groupControl1.Location = new System.Drawing.Point(0, 0);
             groupControl1.Name = "groupControl1";
-            groupControl1.Size = new System.Drawing.Size(889, 376);
+            groupControl1.Size = new System.Drawing.Size(840, 356);
             groupControl1.TabIndex = 0;
             groupControl1.Text = "B2B Ayarları";
             // 
+            // cmbB2B
+            // 
+            cmbB2B.Location = new System.Drawing.Point(109, 64);
+            cmbB2B.Name = "cmbB2B";
+            cmbB2B.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            cmbB2B.Properties.Items.AddRange(new object[] { "Smartstore", "B2B" });
+            cmbB2B.Size = new System.Drawing.Size(254, 22);
+            cmbB2B.TabIndex = 9;
+            // 
+            // labelControl4
+            // 
+            labelControl4.Location = new System.Drawing.Point(25, 67);
+            labelControl4.Name = "labelControl4";
+            labelControl4.Size = new System.Drawing.Size(78, 16);
+            labelControl4.TabIndex = 8;
+            labelControl4.Text = "E-Ticaret/B2B";
+            // 
             // simpleButtonSave
             // 
-            simpleButtonSave.Location = new System.Drawing.Point(628, 136);
+            simpleButtonSave.Location = new System.Drawing.Point(628, 176);
             simpleButtonSave.Name = "simpleButtonSave";
             simpleButtonSave.Size = new System.Drawing.Size(118, 36);
             simpleButtonSave.TabIndex = 7;
@@ -72,7 +94,7 @@
             // 
             // simpleButtonTest
             // 
-            simpleButtonTest.Location = new System.Drawing.Point(504, 136);
+            simpleButtonTest.Location = new System.Drawing.Point(504, 176);
             simpleButtonTest.Name = "simpleButtonTest";
             simpleButtonTest.Size = new System.Drawing.Size(118, 36);
             simpleButtonTest.TabIndex = 6;
@@ -81,14 +103,14 @@
             // 
             // txtPassword
             // 
-            txtPassword.Location = new System.Drawing.Point(98, 108);
+            txtPassword.Location = new System.Drawing.Point(109, 148);
             txtPassword.Name = "txtPassword";
-            txtPassword.Size = new System.Drawing.Size(648, 22);
+            txtPassword.Size = new System.Drawing.Size(637, 22);
             txtPassword.TabIndex = 5;
             // 
             // labelControl3
             // 
-            labelControl3.Location = new System.Drawing.Point(25, 111);
+            labelControl3.Location = new System.Drawing.Point(25, 151);
             labelControl3.Name = "labelControl3";
             labelControl3.Size = new System.Drawing.Size(27, 16);
             labelControl3.TabIndex = 4;
@@ -96,14 +118,14 @@
             // 
             // txtUser
             // 
-            txtUser.Location = new System.Drawing.Point(98, 80);
+            txtUser.Location = new System.Drawing.Point(109, 120);
             txtUser.Name = "txtUser";
-            txtUser.Size = new System.Drawing.Size(648, 22);
+            txtUser.Size = new System.Drawing.Size(637, 22);
             txtUser.TabIndex = 3;
             // 
             // labelControl2
             // 
-            labelControl2.Location = new System.Drawing.Point(25, 83);
+            labelControl2.Location = new System.Drawing.Point(25, 123);
             labelControl2.Name = "labelControl2";
             labelControl2.Size = new System.Drawing.Size(67, 16);
             labelControl2.TabIndex = 2;
@@ -111,14 +133,14 @@
             // 
             // txtUrl
             // 
-            txtUrl.Location = new System.Drawing.Point(98, 52);
+            txtUrl.Location = new System.Drawing.Point(109, 92);
             txtUrl.Name = "txtUrl";
-            txtUrl.Size = new System.Drawing.Size(648, 22);
+            txtUrl.Size = new System.Drawing.Size(637, 22);
             txtUrl.TabIndex = 1;
             // 
             // labelControl1
             // 
-            labelControl1.Location = new System.Drawing.Point(25, 55);
+            labelControl1.Location = new System.Drawing.Point(25, 95);
             labelControl1.Name = "labelControl1";
             labelControl1.Size = new System.Drawing.Size(16, 16);
             labelControl1.TabIndex = 0;
@@ -130,11 +152,12 @@
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             Controls.Add(groupControl1);
             Name = "B2BSettingUserControl";
-            Size = new System.Drawing.Size(889, 376);
+            Size = new System.Drawing.Size(840, 356);
             Load += B2BSettingUserControl_Load;
             ((System.ComponentModel.ISupportInitialize)groupControl1).EndInit();
             groupControl1.ResumeLayout(false);
             groupControl1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)cmbB2B.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtPassword.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtUser.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtUrl.Properties).EndInit();
@@ -152,5 +175,7 @@
         private DevExpress.XtraEditors.LabelControl labelControl1;
         private DevExpress.XtraEditors.SimpleButton simpleButtonSave;
         private DevExpress.XtraEditors.SimpleButton simpleButtonTest;
+        private DevExpress.XtraEditors.LabelControl labelControl4;
+        private DevExpress.XtraEditors.ComboBoxEdit cmbB2B;
     }
 }
