@@ -351,5 +351,6 @@ namespace NetB2BTransfer.B2B.Library.SmartStore.Models
         public string Category1 { get; set; }
         [JsonIgnore]
         public string Category2 { get; set; }
+
     }
 }

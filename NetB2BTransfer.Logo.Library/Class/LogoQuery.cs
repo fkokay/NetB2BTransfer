@@ -182,5 +182,6 @@ namespace NetB2BTransfer.Logo.Library.Class
 
             return query;
         }
+
     }
 }

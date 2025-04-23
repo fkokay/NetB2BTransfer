@@ -12,7 +12,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
 {
     public class SmartStoreClient(B2BSetting b2BSetting)
     {
-        public async Task<ResponseSmart<Product>?> GetProduct(string sku)
+        public async Task<ResponseSmartList<Product>?> GetProduct(string sku)
         {
             using (var httpClient = new HttpClient())
             {
@@ -25,7 +25,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<ResponseSmart<Product>>(result);
+                        return JsonConvert.DeserializeObject<ResponseSmartList<Product>>(result);
                     }
                     else
                     {
@@ -58,6 +58,71 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                     else
                     {
                         return null;
+                    }
+                }
+            }
+        }
+        public async Task<bool> UpdateProductStock(int productId, int stokQuantity)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"http://localhost:5000/odata/v1/products({productId})"))
+                {
+                    // Gerekli başlıklar
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+
+                    // JSON içeriği
+                    var jsonContent = new
+                    {
+                        StockQuantity = stokQuantity,
+                        Id = productId
+                    };
+                    var json = JsonConvert.SerializeObject(jsonContent);
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // API'ye isteği gönder
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        public async Task<bool> UpdateProductPrice(int productId, double price,double specialPrice)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"http://localhost:5000/odata/v1/products({productId})"))
+                {
+                    // Gerekli başlıklar
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+
+                    // JSON içeriği
+                    var jsonContent = new
+                    {
+                        Price = price,
+                        SpecialPrice = specialPrice,
+                        Id = productId
+                    };
+                    var json = JsonConvert.SerializeObject(jsonContent);
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // API'ye isteği gönder
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
                     }
                 }
             }
@@ -104,6 +169,31 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                     {
                         var result = await response.Content.ReadAsStringAsync();
                         return JsonConvert.DeserializeObject<ProductCategory>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<ProductMediaFile?> ProductMediaFileTrasnfer(ProductMediaFile productMediaFile)
+        {
+            var json = Newtonsoft.Json.JsonConvert.SerializeObject(productMediaFile);
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "http://localhost:5000/odata/v1/productmediafiles"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Content = new StringContent(json);
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+                    var response = await httpClient.SendAsync(request);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ProductMediaFile>(result);
                     }
                     else
                     {
@@ -168,7 +258,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                 }
             }
         }
-        public async Task<ResponseSmart<Category>?> GetCategory(string name)
+        public async Task<ResponseSmartList<Category>?> GetCategory(string name)
         {
 
             using (var httpClient = new HttpClient())
@@ -182,7 +272,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<ResponseSmart<Category>>(result);
+                        return JsonConvert.DeserializeObject<ResponseSmartList<Category>>(result);
                     }
                     else
                     {
@@ -191,8 +281,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                 }
             }
         }
-
-        public async Task<ResponseSmart<Manufacturer>?> GetManufacturer(string name)
+        public async Task<ResponseSmartList<Manufacturer>?> GetManufacturer(string name)
         {
 
 
@@ -207,7 +296,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<ResponseSmart<Manufacturer>>(result);
+                        return JsonConvert.DeserializeObject<ResponseSmartList<Manufacturer>>(result);
                     }
                     else
                     {
@@ -216,7 +305,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                 }
             }
         }
-        public async Task<ResponseSmart<ProductManufacturer>?> GetProductManufacturer(int productId,int manufacturerId)
+        public async Task<ResponseSmartList<ProductManufacturer>?> GetProductManufacturer(int productId, int manufacturerId)
         {
 
 
@@ -231,7 +320,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<ResponseSmart<ProductManufacturer>>(result);
+                        return JsonConvert.DeserializeObject<ResponseSmartList<ProductManufacturer>>(result);
                     }
                     else
                     {
@@ -240,7 +329,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                 }
             }
         }
-        public async Task<ResponseSmart<ProductCategory>?> GetProductCategory(int productId, int categoryId)
+        public async Task<ResponseSmartList<ProductCategory>?> GetProductCategory(int productId, int categoryId)
         {
 
 
@@ -255,7 +344,7 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                     if (response.IsSuccessStatusCode)
                     {
                         var result = await response.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<ResponseSmart<ProductCategory>>(result);
+                        return JsonConvert.DeserializeObject<ResponseSmartList<ProductCategory>>(result);
                     }
                     else
                     {
@@ -264,18 +353,126 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
                 }
             }
         }
-
-        public async Task GetStores()
+        public async Task<ResponseSmartList<ProductMediaFile>?> GetProductMediaFile(int productId, int mediaFileId)
         {
+
+
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), "http://localhost:5000/odata/v1/stores?%24count=true"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"http://localhost:5000/odata/v1/productmediafiles?count=true&filter=ProductId eq {productId} and MediaFileId eq {mediaFileId}"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
 
                     var response = await httpClient.SendAsync(request);
-                    var result = await response.Content.ReadAsStringAsync();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<ProductMediaFile>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<FileItemInfo?> MediaFileSave(byte[] file, string fileName, string mimeType)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/odata/v1/mediafiles/savefile"))
+                {
+                    // Authorization ve diğer gerekli başlıklar
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+
+                    // Dosya içeriğini yüklemek için Multipart form-data
+                    var multipartContent = new MultipartFormDataContent();
+                    var fileContent = new ByteArrayContent(file);
+                    fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(mimeType);
+                    multipartContent.Add(fileContent, "file", fileName);
+
+                    request.Content = multipartContent;
+
+                    // API'ye isteği gönder
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<FileItemInfo>(result);
+                    }
+                    else
+                    {
+                        // Hata durumunda null döndür
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<ResponseSmart<bool>?> FileExists(string filePath)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/odata/v1/mediafiles/fileexists"))
+                {
+                    // Gerekli başlıklar
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+
+                    // JSON içeriği
+                    var jsonContent = new
+                    {
+                        path = filePath
+                    };
+                    var json = JsonConvert.SerializeObject(jsonContent);
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // API'ye isteği gönder
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmart<bool>>(result);
+                    }
+                    else
+                    {
+                        // Hata durumunda false döndür
+                        return new ResponseSmart<bool>() { value = false };
+                    }
+                }
+            }
+        }
+        public async Task<FileItemInfo?> GetFileByPath(string filePath)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/odata/v1/mediafiles/getfilebypath"))
+                {
+                    // Gerekli başlıklar
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+
+                    // JSON içeriği
+                    var jsonContent = new
+                    {
+                        path = filePath
+                    };
+                    var json = JsonConvert.SerializeObject(jsonContent);
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // API'ye isteği gönder
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<FileItemInfo>(result);
+                    }
+                    else
+                    {
+                        // Hata durumunda null döndür
+                        return null;
+                    }
                 }
             }
         }
