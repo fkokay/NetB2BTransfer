@@ -42,10 +42,10 @@
             accordionControlElement3 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             fluentDesignFormControl1 = new DevExpress.XtraBars.FluentDesignSystem.FluentDesignFormControl();
             txtServiceStatus = new DevExpress.XtraBars.BarStaticItem();
-            fluentFormDefaultManager1 = new DevExpress.XtraBars.FluentDesignSystem.FluentFormDefaultManager(components);
+            fluentFormDefaultManager = new DevExpress.XtraBars.FluentDesignSystem.FluentFormDefaultManager(components);
             ((System.ComponentModel.ISupportInitialize)accordionControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fluentDesignFormControl1).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)fluentFormDefaultManager1).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)fluentFormDefaultManager).BeginInit();
             SuspendLayout();
             // 
             // container
@@ -133,7 +133,7 @@
             fluentDesignFormControl1.FluentDesignForm = this;
             fluentDesignFormControl1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { txtServiceStatus });
             fluentDesignFormControl1.Location = new System.Drawing.Point(0, 0);
-            fluentDesignFormControl1.Manager = fluentFormDefaultManager1;
+            fluentDesignFormControl1.Manager = fluentFormDefaultManager;
             fluentDesignFormControl1.Name = "fluentDesignFormControl1";
             fluentDesignFormControl1.Size = new System.Drawing.Size(1275, 39);
             fluentDesignFormControl1.TabIndex = 2;
@@ -143,15 +143,17 @@
             // txtServiceStatus
             // 
             txtServiceStatus.Alignment = DevExpress.XtraBars.BarItemLinkAlignment.Right;
-            txtServiceStatus.Caption = "barStaticItem1";
+            txtServiceStatus.Caption = "Yükleniyor";
             txtServiceStatus.Id = 0;
+            txtServiceStatus.ItemAppearance.Normal.Font = new System.Drawing.Font("Tahoma", 7.8F, System.Drawing.FontStyle.Bold);
+            txtServiceStatus.ItemAppearance.Normal.Options.UseFont = true;
             txtServiceStatus.Name = "txtServiceStatus";
             // 
-            // fluentFormDefaultManager1
+            // fluentFormDefaultManager
             // 
-            fluentFormDefaultManager1.Form = this;
-            fluentFormDefaultManager1.Items.AddRange(new DevExpress.XtraBars.BarItem[] { txtServiceStatus });
-            fluentFormDefaultManager1.MaxItemId = 1;
+            fluentFormDefaultManager.Form = this;
+            fluentFormDefaultManager.Items.AddRange(new DevExpress.XtraBars.BarItem[] { txtServiceStatus });
+            fluentFormDefaultManager.MaxItemId = 1;
             // 
             // MainForm
             // 
@@ -171,7 +173,7 @@
             Load += MainForm_Load;
             ((System.ComponentModel.ISupportInitialize)accordionControl1).EndInit();
             ((System.ComponentModel.ISupportInitialize)fluentDesignFormControl1).EndInit();
-            ((System.ComponentModel.ISupportInitialize)fluentFormDefaultManager1).EndInit();
+            ((System.ComponentModel.ISupportInitialize)fluentFormDefaultManager).EndInit();
             ResumeLayout(false);
 
         }
@@ -181,7 +183,7 @@
         private DevExpress.XtraBars.Navigation.AccordionControl accordionControl1;
         private DevExpress.XtraBars.FluentDesignSystem.FluentDesignFormControl fluentDesignFormControl1;
         private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement1;
-        private DevExpress.XtraBars.FluentDesignSystem.FluentFormDefaultManager fluentFormDefaultManager1;
+        private DevExpress.XtraBars.FluentDesignSystem.FluentFormDefaultManager fluentFormDefaultManager;
         private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement4;
         private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement2;
         private DevExpress.XtraBars.Navigation.AccordionControlElement accordionControlElement3;

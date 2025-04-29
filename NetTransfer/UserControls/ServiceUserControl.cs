@@ -28,7 +28,7 @@ namespace NetTransfer.UserControls
                 string appFileName = "NetTransferService.exe";
                 string path = Path.Combine(applicationPath, servicePath, appFileName);
 
-                ServiceInstaller.InstallAndStart("NetTransferService", "NetTransferService", path);
+                ServiceInstaller.InstallAndStart("NetTransferService", "NetTransfer Service", path);
 
                 MessageBox.Show("Servis başarıyla yüklendi.", "Başarılı", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }

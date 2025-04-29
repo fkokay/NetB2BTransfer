@@ -78,14 +78,17 @@ namespace NetTransfer.Forms
                 if (result == ServiceState.Running)
                 {
                     txtServiceStatus.Caption = "Servis Çalışıyor";
+                    txtServiceStatus.ItemAppearance.Normal.ForeColor = Color.Green;
                 }
                 else if (result == ServiceState.Unknown || result == ServiceState.NotFound)
                 {
                     txtServiceStatus.Caption = "Servis Kurulu Değil";
+                    txtServiceStatus.ItemAppearance.Normal.ForeColor = Color.Red;
                 }
                 else
                 {
                     txtServiceStatus.Caption = "Servis Durduruldu";
+                    txtServiceStatus.ItemAppearance.Normal.ForeColor = Color.Red;
                 }
             }
             catch (Exception)
