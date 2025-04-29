@@ -4,6 +4,7 @@ using NetB2BTransfer.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -20,7 +21,7 @@ namespace NetB2BTransfer.UserControls
         public B2BSettingUserControl()
         {
             InitializeComponent();
-            _context = new NetB2BTransferContext("Data Source=(local);Initial Catalog=B2BENT2;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=sapass;Trust Server Certificate=True;");
+            _context = new NetB2BTransferContext(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
         }
 
         private void simpleButtonSave_Click(object sender, EventArgs e)
@@ -82,6 +83,7 @@ namespace NetB2BTransfer.UserControls
             var b2bSetting = _context.B2BSetting.FirstOrDefault();
             if (b2bSetting != null)
             {
+                cmbB2B.SelectedText = b2bSetting.B2B;
                 txtUrl.Text = b2bSetting.Url;
                 txtPassword.Text = b2bSetting.Password;
                 txtUser.Text = b2bSetting.User;

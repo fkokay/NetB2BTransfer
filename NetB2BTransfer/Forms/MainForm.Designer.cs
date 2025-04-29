@@ -41,7 +41,7 @@
             accordionControlElement3 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             fluentDesignFormControl1 = new DevExpress.XtraBars.FluentDesignSystem.FluentDesignFormControl();
             fluentFormDefaultManager1 = new DevExpress.XtraBars.FluentDesignSystem.FluentFormDefaultManager(components);
-            btnTest = new DevExpress.XtraBars.Navigation.AccordionControlElement();
+            btnServiceSetting = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             ((System.ComponentModel.ISupportInitialize)accordionControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fluentDesignFormControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fluentFormDefaultManager1).BeginInit();
@@ -82,7 +82,7 @@
             // 
             // accordionControlElement1
             // 
-            accordionControlElement1.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { btnErpSetting, btnB2BSetting });
+            accordionControlElement1.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { btnErpSetting, btnB2BSetting, btnServiceSetting });
             accordionControlElement1.Expanded = true;
             accordionControlElement1.Name = "accordionControlElement1";
             accordionControlElement1.Text = "Yapılandırma";
@@ -117,7 +117,6 @@
             // 
             // accordionControlElement3
             // 
-            accordionControlElement3.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { btnTest });
             accordionControlElement3.Expanded = true;
             accordionControlElement3.Name = "accordionControlElement3";
             accordionControlElement3.Text = "Eklentiler";
@@ -136,12 +135,12 @@
             // 
             fluentFormDefaultManager1.Form = this;
             // 
-            // btnTest
+            // btnServiceSetting
             // 
-            btnTest.Name = "btnTest";
-            btnTest.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
-            btnTest.Text = "Test";
-            btnTest.Click += btnTest_Click;
+            btnServiceSetting.Name = "btnServiceSetting";
+            btnServiceSetting.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
+            btnServiceSetting.Text = "Servis Ayarları";
+            btnServiceSetting.Click += btnServiceSetting_Click;
             // 
             // MainForm
             // 
@@ -178,6 +177,6 @@
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnLog;
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnTransfer;
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnB2BSetting;
-        private DevExpress.XtraBars.Navigation.AccordionControlElement btnTest;
+        private DevExpress.XtraBars.Navigation.AccordionControlElement btnServiceSetting;
     }
 }

@@ -4,6 +4,7 @@ using NetB2BTransfer.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Configuration;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -19,7 +20,7 @@ namespace NetB2BTransfer.UserControls
         public ErpSettingUserControl()
         {
             InitializeComponent();
-            _context = new NetB2BTransferContext("Data Source=(local);Initial Catalog=B2BENT2;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=sapass;Trust Server Certificate=True;");
+            _context = new NetB2BTransferContext(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
         }
 
         private void ErpSettingUserControl_Load(object sender, EventArgs e)

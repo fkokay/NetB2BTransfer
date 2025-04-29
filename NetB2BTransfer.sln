@@ -21,6 +21,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetB2BTransfer.Logo.Library
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetB2BTransfer.B2B.Library", "NetB2BTransfer.B2B.Library\NetB2BTransfer.B2B.Library.csproj", "{CAB18130-1FDC-499D-B1F0-E46A7D4D3740}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetB2BTransferService", "NetB2BTransferService\NetB2BTransferService.csproj", "{7144D29B-329C-4B76-9F86-F76DC2BA9DD9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{CAB18130-1FDC-499D-B1F0-E46A7D4D3740}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CAB18130-1FDC-499D-B1F0-E46A7D4D3740}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CAB18130-1FDC-499D-B1F0-E46A7D4D3740}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7144D29B-329C-4B76-9F86-F76DC2BA9DD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7144D29B-329C-4B76-9F86-F76DC2BA9DD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7144D29B-329C-4B76-9F86-F76DC2BA9DD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7144D29B-329C-4B76-9F86-F76DC2BA9DD9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -62,6 +68,7 @@ Global
 		{810B9281-A8EB-40E6-A6CA-91B774E411BE} = {1DB4C4B1-6E8E-479E-9780-DC9D51153EE4}
 		{860F9AD3-75DB-4BAF-A3CE-EC08D0DB20F8} = {1DB4C4B1-6E8E-479E-9780-DC9D51153EE4}
 		{CAB18130-1FDC-499D-B1F0-E46A7D4D3740} = {1DB4C4B1-6E8E-479E-9780-DC9D51153EE4}
+		{7144D29B-329C-4B76-9F86-F76DC2BA9DD9} = {AB3B12D2-E305-497D-AFE5-22B2E3F6E662}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3530C184-4AA6-49D5-A7BE-47528F200E64}

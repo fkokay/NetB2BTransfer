@@ -1,4 +1,5 @@
-﻿using NetB2BTransfer.B2B.Library.B2B;
+﻿using Microsoft.Extensions.Logging;
+using NetB2BTransfer.B2B.Library.B2B;
 using NetB2BTransfer.B2B.Library.B2B.Models;
 using NetB2BTransfer.B2B.Library.SmartStore;
 using NetB2BTransfer.B2B.Library.SmartStore.Models;
@@ -25,7 +26,7 @@ namespace NetB2BTransfer.B2B.Library
         private readonly B2BSetting _b2bSetting;
         private readonly LogoTransferSetting _logoTransferSetting;
 
-        public Transfer(ErpSetting erpSetting, B2BSetting b2BSetting)
+        public Transfer(ILogger logger,ErpSetting erpSetting, B2BSetting b2BSetting)
         {
             _erpSetting = erpSetting;
             _b2bSetting = b2BSetting;
@@ -33,7 +34,7 @@ namespace NetB2BTransfer.B2B.Library
             _smartStoreClient = new SmartStoreClient(b2BSetting);
         }
 
-        public Transfer(ErpSetting erpSetting, B2BSetting b2BSetting, LogoTransferSetting logoTransferSetting)
+        public Transfer(ILogger logger,ErpSetting erpSetting, B2BSetting b2BSetting, LogoTransferSetting logoTransferSetting)
         {
             _erpSetting = erpSetting;
             _b2bSetting = b2BSetting;
@@ -1358,8 +1359,7 @@ namespace NetB2BTransfer.B2B.Library
             return null;
 
         }
-
-        public async Task<FileItemInfo?> SmartStoreMediaFileTransfer(byte[] file, string fileName, string mimeType)
+        private async Task<FileItemInfo?> SmartStoreMediaFileTransfer(byte[] file, string fileName, string mimeType)
         {
             var response = await _smartStoreClient.FileExists(fileName);
             if (response != null)

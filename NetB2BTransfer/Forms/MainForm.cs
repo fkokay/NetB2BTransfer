@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -56,9 +57,13 @@ namespace NetB2BTransfer.Forms
             container.Controls.Add(logUserControl);
         }
 
-        private async void btnTest_Click(object sender, EventArgs e)
+        private void btnServiceSetting_Click(object sender, EventArgs e)
         {
+            container.Controls.Clear();
+            ServiceUserControl serviceUserControl = new ServiceUserControl();
+            serviceUserControl.Dock = DockStyle.Fill;
 
+            container.Controls.Add(serviceUserControl);
         }
     }
 }

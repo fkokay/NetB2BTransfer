@@ -12,7 +12,7 @@ namespace NetB2BTransfer.Data
 {
     public class NetB2BTransferContext : DbContext
     {
-        public NetB2BTransferContext(string connString) :base(GetOptions(connString))
+        public NetB2BTransferContext(string connectionString) : base(GetOptions(connectionString))
         {
         }
 

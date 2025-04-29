@@ -16,10 +16,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"http://localhost:5000/odata/v1/products?count=true&filter=Sku eq '{sku}'"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"https://erbabogludtm.com/odata/v1/products?count=true&filter=Sku eq '{sku}'"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     var response = await httpClient.SendAsync(request);
                     if (response.IsSuccessStatusCode)
@@ -41,10 +41,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
 
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "http://localhost:5000/odata/v1/products"))
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://erbabogludtm.com/odata/v1/products"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     request.Content = new StringContent(json);
                     request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
@@ -66,11 +66,11 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"http://localhost:5000/odata/v1/products({productId})"))
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"https://erbabogludtm.com/odata/v1/products({productId})"))
                 {
                     // Gerekli başlıklar
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     // JSON içeriği
                     var jsonContent = new
@@ -98,11 +98,11 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"http://localhost:5000/odata/v1/products({productId})"))
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"https://erbabogludtm.com/odata/v1/products({productId})"))
                 {
                     // Gerekli başlıklar
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     // JSON içeriği
                     var jsonContent = new
@@ -132,10 +132,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(productManufacturer);
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "http://localhost:5000/odata/v1/productmanufacturers"))
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://erbabogludtm.com/odata/v1/productmanufacturers"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
                     request.Content = new StringContent(json);
                     request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
                     var response = await httpClient.SendAsync(request);
@@ -157,10 +157,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(productCategory);
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "http://localhost:5000/odata/v1/productcategories"))
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://erbabogludtm.com/odata/v1/productcategories"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
                     request.Content = new StringContent(json);
                     request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
                     var response = await httpClient.SendAsync(request);
@@ -182,10 +182,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
             var json = Newtonsoft.Json.JsonConvert.SerializeObject(productMediaFile);
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "http://localhost:5000/odata/v1/productmediafiles"))
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://erbabogludtm.com/odata/v1/productmediafiles"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
                     request.Content = new StringContent(json);
                     request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
                     var response = await httpClient.SendAsync(request);
@@ -209,10 +209,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
 
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "http://localhost:5000/odata/v1/manufacturers"))
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://erbabogludtm.com/odata/v1/manufacturers"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     request.Content = new StringContent(json);
                     request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
@@ -237,10 +237,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
 
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "http://localhost:5000/odata/v1/categories"))
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), "https://erbabogludtm.com/odata/v1/categories"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     request.Content = new StringContent(json);
                     request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
@@ -263,10 +263,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
 
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"http://localhost:5000/odata/v1/categories?count=true&filter=Name eq '{name}'"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"https://erbabogludtm.com/odata/v1/categories?count=true&filter=Name eq '{name}'"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     var response = await httpClient.SendAsync(request);
                     if (response.IsSuccessStatusCode)
@@ -287,10 +287,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
 
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"http://localhost:5000/odata/v1/manufacturers?count=true&filter=Name eq '{name}'"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"https://erbabogludtm.com/odata/v1/manufacturers?count=true&filter=Name eq '{name}'"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     var response = await httpClient.SendAsync(request);
                     if (response.IsSuccessStatusCode)
@@ -311,10 +311,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
 
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"http://localhost:5000/odata/v1/productmanufacturers?count=true&filter=ProductId eq {productId} and ManufacturerId eq {manufacturerId}"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"https://erbabogludtm.com/odata/v1/productmanufacturers?count=true&filter=ProductId eq {productId} and ManufacturerId eq {manufacturerId}"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     var response = await httpClient.SendAsync(request);
                     if (response.IsSuccessStatusCode)
@@ -335,10 +335,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
 
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"http://localhost:5000/odata/v1/productcategories?count=true&filter=ProductId eq {productId} and CategoryId eq {categoryId}"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"https://erbabogludtm.com/odata/v1/productcategories?count=true&filter=ProductId eq {productId} and CategoryId eq {categoryId}"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     var response = await httpClient.SendAsync(request);
                     if (response.IsSuccessStatusCode)
@@ -359,10 +359,10 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
 
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"http://localhost:5000/odata/v1/productmediafiles?count=true&filter=ProductId eq {productId} and MediaFileId eq {mediaFileId}"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"https://erbabogludtm.com/odata/v1/productmediafiles?count=true&filter=ProductId eq {productId} and MediaFileId eq {mediaFileId}"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     var response = await httpClient.SendAsync(request);
                     if (response.IsSuccessStatusCode)
@@ -381,11 +381,11 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/odata/v1/mediafiles/savefile"))
+                using (var request = new HttpRequestMessage(HttpMethod.Post, "https://erbabogludtm.com/odata/v1/mediafiles/savefile"))
                 {
                     // Authorization ve diğer gerekli başlıklar
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     // Dosya içeriğini yüklemek için Multipart form-data
                     var multipartContent = new MultipartFormDataContent();
@@ -414,11 +414,11 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/odata/v1/mediafiles/fileexists"))
+                using (var request = new HttpRequestMessage(HttpMethod.Post, "https://erbabogludtm.com/odata/v1/mediafiles/fileexists"))
                 {
                     // Gerekli başlıklar
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     // JSON içeriği
                     var jsonContent = new
@@ -447,11 +447,11 @@ namespace NetB2BTransfer.B2B.Library.SmartStore
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(HttpMethod.Post, "http://localhost:5000/odata/v1/mediafiles/getfilebypath"))
+                using (var request = new HttpRequestMessage(HttpMethod.Post, "https://erbabogludtm.com/odata/v1/mediafiles/getfilebypath"))
                 {
                     // Gerekli başlıklar
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
-                    request.Headers.TryAddWithoutValidation("Authorization", "Basic NzQ3YThjYzI0Mjc3ZGM3NDJiNjFiNmNmYzZiMTlmYmQ6NzUyOTdhYzQxMDczMGM4MzBmZDkzN2JiMzlhODlmMjc=");
+                    request.Headers.TryAddWithoutValidation("Authorization", "Basic YjUwM2ZkYmIyODIzZmY4NGE1NDk4MmIzMGE3MmVhMDU6ZTRmZmM5ODM3MGFmNjVjN2NkZDg0NjJiNDE1NTAyODg=");
 
                     // JSON içeriği
                     var jsonContent = new
