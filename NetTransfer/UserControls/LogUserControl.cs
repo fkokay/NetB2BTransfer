@@ -1,6 +1,5 @@
 ﻿using DevExpress.Data;
 using DevExpress.XtraEditors;
-using NetTransfer.B2B.Library.B2B.Models;
 using NetTransfer.Models;
 using System;
 using System.Collections.Generic;

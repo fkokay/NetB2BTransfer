@@ -1,5 +1,4 @@
 ﻿using DevExpress.XtraBars;
-using NetTransfer.B2B.Library.SmartStore;
 using NetTransfer.UserControls;
 using System;
 using System.Collections.Generic;

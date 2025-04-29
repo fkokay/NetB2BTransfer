@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using NetTransfer.Data;
 using NetTransferService;
 
 var builder = Host.CreateApplicationBuilder(args);

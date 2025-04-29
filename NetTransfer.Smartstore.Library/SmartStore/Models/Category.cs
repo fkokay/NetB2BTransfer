@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.B2B.Library.SmartStore.Models
+namespace NetTransfer.Smartstore.Library.Models
 {
     public class Category
     {

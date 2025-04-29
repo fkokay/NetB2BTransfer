@@ -1,8 +1,4 @@
 ﻿using Microsoft.Extensions.Logging;
-using NetTransfer.B2B.Library.B2B;
-using NetTransfer.B2B.Library.B2B.Models;
-using NetTransfer.B2B.Library.SmartStore;
-using NetTransfer.B2B.Library.SmartStore.Models;
 using NetTransfer.Core.Data;
 using NetTransfer.Core.Entities;
 using NetTransfer.Core.Utils;
@@ -15,8 +11,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using NetTransfer.B2B.Library.B2B;
+using NetTransfer.Smartstore.Library.SmartStore;
+using NetTransfer.B2B.Library.B2B.Models;
+using NetTransfer.Smartstore.Library.Models;
+using NetTransfer.Smartstore.Library;
 
-namespace NetTransfer.B2B.Library
+namespace NetTransfer.Integration
 {
     public class Transfer
     {

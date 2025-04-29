@@ -1,8 +1,8 @@
 using Microsoft.Extensions.Logging;
-using NetTransfer.B2B.Library;
 using NetTransfer.Core.Entities;
 using NetTransfer.Core.TaskSchedulers;
 using NetTransfer.Data;
+using NetTransfer.Integration;
 
 namespace NetTransferService
 {

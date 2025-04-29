@@ -5,10 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 
 using System.Net.Http.Headers;
-using NetTransfer.B2B.Library.SmartStore.Models;
 using NetTransfer.Core.Entities;
 using Newtonsoft.Json;
-namespace NetTransfer.B2B.Library.SmartStore
+using NetTransfer.Smartstore.Library.Models;
+namespace NetTransfer.Smartstore.Library.SmartStore
 {
     public class SmartStoreClient(VirtualStoreSetting _b2BSetting)
     {

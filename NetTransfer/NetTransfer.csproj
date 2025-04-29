@@ -15,11 +15,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetB2BTransfer.B2B.Library\NetTransfer.B2B.Library.csproj" />
-    <ProjectReference Include="..\NetB2BTransfer.Core\NetTransfer.Core.csproj" />
-    <ProjectReference Include="..\NetB2BTransfer.Data\NetTransfer.Data.csproj" />
-    <ProjectReference Include="..\NetB2BTransfer.Logo.Library\NetTransfer.Logo.Library.csproj" />
-    <ProjectReference Include="..\NetB2BTransfer.Netsis.Library\NetTransfer.Netsis.Library.csproj" />
+    <ProjectReference Include="..\NetTransfer.Core\NetTransfer.Core.csproj" />
+    <ProjectReference Include="..\NetTransfer.Data\NetTransfer.Data.csproj" />
+    <ProjectReference Include="..\NetTransferService\NetTransferService.csproj" />
   </ItemGroup>
 
 </Project>

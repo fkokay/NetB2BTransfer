@@ -18,15 +18,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NetB2BTransfer.Core\NetTransfer.Core.csproj" />
-    <ProjectReference Include="..\NetB2BTransfer.Netsis.Library\NetTransfer.Netsis.Library.csproj" />
+    <ProjectReference Include="..\NetTransfer.Core\NetTransfer.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <EditorConfigFiles Remove="C:\Users\TAHİR\source\repos\NetB2BTransfer\NetB2BTransfer.B2B.Library\SmartStore\Models\.editorconfig" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Remove="SmartStore\Models\.editorconfig" />
   </ItemGroup>
 
   <ItemGroup>
