@@ -1,4 +1,5 @@
 ﻿using DevExpress.XtraBars;
+using NetTransfer.Models;
 using NetTransfer.UserControls;
 using System;
 using System.Collections.Generic;
@@ -7,6 +8,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
 
@@ -32,7 +34,7 @@ namespace NetTransfer.Forms
         private void btnB2BSetting_Click(object sender, EventArgs e)
         {
             container.Controls.Clear();
-            B2BSettingUserControl b2BSettingUserControl = new B2BSettingUserControl();
+            VirtualStoreSettingUserControl b2BSettingUserControl = new VirtualStoreSettingUserControl();
             b2BSettingUserControl.Dock = DockStyle.Fill;
 
             container.Controls.Add(b2BSettingUserControl);

@@ -129,5 +129,7 @@ namespace NetTransfer.Netsis.Library.Models
         public string OTVTEVKIFAT { get; set; }
         public string SERIBARKOD { get; set; }
         public string ATIK_URUN { get; set; }
+
+        public List<EvrakModel>? EVRAK_LIST { get; set; }
     }
 }

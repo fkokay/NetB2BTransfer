@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NetB2BTransfer.Core\NetTransfer.Core.csproj" />
     <ProjectReference Include="..\NetTransfer.Core\NetTransfer.Core.csproj" />
   </ItemGroup>
 

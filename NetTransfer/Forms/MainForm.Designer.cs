@@ -168,7 +168,7 @@
             Name = "MainForm";
             NavigationControl = accordionControl1;
             StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-            Text = "Net B2B Transfer v1.0.0";
+            Text = "Net Transfer v1.0.0";
             WindowState = System.Windows.Forms.FormWindowState.Maximized;
             Load += MainForm_Load;
             ((System.ComponentModel.ISupportInitialize)accordionControl1).EndInit();
