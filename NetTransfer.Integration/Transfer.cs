@@ -49,7 +49,7 @@ namespace NetTransfer.Integration
             _erpSetting = erpSetting;
             _b2bSetting = b2BSetting;
             _smartStoreClient = new SmartStoreClient(b2BSetting);
-            _smartstoreTransfer = new SmartstoreService(_smartStoreClient);
+            _smartstoreTransfer = new SmartstoreService(_logger,_smartStoreClient);
             _smartstoreParameter = smartstoreParameter;
         }
 
@@ -196,6 +196,8 @@ namespace NetTransfer.Integration
                         malzemeList = netsisService.GetMalzemeList(ref errorMessage);
                         break;
                     case "Opak":
+                        OpakService opakService = new OpakService();
+                        malzemeList = opakService.GetMalzemeList(ref errorMessage);
                         break;
                     default:
                         _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);

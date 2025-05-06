@@ -22,15 +22,15 @@ namespace NetTransfer.Smartstore.Library
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
 
                     var response = await httpClient.SendAsync(request);
-                    if (response.IsSuccessStatusCode)
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProduct>>(json);
+                    if (result != null)
                     {
-                        var result = await response.Content.ReadAsStringAsync();
-                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProduct>>(result);
+                        result.status = response.IsSuccessStatusCode;
                     }
-                    else
-                    {
-                        return null;
-                    }
+
+                    return result;                   
                 }
             }
         }
@@ -376,6 +376,56 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
+        public async Task<ResponseSmartList<SmartstoreProductAttribute>?> GetProductAttribute(string name)
+        {
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/productattributes?count=true&filter=Name eq '{name}'"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProductAttribute>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<SmartstoreProductAttribute?> ProductAttributeTransfer(SmartstoreProductAttribute productAttribute)
+        {
+            var json = JsonConvert.SerializeObject(productAttribute);
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"{_b2BSetting.Url}/productattributes"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    request.Content = new StringContent(json);
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreProductAttribute>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
         public async Task<SmartstoreFileItemInfo?> MediaFileSave(SmartstoreFile smartstoreFile)
         {
             using (var httpClient = new HttpClient())
@@ -470,6 +520,181 @@ namespace NetTransfer.Smartstore.Library
                     else
                     {
                         // Hata durumunda null döndür
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public async Task<ResponseSmartList<SmartstoreProductVariantAttribute>?> GetProductVariantAttribute(int productId, int productAttributeId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/productvariantattributes?count=true&filter=ProductId eq {productId} and ProductAttributeId eq {productAttributeId}"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProductVariantAttribute>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public async Task<SmartstoreProductVariantAttribute?> ProductVariantAttributeTransfer(SmartstoreProductVariantAttribute productVariantAttribute)
+        {
+            var json = JsonConvert.SerializeObject(productVariantAttribute);
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"{_b2BSetting.Url}/productvariantattributes"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    request.Content = new StringContent(json);
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreProductVariantAttribute>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+
+        public async Task<ResponseSmartList<SmartstoreProductVariantAttributeValue>?> GetProductVariantAttributeValue(int productVariantAttributeId,string name)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/productvariantattributevalues?count=true&filter=ProductVariantAttributeId eq {productVariantAttributeId} and Name eq '{name}'"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProductVariantAttributeValue>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public async Task<SmartstoreProductVariantAttributeValue?> ProductVariantAttributeValueTransfer(SmartstoreProductVariantAttributeValue productVariantAttributeValue)
+        {
+            var json = JsonConvert.SerializeObject(productVariantAttributeValue);
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"{_b2BSetting.Url}/productvariantattributevalues"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    request.Content = new StringContent(json);
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreProductVariantAttributeValue>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public async Task<ResponseSmartList<SmartstoreProductVariantAttributeCombination>> GetProductVariantAttributeCombination(int productId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/productvariantattributecombinations?count=true&filter=ProductId eq {productId}"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProductVariantAttributeCombination>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<bool> DeleteProductVariantAttributeCombination(int productId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("DELETE"), $"{_b2BSetting.Url}/productvariantattributecombinations({productId})"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        public async Task<SmartstoreProductVariantAttributeCombination?> ProductvariantattributecombinationsTransfer(SmartstoreProductVariantAttributeCombination productVariantAttributeValue)
+        {
+            var json = JsonConvert.SerializeObject(productVariantAttributeValue);
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"{_b2BSetting.Url}/productvariantattributecombinations"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    request.Content = new StringContent(json);
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreProductVariantAttributeCombination>(result);
+                    }
+                    else
+                    {
                         return null;
                     }
                 }

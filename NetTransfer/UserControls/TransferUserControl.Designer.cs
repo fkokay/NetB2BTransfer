@@ -36,13 +36,15 @@
             gridColumn2 = new DevExpress.XtraGrid.Columns.GridColumn();
             panelControl1 = new DevExpress.XtraEditors.PanelControl();
             btnTransfer = new DevExpress.XtraEditors.SimpleButton();
-            cmbTransferType = new System.Windows.Forms.ComboBox();
+            labelControl1 = new DevExpress.XtraEditors.LabelControl();
+            cmbTransferType = new DevExpress.XtraEditors.ComboBoxEdit();
             ((System.ComponentModel.ISupportInitialize)groupControl1).BeginInit();
             groupControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)gridControlLog).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridViewLog).BeginInit();
             ((System.ComponentModel.ISupportInitialize)panelControl1).BeginInit();
             panelControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)cmbTransferType.Properties).BeginInit();
             SuspendLayout();
             // 
             // groupControl1
@@ -73,6 +75,7 @@
             gridViewLog.GridControl = gridControlLog;
             gridViewLog.Name = "gridViewLog";
             gridViewLog.OptionsView.ShowGroupPanel = false;
+            gridViewLog.RowCountChanged += gridViewLog_RowCountChanged;
             // 
             // gridColumn1
             // 
@@ -112,8 +115,9 @@
             // 
             // panelControl1
             // 
-            panelControl1.Controls.Add(btnTransfer);
             panelControl1.Controls.Add(cmbTransferType);
+            panelControl1.Controls.Add(labelControl1);
+            panelControl1.Controls.Add(btnTransfer);
             panelControl1.Dock = System.Windows.Forms.DockStyle.Top;
             panelControl1.Location = new System.Drawing.Point(2, 28);
             panelControl1.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
@@ -123,23 +127,31 @@
             // 
             // btnTransfer
             // 
-            btnTransfer.Location = new System.Drawing.Point(387, 14);
+            btnTransfer.Location = new System.Drawing.Point(387, 5);
             btnTransfer.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
             btnTransfer.Name = "btnTransfer";
-            btnTransfer.Size = new System.Drawing.Size(118, 36);
+            btnTransfer.Size = new System.Drawing.Size(118, 45);
             btnTransfer.TabIndex = 1;
             btnTransfer.Text = "Aktar";
             btnTransfer.Click += btnTransfer_Click;
             // 
+            // labelControl1
+            // 
+            labelControl1.Location = new System.Drawing.Point(24, 5);
+            labelControl1.Name = "labelControl1";
+            labelControl1.Size = new System.Drawing.Size(75, 16);
+            labelControl1.TabIndex = 2;
+            labelControl1.Text = "Aktarım Türü";
+            // 
             // cmbTransferType
             // 
-            cmbTransferType.FormattingEnabled = true;
-            cmbTransferType.Items.AddRange(new object[] { "Cari Aktarım", "Cari Bakiye Aktarım", "Malzeme Aktarım", "Malzeme Stok Aktarım", "Malzeme Fiyat Aktarım", "Sipariş Aktarım", "SanalPos Aktarım" });
-            cmbTransferType.Location = new System.Drawing.Point(26, 20);
-            cmbTransferType.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            cmbTransferType.Location = new System.Drawing.Point(24, 27);
             cmbTransferType.Name = "cmbTransferType";
-            cmbTransferType.Size = new System.Drawing.Size(355, 24);
-            cmbTransferType.TabIndex = 0;
+            cmbTransferType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            cmbTransferType.Properties.NullText = "Aktarım Türü Seçiniz";
+            cmbTransferType.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            cmbTransferType.Size = new System.Drawing.Size(342, 22);
+            cmbTransferType.TabIndex = 3;
             // 
             // TransferUserControl
             // 
@@ -156,6 +168,8 @@
             ((System.ComponentModel.ISupportInitialize)gridViewLog).EndInit();
             ((System.ComponentModel.ISupportInitialize)panelControl1).EndInit();
             panelControl1.ResumeLayout(false);
+            panelControl1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)cmbTransferType.Properties).EndInit();
             ResumeLayout(false);
         }
 
@@ -163,12 +177,13 @@
 
         private DevExpress.XtraEditors.GroupControl groupControl1;
         private DevExpress.XtraEditors.PanelControl panelControl1;
-        private System.Windows.Forms.ComboBox cmbTransferType;
         private DevExpress.XtraEditors.SimpleButton btnTransfer;
         private DevExpress.XtraGrid.GridControl gridControlLog;
         private DevExpress.XtraGrid.Views.Grid.GridView gridViewLog;
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn1;
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn3;
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn2;
+        private DevExpress.XtraEditors.LabelControl labelControl1;
+        private DevExpress.XtraEditors.ComboBoxEdit cmbTransferType;
     }
 }

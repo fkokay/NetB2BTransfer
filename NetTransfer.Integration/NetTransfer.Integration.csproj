@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.IO.Hashing" Version="9.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NetTransfer.B2B.Library\NetTransfer.B2B.Library.csproj" />
     <ProjectReference Include="..\NetTransfer.Core\NetTransfer.Core.csproj" />
     <ProjectReference Include="..\NetTransfer.Logo.Library\NetTransfer.Logo.Library.csproj" />

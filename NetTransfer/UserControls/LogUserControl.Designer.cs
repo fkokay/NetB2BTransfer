@@ -35,15 +35,28 @@
             gridColumn1 = new DevExpress.XtraGrid.Columns.GridColumn();
             gridColumn3 = new DevExpress.XtraGrid.Columns.GridColumn();
             gridColumn2 = new DevExpress.XtraGrid.Columns.GridColumn();
+            panelControl1 = new DevExpress.XtraEditors.PanelControl();
+            labelControl2 = new DevExpress.XtraEditors.LabelControl();
+            btnFilter = new DevExpress.XtraEditors.SimpleButton();
+            labelControl1 = new DevExpress.XtraEditors.LabelControl();
+            txtDate = new DevExpress.XtraEditors.DateEdit();
+            txtTime = new DevExpress.XtraEditors.TimeEdit();
+            btnClear = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)groupControl1).BeginInit();
             groupControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)gridControlLog).BeginInit();
             ((System.ComponentModel.ISupportInitialize)gridViewLog).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)panelControl1).BeginInit();
+            panelControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)txtDate.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtDate.Properties.CalendarTimeProperties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtTime.Properties).BeginInit();
             SuspendLayout();
             // 
             // groupControl1
             // 
             groupControl1.Controls.Add(gridControlLog);
+            groupControl1.Controls.Add(panelControl1);
             groupControl1.Dock = System.Windows.Forms.DockStyle.Fill;
             groupControl1.Location = new System.Drawing.Point(0, 0);
             groupControl1.Name = "groupControl1";
@@ -54,10 +67,10 @@
             // gridControlLog
             // 
             gridControlLog.Dock = System.Windows.Forms.DockStyle.Fill;
-            gridControlLog.Location = new System.Drawing.Point(2, 28);
+            gridControlLog.Location = new System.Drawing.Point(2, 123);
             gridControlLog.MainView = gridViewLog;
             gridControlLog.Name = "gridControlLog";
-            gridControlLog.Size = new System.Drawing.Size(1104, 557);
+            gridControlLog.Size = new System.Drawing.Size(1104, 462);
             gridControlLog.TabIndex = 0;
             gridControlLog.ViewCollection.AddRange(new DevExpress.XtraGrid.Views.Base.BaseView[] { gridViewLog });
             // 
@@ -67,6 +80,7 @@
             gridViewLog.GridControl = gridControlLog;
             gridViewLog.Name = "gridViewLog";
             gridViewLog.OptionsView.ShowGroupPanel = false;
+            gridViewLog.RowCountChanged += gridViewLog_RowCountChanged;
             // 
             // gridColumn4
             // 
@@ -114,6 +128,89 @@
             gridColumn2.VisibleIndex = 3;
             gridColumn2.Width = 133;
             // 
+            // panelControl1
+            // 
+            panelControl1.Controls.Add(btnClear);
+            panelControl1.Controls.Add(labelControl2);
+            panelControl1.Controls.Add(btnFilter);
+            panelControl1.Controls.Add(labelControl1);
+            panelControl1.Controls.Add(txtDate);
+            panelControl1.Controls.Add(txtTime);
+            panelControl1.Dock = System.Windows.Forms.DockStyle.Top;
+            panelControl1.Location = new System.Drawing.Point(2, 28);
+            panelControl1.Name = "panelControl1";
+            panelControl1.Size = new System.Drawing.Size(1104, 95);
+            panelControl1.TabIndex = 1;
+            // 
+            // labelControl2
+            // 
+            labelControl2.Location = new System.Drawing.Point(57, 53);
+            labelControl2.Name = "labelControl2";
+            labelControl2.Size = new System.Drawing.Size(26, 16);
+            labelControl2.TabIndex = 4;
+            labelControl2.Text = "Saat";
+            // 
+            // btnFilter
+            // 
+            btnFilter.Location = new System.Drawing.Point(381, 25);
+            btnFilter.Name = "btnFilter";
+            btnFilter.Size = new System.Drawing.Size(118, 47);
+            btnFilter.TabIndex = 2;
+            btnFilter.Text = "Filtrele";
+            btnFilter.Click += btnFilter_Click;
+            // 
+            // labelControl1
+            // 
+            labelControl1.Location = new System.Drawing.Point(57, 25);
+            labelControl1.Name = "labelControl1";
+            labelControl1.Size = new System.Drawing.Size(30, 16);
+            labelControl1.TabIndex = 0;
+            labelControl1.Text = "Tarih";
+            // 
+            // txtDate
+            // 
+            txtDate.EditValue = null;
+            txtDate.Location = new System.Drawing.Point(93, 22);
+            txtDate.Name = "txtDate";
+            txtDate.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            txtDate.Properties.CalendarTimeProperties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            txtDate.Properties.DisplayFormat.FormatString = "dd.MM.yyyy";
+            txtDate.Properties.DisplayFormat.FormatType = DevExpress.Utils.FormatType.DateTime;
+            txtDate.Properties.EditFormat.FormatString = "dd.MM.yyyy";
+            txtDate.Properties.EditFormat.FormatType = DevExpress.Utils.FormatType.DateTime;
+            txtDate.Properties.EditValueChangedFiringMode = DevExpress.XtraEditors.Controls.EditValueChangedFiringMode.Buffered;
+            txtDate.Properties.MaskSettings.Set("mask", "dd.MM.yyyy");
+            txtDate.Size = new System.Drawing.Size(270, 22);
+            txtDate.TabIndex = 3;
+            // 
+            // txtTime
+            // 
+            txtTime.EditValue = null;
+            txtTime.Location = new System.Drawing.Point(93, 50);
+            txtTime.Name = "txtTime";
+            txtTime.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            txtTime.Properties.DisplayFormat.FormatString = "HH:mm";
+            txtTime.Properties.DisplayFormat.FormatType = DevExpress.Utils.FormatType.DateTime;
+            txtTime.Properties.EditFormat.FormatString = "hh:mm";
+            txtTime.Properties.EditFormat.FormatType = DevExpress.Utils.FormatType.DateTime;
+            txtTime.Properties.MaskSettings.Set("mask", "HH:mm");
+            txtTime.Properties.TimeEditStyle = DevExpress.XtraEditors.Repository.TimeEditStyle.TouchUI;
+            txtTime.Size = new System.Drawing.Size(270, 22);
+            txtTime.TabIndex = 5;
+            // 
+            // btnClear
+            // 
+            btnClear.Appearance.BackColor = System.Drawing.Color.FromArgb(255, 128, 128);
+            btnClear.Appearance.ForeColor = System.Drawing.Color.White;
+            btnClear.Appearance.Options.UseBackColor = true;
+            btnClear.Appearance.Options.UseForeColor = true;
+            btnClear.Location = new System.Drawing.Point(505, 25);
+            btnClear.Name = "btnClear";
+            btnClear.Size = new System.Drawing.Size(118, 47);
+            btnClear.TabIndex = 6;
+            btnClear.Text = "Temizle";
+            btnClear.Click += btnClear_Click;
+            // 
             // LogUserControl
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
@@ -126,6 +223,12 @@
             groupControl1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)gridControlLog).EndInit();
             ((System.ComponentModel.ISupportInitialize)gridViewLog).EndInit();
+            ((System.ComponentModel.ISupportInitialize)panelControl1).EndInit();
+            panelControl1.ResumeLayout(false);
+            panelControl1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)txtDate.Properties.CalendarTimeProperties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtDate.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtTime.Properties).EndInit();
             ResumeLayout(false);
         }
 
@@ -138,5 +241,12 @@
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn3;
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn2;
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn4;
+        private DevExpress.XtraEditors.PanelControl panelControl1;
+        private DevExpress.XtraEditors.SimpleButton btnFilter;
+        private DevExpress.XtraEditors.LabelControl labelControl1;
+        private DevExpress.XtraEditors.LabelControl labelControl2;
+        private DevExpress.XtraEditors.DateEdit txtDate;
+        private DevExpress.XtraEditors.TimeEdit txtTime;
+        private DevExpress.XtraEditors.SimpleButton btnClear;
     }
 }

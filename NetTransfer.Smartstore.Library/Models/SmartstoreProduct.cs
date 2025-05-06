@@ -9,6 +9,8 @@ namespace NetTransfer.Smartstore.Library.Models
 {
     public class SmartstoreProduct
     {
+     
+
         [JsonProperty("ProductTypeId")]
         public int ProductTypeId { get; set; }
 
@@ -354,6 +356,12 @@ namespace NetTransfer.Smartstore.Library.Models
 
         [JsonIgnore]
         public List<SmartstoreFile> Files { get; set; } = new List<SmartstoreFile>();
-
+        public List<SmartstoreProductAttribute> ProductAttributes { get; set; } = new List<SmartstoreProductAttribute>();
+        [JsonIgnore]
+        public List<SmartstoreProductVariantAttributeCombination> ProductVariantAttributeCombinations { get; set; } = new List<SmartstoreProductVariantAttributeCombination>();
+        [JsonIgnore]
+        public List<SmartstoreProductVariantAttributeValue> ProductVariantAttributeValues { get; set; } = new List<SmartstoreProductVariantAttributeValue>();
+        [JsonIgnore]
+        public List<SmartstoreProductVariantAttribute> ProductVariantAttributes { get; set; } = new List<SmartstoreProductVariantAttribute>();
     }
 }

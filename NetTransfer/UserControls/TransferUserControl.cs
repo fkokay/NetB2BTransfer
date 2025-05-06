@@ -1,5 +1,7 @@
 ﻿using DevExpress.Data;
 using DevExpress.XtraEditors;
+using DevExpress.XtraGrid;
+using DevExpress.XtraGrid.Views.Grid;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.EventLog;
@@ -17,6 +19,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.Drawing;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,7 +43,7 @@ namespace NetTransfer.UserControls
             InitializeComponent();
             var loggerFactory = LoggerFactory.Create(builder =>
             {
-                builder.AddEventLog(settings=>
+                builder.AddEventLog(settings =>
                 {
                     settings.SourceName = "NetTransfer";
                 });
@@ -56,11 +59,11 @@ namespace NetTransfer.UserControls
             Transfer transfer = null;
             if (_b2BSetting.VirtualStore == "B2B")
             {
-                transfer = new Transfer(_logger, _erpSetting, _b2BSetting,_b2BParameter);
+                transfer = new Transfer(_logger, _erpSetting, _b2BSetting, _b2BParameter);
             }
             if (_b2BSetting.VirtualStore == "Smartstore")
             {
-                transfer = new Transfer(_logger, _erpSetting, _b2BSetting,_smartstoreParameter);
+                transfer = new Transfer(_logger, _erpSetting, _b2BSetting, _smartstoreParameter);
             }
 
             if (string.IsNullOrEmpty(cmbTransferType.SelectedItem.ToString()))
@@ -107,40 +110,46 @@ namespace NetTransfer.UserControls
 
         private async void TransferUserControl_Load(object sender, EventArgs e)
         {
-            _logger.LogInformation("Transfer ayarları yükleniyor. Datetime : {time}", DateTimeOffset.Now);
-
             _erpSetting = await _context.ErpSetting.FirstAsync();
             _b2BSetting = await _context.VirtualStoreSetting.FirstAsync();
 
 
-            cmbTransferType.Items.Clear();
+            cmbTransferType.Properties.Items.Clear();
             if (_b2BSetting.VirtualStore == "B2B")
             {
                 _b2BParameter = _context.B2BParameter.FirstOrDefault();
-                cmbTransferType.Items.AddRange(
-                    "Cari Aktarım",
-                    "Cari Bakiye Aktarım",
-                    "Malzeme Aktarım",
-                    "Malzeme Stok Aktarım",
-                    "Malzeme Fiyat Aktarım",
-                    "Sipariş Aktarım",
-                    "SanalPos Aktarım"
+                cmbTransferType.Properties.Items.AddRange(
+                    new string[]
+                    {
+                        "Cari Aktarım",
+                        "Cari Bakiye Aktarım",
+                        "Malzeme Aktarım",
+                        "Malzeme Stok Aktarım",
+                        "Malzeme Fiyat Aktarım",
+                        "Sipariş Aktarım",
+                        "SanalPos Aktarım"
+                    }
                 );
             }
 
             if (_b2BSetting.VirtualStore == "Smartstore")
             {
                 _smartstoreParameter = _context.SmartstoreParameter.FirstOrDefault();
-                cmbTransferType.Items.AddRange(
-                   "Malzeme Aktarım",
-                   "Malzeme Stok Aktarım",
-                   "Malzeme Fiyat Aktarım"
+                cmbTransferType.Properties.Items.AddRange(
+                   new string[]
+                   {
+                    "Malzeme Aktarım",
+                    "Malzeme Stok Aktarım",
+                    "Malzeme Fiyat Aktarım"
+                   }
                );
             }
         }
 
+        private DateTime startDateTime;
         private void LogStart()
         {
+            startDateTime = DateTime.Now;
             RealTimeSource realTimeSource = new RealTimeSource()
             {
                 DataSource = logs
@@ -170,7 +179,7 @@ namespace NetTransfer.UserControls
 
         private void LoadLog()
         {
-            string filter = "*[System/Provider/@Name=\"NetTransfer\"]";
+            string filter = "*[System/Provider/@Name=\"NetTransfer\"] and *[System[TimeCreated[@SystemTime >= '" + startDateTime.ToUniversalTime().ToString("o") + "']]]";
             EventLogQuery query = new EventLogQuery("Application", PathType.LogName, filter);
             EventLogReader reader = new EventLogReader(query);
 
@@ -180,7 +189,7 @@ namespace NetTransfer.UserControls
                 {
 
                     var message = eventRecord.FormatDescription().Split("\n");
-                    logs.Add(new Log()
+                    logs.Insert(0, new Log()
                     {
                         Source = eventRecord.ProviderName,
                         EventId = eventRecord.RecordId.ToString(),
@@ -188,9 +197,19 @@ namespace NetTransfer.UserControls
                         EventMessage = message[message.Length == 1 ? 0 : 3],
                         EventTime = eventRecord.TimeCreated.Value
                     });
+
+
                 }
             }
 
+        }
+
+        private void gridViewLog_RowCountChanged(object sender, EventArgs e)
+        {
+            gridViewLog.BeginUpdate();
+            gridViewLog.FocusedRowHandle = 0;
+            gridViewLog.TopRowIndex = 0;
+            gridViewLog.EndUpdate();
         }
     }
 }
