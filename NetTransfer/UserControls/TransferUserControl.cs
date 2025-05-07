@@ -30,96 +30,34 @@ namespace NetTransfer.UserControls
 {
     public partial class TransferUserControl : DevExpress.XtraEditors.XtraUserControl
     {
+        private NetTransferContext _context;
+        private ILoggerFactory _loggerFactory;
         private ILogger _logger;
-        private DateTime startDatetime;
-        private CancellationTokenSource cancellation = new CancellationTokenSource();
-        private BindingList<Log> logs = new BindingList<Log>();
+        private Transfer transfer;
 
-        private readonly NetTransferContext _context;
+        private DateTime startDatetime;
+
+        private CancellationTokenSource cancellationLog = new CancellationTokenSource();
+        private CancellationTokenSource cancellationTransfer = new CancellationTokenSource();
+        private BindingList<Log> logs = new BindingList<Log>();
         private ErpSetting _erpSetting;
         private VirtualStoreSetting _b2BSetting;
         private B2BParameter _b2BParameter;
         private SmartstoreParameter _smartstoreParameter;
+
+
         public TransferUserControl()
         {
             InitializeComponent();
-            var loggerFactory = LoggerFactory.Create(builder =>
-            {
-                builder.AddEventLog(settings =>
-                {
-                    settings.SourceName = "NetTransfer";
-                });
-            });
-
-            _logger = loggerFactory.CreateLogger<TransferUserControl>();
-
-            _context = new NetTransferContext(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+            InitializeLogger();
+            InitializeContext();
+            InitializeTransfer();
         }
 
-        private async void btnTransfer_Click(object sender, EventArgs e)
-        {
-            Transfer transfer = null;
-            if (_b2BSetting.VirtualStore == "B2B")
-            {
-                transfer = new Transfer(_logger, _erpSetting, _b2BSetting, _b2BParameter);
-            }
-            if (_b2BSetting.VirtualStore == "Smartstore")
-            {
-                transfer = new Transfer(_logger, _erpSetting, _b2BSetting, _smartstoreParameter);
-            }
-
-            if (string.IsNullOrEmpty(cmbTransferType.SelectedItem.ToString()))
-            {
-                MessageBox.Show("Lütfen aktarım türünü seçiniz.");
-                return;
-            }
-
-            LogStart();
-            if (transfer != null)
-            {
-                if (cmbTransferType.SelectedItem.ToString() == "Cari Aktarım")
-                {
-                    await transfer.CariTransfer();
-                }
-                else if (cmbTransferType.SelectedItem.ToString() == "Cari Bakiye Aktarım")
-                {
-                    await transfer.CariBakiyeTransfer();
-                }
-                else if (cmbTransferType.SelectedItem.ToString() == "Malzeme Aktarım")
-                {
-                    await transfer.MalzemeTransfer();
-                }
-                else if (cmbTransferType.SelectedItem.ToString() == "Malzeme Stok Aktarım")
-                {
-                    await transfer.MalzemeStokTransfer();
-                }
-                else if (cmbTransferType.SelectedItem.ToString() == "Malzeme Fiyat Aktarım")
-                {
-                    await transfer.MalzemeFiyatTransfer();
-                }
-                else if (cmbTransferType.SelectedItem.ToString() == "Sipariş Aktarım")
-                {
-                    await transfer.SiparisTransfer();
-                }
-                else if (cmbTransferType.SelectedItem.ToString() == "SanalPos Aktarım")
-                {
-                    await transfer.SanalPosTransfer();
-                }
-            }
-
-            LogStop();
-        }
-
-        private void LogStop()
-        {
-            cancellation.Cancel();
-        }
-
-        private async void TransferUserControl_Load(object sender, EventArgs e)
+        private async void InitializeTransfer()
         {
             _erpSetting = await _context.ErpSetting.FirstAsync();
             _b2BSetting = await _context.VirtualStoreSetting.FirstAsync();
-
 
             cmbTransferType.Properties.Items.Clear();
             if (_b2BSetting.VirtualStore == "B2B")
@@ -137,6 +75,8 @@ namespace NetTransfer.UserControls
                         "SanalPos Aktarım"
                     }
                 );
+
+                transfer = new Transfer(_logger, _erpSetting, _b2BSetting, _b2BParameter);
             }
 
             if (_b2BSetting.VirtualStore == "Smartstore")
@@ -150,7 +90,108 @@ namespace NetTransfer.UserControls
                     "Malzeme Fiyat Aktarım"
                    }
                );
+
+                transfer = new Transfer(_logger, _erpSetting, _b2BSetting, _smartstoreParameter);
             }
+        }
+
+        private void InitializeContext()
+        {
+            _context = new NetTransferContext(ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString);
+        }
+
+        private void InitializeLogger()
+        {
+            _loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddEventLog(settings =>
+                {
+                    settings.SourceName = "NetTransfer";
+                });
+            });
+            _logger = _loggerFactory.CreateLogger<TransferUserControl>();
+        }
+
+        private async void btnTransfer_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrEmpty(cmbTransferType.SelectedItem.ToString()))
+            {
+                MessageBox.Show("Lütfen aktarım türünü seçiniz.");
+                return;
+            }
+
+            LogStart();
+
+            btnCancel.Enabled = true;
+            btnTransfer.Enabled = false;
+            if (transfer != null)
+            {
+                if (cmbTransferType.SelectedItem.ToString() == "Cari Aktarım")
+                {
+                    await Task.Run(async () =>
+                    {
+                        await transfer.CariTransfer();
+                    }, cancellationTransfer.Token);
+                }
+                else if (cmbTransferType.SelectedItem.ToString() == "Cari Bakiye Aktarım")
+                {
+                    await Task.Run(async () =>
+                    {
+                        await transfer.CariBakiyeTransfer();
+                    }, cancellationTransfer.Token);
+                }
+                else if (cmbTransferType.SelectedItem.ToString() == "Malzeme Aktarım")
+                {
+                    await Task.Run(async () =>
+                    {
+                        await transfer.MalzemeTransfer();
+                    }, cancellationTransfer.Token);
+                }
+                else if (cmbTransferType.SelectedItem.ToString() == "Malzeme Stok Aktarım")
+                {
+                    await Task.Run(async () =>
+                    {
+                        await transfer.MalzemeStokTransfer();
+                    }, cancellationTransfer.Token);
+                }
+                else if (cmbTransferType.SelectedItem.ToString() == "Malzeme Fiyat Aktarım")
+                {
+                    await Task.Run(async () =>
+                    {
+                        await transfer.MalzemeFiyatTransfer();
+                    }, cancellationTransfer.Token);
+                }
+                else if (cmbTransferType.SelectedItem.ToString() == "Sipariş Aktarım")
+                {
+                    await Task.Run(async () =>
+                    {
+                        await transfer.MalzemeStokTransfer();
+                    }, cancellationTransfer.Token);
+                }
+                else if (cmbTransferType.SelectedItem.ToString() == "SanalPos Aktarım")
+                {
+                    await Task.Run(async () =>
+                    {
+                        await transfer.SanalPosTransfer();
+                    }, cancellationTransfer.Token);
+                }
+            }
+            btnCancel.Enabled = false;
+            btnTransfer.Enabled = true;
+
+
+            LogStop();
+        }
+
+        private void LogStop()
+        {
+            cancellationLog.Cancel();
+        }
+
+        private void TransferUserControl_Load(object sender, EventArgs e)
+        {
+            btnCancel.Enabled = false;
+            btnTransfer.Enabled = true;
         }
 
         private void LogStart()
@@ -167,7 +208,7 @@ namespace NetTransfer.UserControls
             Task.Run(() =>
             {
                 LoadLog();
-            }, cancellation.Token);
+            }, cancellationLog.Token);
         }
 
         private void LoadLog()
@@ -208,6 +249,25 @@ namespace NetTransfer.UserControls
             gridViewLog.FocusedRowHandle = 0;
             gridViewLog.TopRowIndex = 0;
             gridViewLog.EndUpdate();
+        }
+
+        public bool IsTransfer()
+        {
+            if (cancellationTransfer.IsCancellationRequested)
+            {
+                return false;
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            cancellationTransfer.Cancel();
+            btnCancel.Enabled = false;
+            btnTransfer.Enabled = true;
         }
     }
 }

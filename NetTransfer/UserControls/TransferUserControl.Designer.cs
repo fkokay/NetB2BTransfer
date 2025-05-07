@@ -35,9 +35,10 @@
             gridColumn3 = new DevExpress.XtraGrid.Columns.GridColumn();
             gridColumn2 = new DevExpress.XtraGrid.Columns.GridColumn();
             panelControl1 = new DevExpress.XtraEditors.PanelControl();
-            btnTransfer = new DevExpress.XtraEditors.SimpleButton();
-            labelControl1 = new DevExpress.XtraEditors.LabelControl();
             cmbTransferType = new DevExpress.XtraEditors.ComboBoxEdit();
+            labelControl1 = new DevExpress.XtraEditors.LabelControl();
+            btnTransfer = new DevExpress.XtraEditors.SimpleButton();
+            btnCancel = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)groupControl1).BeginInit();
             groupControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)gridControlLog).BeginInit();
@@ -115,6 +116,7 @@
             // 
             // panelControl1
             // 
+            panelControl1.Controls.Add(btnCancel);
             panelControl1.Controls.Add(cmbTransferType);
             panelControl1.Controls.Add(labelControl1);
             panelControl1.Controls.Add(btnTransfer);
@@ -124,6 +126,24 @@
             panelControl1.Name = "panelControl1";
             panelControl1.Size = new System.Drawing.Size(1470, 66);
             panelControl1.TabIndex = 0;
+            // 
+            // cmbTransferType
+            // 
+            cmbTransferType.Location = new System.Drawing.Point(24, 27);
+            cmbTransferType.Name = "cmbTransferType";
+            cmbTransferType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            cmbTransferType.Properties.NullText = "Aktarım Türü Seçiniz";
+            cmbTransferType.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
+            cmbTransferType.Size = new System.Drawing.Size(342, 22);
+            cmbTransferType.TabIndex = 3;
+            // 
+            // labelControl1
+            // 
+            labelControl1.Location = new System.Drawing.Point(24, 5);
+            labelControl1.Name = "labelControl1";
+            labelControl1.Size = new System.Drawing.Size(75, 16);
+            labelControl1.TabIndex = 2;
+            labelControl1.Text = "Aktarım Türü";
             // 
             // btnTransfer
             // 
@@ -135,23 +155,15 @@
             btnTransfer.Text = "Aktar";
             btnTransfer.Click += btnTransfer_Click;
             // 
-            // labelControl1
+            // btnCancel
             // 
-            labelControl1.Location = new System.Drawing.Point(24, 5);
-            labelControl1.Name = "labelControl1";
-            labelControl1.Size = new System.Drawing.Size(75, 16);
-            labelControl1.TabIndex = 2;
-            labelControl1.Text = "Aktarım Türü";
-            // 
-            // cmbTransferType
-            // 
-            cmbTransferType.Location = new System.Drawing.Point(24, 27);
-            cmbTransferType.Name = "cmbTransferType";
-            cmbTransferType.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
-            cmbTransferType.Properties.NullText = "Aktarım Türü Seçiniz";
-            cmbTransferType.Properties.TextEditStyle = DevExpress.XtraEditors.Controls.TextEditStyles.DisableTextEditor;
-            cmbTransferType.Size = new System.Drawing.Size(342, 22);
-            cmbTransferType.TabIndex = 3;
+            btnCancel.Location = new System.Drawing.Point(513, 4);
+            btnCancel.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new System.Drawing.Size(118, 45);
+            btnCancel.TabIndex = 4;
+            btnCancel.Text = "İptal Et";
+            btnCancel.Click += btnCancel_Click;
             // 
             // TransferUserControl
             // 
@@ -185,5 +197,6 @@
         private DevExpress.XtraGrid.Columns.GridColumn gridColumn2;
         private DevExpress.XtraEditors.LabelControl labelControl1;
         private DevExpress.XtraEditors.ComboBoxEdit cmbTransferType;
+        private DevExpress.XtraEditors.SimpleButton btnCancel;
     }
 }
