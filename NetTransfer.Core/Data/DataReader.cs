@@ -10,11 +10,11 @@ namespace NetTransfer.Core.Data
 {
     public class DataReader
     {
-        public static List<T> ReadData<T>(string queryString, ref string errorMessage)
+        public static List<T> ReadData<T>(string connectionString, string queryString, ref string errorMessage)
         {
             try
             {
-                using (var connection = new SqlConnection("Data Source=(local);Initial Catalog=HUNERIS;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=sapass;Trust Server Certificate=True;"))
+                using (var connection = new SqlConnection(connectionString))
                 {
                     return connection.Query<T>(queryString, commandTimeout: 9999999).ToList();
                 }

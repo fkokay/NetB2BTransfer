@@ -197,11 +197,11 @@ namespace NetTransfer.Integration
                         malzemeList = logoService.GetMalzemeList(ref errorMessage);
                         break;
                     case "Netsis":
-                        NetsisService netsisService = new NetsisService();
+                        NetsisService netsisService = new NetsisService(_erpSetting);
                         malzemeList = netsisService.GetMalzemeList(ref errorMessage);
                         break;
                     case "Opak":
-                        OpakService opakService = new OpakService();
+                        OpakService opakService = new OpakService(_erpSetting);
                         malzemeList = opakService.GetMalzemeList(ref errorMessage);
                         break;
                     default:
@@ -261,7 +261,7 @@ namespace NetTransfer.Integration
                         malzemeStokList = logoService.GetMalzemeStokList(ref errorMessage);
                         break;
                     case "Netsis":
-                        NetsisService service = new NetsisService();
+                        NetsisService service = new NetsisService(_erpSetting);
                         malzemeStokList = service.GetMalzemeStokList(ref errorMessage);
                         break;
                     case "Opak":
@@ -307,7 +307,7 @@ namespace NetTransfer.Integration
                         malzemeFiyatList = logoService.GetMalzemeFiyatList(ref errorMessage);
                         break;
                     case "Netsis":
-                        NetsisService service = new NetsisService();
+                        NetsisService service = new NetsisService(_erpSetting);
                         malzemeFiyatList = service.GetMalzemeFiyatList(ref errorMessage);
                         break;
                     case "Opak":

@@ -18,6 +18,8 @@ namespace NetTransfer.Integration.Erp
 {
     public class LogoService(ErpSetting erpSetting, B2BParameter b2BParameter)
     {
+        private readonly string connectionString = $"Data Source={erpSetting.SqlServer};Initial Catalog={erpSetting.SqlDatabase};Integrated Security=False;Persist Security Info=False;User ID={erpSetting.SqlUser};Password={erpSetting.SqlPassword};Trust Server Certificate=True;";
+
         public List<LogoMusteriModel> GetArps(ref string errorMessage)
         {
             LogoQueryParam param = new LogoQueryParam
@@ -37,7 +39,7 @@ namespace NetTransfer.Integration.Erp
                 param.filter += " AND ((CLCARD.CAPIBLOCK_CREADEDDATE >= '" + b2BParameter.CustomerLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NULL) OR (CLCARD.CAPIBLOCK_MODIFIEDDATE >= '" + b2BParameter.CustomerLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NOT NULL)) ";
             }
 
-            var arpList = DataReader.ReadData<LogoMusteriModel>(LogoQuery.GetArpQuery(param), ref errorMessage);
+            var arpList = DataReader.ReadData<LogoMusteriModel>(connectionString, LogoQuery.GetArpQuery(param), ref errorMessage);
 
             if (!string.IsNullOrEmpty(errorMessage))
                 throw new Exception(errorMessage);
@@ -58,7 +60,7 @@ namespace NetTransfer.Integration.Erp
                 ascdesc = "ASC",
             };
 
-            var arpList = DataReader.ReadData<LogoMusteriModel>(LogoQuery.GetArpQuery(param), ref errorMessage);
+            var arpList = DataReader.ReadData<LogoMusteriModel>(connectionString, LogoQuery.GetArpQuery(param), ref errorMessage);
 
             if (!string.IsNullOrEmpty(errorMessage))
                 throw new Exception(errorMessage);
@@ -84,7 +86,7 @@ namespace NetTransfer.Integration.Erp
                 param.filter += " AND ((ITEMS.CAPIBLOCK_CREADEDDATE >= '" + b2BParameter.ProductLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND ITEMS.CAPIBLOCK_MODIFIEDDATE IS NULL) OR (ITEMS.CAPIBLOCK_MODIFIEDDATE >= '" + b2BParameter.ProductLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND ITEMS.CAPIBLOCK_MODIFIEDDATE IS NOT NULL)) ";
             }
 
-            var data = DataReader.ReadData<ItemModel>(LogoQuery.GetItemsQuery(param), ref errorMessage);
+            var data = DataReader.ReadData<ItemModel>(connectionString, LogoQuery.GetItemsQuery(param), ref errorMessage);
 
             return data;
         }
@@ -104,7 +106,7 @@ namespace NetTransfer.Integration.Erp
                 ascdesc = "ASC",
             };
 
-            var data = DataReader.ReadData<ItemModel>(LogoQuery.GetItemStockQuery(param), ref errorMessage);
+            var data = DataReader.ReadData<ItemModel>(connectionString, LogoQuery.GetItemStockQuery(param), ref errorMessage);
 
             if (data == null)
             {
@@ -140,7 +142,7 @@ namespace NetTransfer.Integration.Erp
                 ascdesc = "ASC",
             };
 
-            var data = DataReader.ReadData<ItemPriceModel>(LogoQuery.GetItemsPriceQuery(param), ref errorMessage);
+            var data = DataReader.ReadData<ItemPriceModel>(connectionString, LogoQuery.GetItemsPriceQuery(param), ref errorMessage);
 
             if (data == null)
             {
@@ -185,7 +187,7 @@ namespace NetTransfer.Integration.Erp
                                       "     @createDBY, " +
                                       "     @id OUTPUT; " +  // OUTPUT parametresi burada tanımlı
                                       "SELECT @id AS SiparisKayitID; ";
-                using (var connect = new SqlConnection("Data Source=(local);Initial Catalog=LOGODB;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=sapass;Trust Server Certificate=True;"))
+                using (var connect = new SqlConnection(connectionString))
                 {
                     using (var cmd = new SqlCommand(query, connect) { CommandTimeout = 9999999 })
                     {
@@ -253,7 +255,7 @@ namespace NetTransfer.Integration.Erp
                                                   "     @PARENTLNREF, " +
                                                   "     @id OUTPUT; " +
                                                   "";
-                using (var connect = new SqlConnection("Data Source=(local);Initial Catalog=LOGODB;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=sapass;Trust Server Certificate=True;"))
+                using (var connect = new SqlConnection(connectionString))
                 {
                     using (var cmd = new SqlCommand(query, connect) { CommandTimeout = 9999999 })
                     {
@@ -321,7 +323,7 @@ namespace NetTransfer.Integration.Erp
                                                   "     @LINENET, " +
                                                   "     @PARENTLNREF " +
                                                   "";
-                using (var connect = new SqlConnection("Data Source=(local);Initial Catalog=LOGODB;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=sapass;Trust Server Certificate=True;"))
+                using (var connect = new SqlConnection(connectionString))
                 {
                     using (var cmd = new SqlCommand(query, connect) { CommandTimeout = 9999999 })
                     {

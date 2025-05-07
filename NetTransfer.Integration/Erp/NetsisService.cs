@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.SqlClient;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.Core.Data;
+using NetTransfer.Core.Entities;
 using NetTransfer.Core.Utils;
 using NetTransfer.Integration.Models;
 using NetTransfer.Netsis.Library.Class;
@@ -15,11 +16,14 @@ using System.Threading.Tasks;
 
 namespace NetTransfer.Integration.Erp
 {
-    public class NetsisService()
+    public class NetsisService(ErpSetting erpSetting)
     {
+        private readonly string connectionString = $"Data Source={erpSetting.SqlServer};Initial Catalog={erpSetting.SqlDatabase};Integrated Security=False;Persist Security Info=False;User ID={erpSetting.SqlUser};Password={erpSetting.SqlPassword};Trust Server Certificate=True;";
+
         public List<MalzemeModel>? GetMalzemeList(ref string errorMessage)
         {
-            var malzemeList = DataReader.ReadData<MalzemeModel>(NetsisQuery.GetMalzemeQuery(), ref errorMessage);
+
+            var malzemeList = DataReader.ReadData<MalzemeModel>(connectionString, NetsisQuery.GetMalzemeQuery(), ref errorMessage);
             if (malzemeList == null)
             {
                 return null;
@@ -27,7 +31,7 @@ namespace NetTransfer.Integration.Erp
 
             foreach (var item in malzemeList)
             {
-                item.EVRAK_LIST = DataReader.ReadData<EvrakModel>(NetsisQuery.GetEvrakQuery(item.STOK_KODU), ref errorMessage);
+                item.EVRAK_LIST = DataReader.ReadData<EvrakModel>(connectionString, NetsisQuery.GetEvrakQuery(item.STOK_KODU), ref errorMessage);
             }
 
             return malzemeList;
@@ -37,7 +41,7 @@ namespace NetTransfer.Integration.Erp
         {
             List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
 
-            var data = DataReader.ReadData<MalzemeFiyatModel>(NetsisQuery.GetMalzemeFiyatQuery(), ref errorMessage);
+            var data = DataReader.ReadData<MalzemeFiyatModel>(connectionString,NetsisQuery.GetMalzemeFiyatQuery(), ref errorMessage);
             if (data == null)
             {
                 return new List<BaseMalzemeFiyatModel>();
@@ -62,7 +66,7 @@ namespace NetTransfer.Integration.Erp
         {
             List<BaseMalzemeStokModel> malzemeStokList = new List<BaseMalzemeStokModel>();
 
-            var data = DataReader.ReadData<MalzemeStokModel>(NetsisQuery.GetMalzemeStokQuery(), ref errorMessage);
+            var data = DataReader.ReadData<MalzemeStokModel>(connectionString,NetsisQuery.GetMalzemeStokQuery(), ref errorMessage);
 
             if (data == null)
             {
