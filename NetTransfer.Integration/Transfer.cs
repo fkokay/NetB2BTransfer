@@ -18,6 +18,8 @@ using NetTransfer.Integration.Erp;
 using NetTransfer.Integration.Models;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.B2B.Library;
+using Microsoft.Data.SqlClient;
+using System.Data;
 
 namespace NetTransfer.Integration
 {
@@ -49,7 +51,7 @@ namespace NetTransfer.Integration
             _erpSetting = erpSetting;
             _b2bSetting = b2BSetting;
             _smartStoreClient = new SmartStoreClient(b2BSetting);
-            _smartstoreTransfer = new SmartstoreService(_logger,_smartStoreClient);
+            _smartstoreTransfer = new SmartstoreService(_logger, _smartStoreClient);
             _smartstoreParameter = smartstoreParameter;
         }
 
@@ -188,7 +190,7 @@ namespace NetTransfer.Integration
                 switch (_erpSetting.Erp)
                 {
                     case "Logo":
-                        LogoService logoService = new LogoService(_erpSetting,_b2bParameter);
+                        LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
                         malzemeList = logoService.GetMalzemeList(ref errorMessage);
                         break;
                     case "Netsis":
@@ -210,28 +212,19 @@ namespace NetTransfer.Integration
                         List<B2BUrun>? b2bList = _b2BTransfer.MappingProduct(_erpSetting.Erp, malzemeList);
                         if (b2bList == null)
                         {
-                            throw new Exception("Product mapping error");
+                            throw new Exception("B2B Product mapping error");
                         }
 
-                        int pageCount = PaginationBuilder.GetPageCount(b2bList, 100);
-                        for (int i = 1; i <= pageCount; i++)
+                        foreach (var item in b2bList)
                         {
-                            var result = await _b2BClient.MusteriBakiyeTransferAsync(PaginationBuilder.GetPage(b2bList, i, 100).ToList());
-                            if (result != null)
-                            {
-                                if (result.Code != 0)
-                                {
-                                    throw new Exception(result.Message);
-                                }
-                            }
+                            _ = await _b2BClient.UrunTransferAsync(item);
                         }
-
                         break;
                     case "Smartstore":
                         List<SmartstoreProduct>? smartStoreList = _smartstoreTransfer.MappingProduct(_erpSetting.Erp, malzemeList);
                         if (smartStoreList == null)
                         {
-                            throw new Exception("Product mapping error");
+                            throw new Exception("Smartstore Product mapping error");
                         }
                         foreach (var item in smartStoreList)
                         {
@@ -261,6 +254,8 @@ namespace NetTransfer.Integration
                 switch (_erpSetting.Erp)
                 {
                     case "Logo":
+                        LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
+                        malzemeStokList = logoService.GetMalzemeStokList(ref errorMessage);
                         break;
                     case "Netsis":
                         NetsisService service = new NetsisService();
@@ -305,7 +300,8 @@ namespace NetTransfer.Integration
                 switch (_erpSetting.Erp)
                 {
                     case "Logo":
-
+                        LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
+                        malzemeFiyatList = logoService.GetMalzemeFiyatList(ref errorMessage);
                         break;
                     case "Netsis":
                         NetsisService service = new NetsisService();
@@ -341,7 +337,93 @@ namespace NetTransfer.Integration
 
         public async Task SiparisTransfer()
         {
+            string errorMessage = string.Empty;
+            LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
 
+            var accessToken = await _b2BClient.GetAccessTokenAsync();
+            if (accessToken != null)
+            {
+                _b2BClient.SetAccessToken(accessToken.token);
+            }
+            var result = await _b2BClient.Siparisler(3);
+            if (result == null)
+            {
+                _logger.LogError("Siparişler alınamadı.");
+                return;
+            }
+
+            foreach (var item in result.List)
+            {
+                var siparisDetayResult = await _b2BClient.SiparisDetay(item.siparis_id);
+                if (siparisDetayResult == null)
+                {
+                    _logger.LogError("Sipariş detay bilgisi alınamadı. Sipariş ID: {siparisId}", item.siparis_id);
+                    break;
+                }
+
+                var id = logoService.SiparisKaydet(siparisDetayResult, ref errorMessage);
+                int index = 1;
+                foreach (var kalem in siparisDetayResult.siparis_kalemler)
+                {
+                    int kalemId = logoService.SiparisKalemKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, ref errorMessage);
+                    index++;
+                    double tutar = kalem.liste_fiyat * kalem.miktar;
+
+                    if (kalem.iskonto_1 > 0)
+                    {
+                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_1 * 0.01)));
+                        tutar = tutar - isk_tutar;
+                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_1, ref errorMessage);
+
+                        index++;
+                    }
+
+                    if (kalem.iskonto_2 > 0)
+                    {
+                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_2 * 0.01)));
+                        tutar = tutar - isk_tutar;
+                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_2, ref errorMessage);
+
+                        index++;
+                    }
+
+                    if (kalem.iskonto_3 > 0)
+                    {
+                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_3 * 0.01)));
+                        tutar = tutar - isk_tutar;
+                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_3, ref errorMessage);
+
+                        index++;
+                    }
+
+                    if (kalem.iskonto_4 > 0)
+                    {
+                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_4 * 0.01)));
+                        tutar = tutar - isk_tutar;
+                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_4, ref errorMessage);
+
+                        index++;
+                    }
+
+                    if (kalem.iskonto_5 > 0)
+                    {
+                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_5 * 0.01)));
+                        tutar = tutar - isk_tutar;
+                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_5, ref errorMessage);
+
+                        index++;
+                    }
+
+                    if (kalem.iskonto_6 > 0)
+                    {
+                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_6 * 0.01)));
+                        tutar = tutar - isk_tutar;
+                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_6, ref errorMessage);
+
+                        index++;
+                    }
+                }
+            }
         }
 
         public async Task SanalPosTransfer()

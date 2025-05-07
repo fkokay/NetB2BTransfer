@@ -36,24 +36,24 @@
             labelControl10 = new DevExpress.XtraEditors.LabelControl();
             labelControl9 = new DevExpress.XtraEditors.LabelControl();
             groupControl2 = new DevExpress.XtraEditors.GroupControl();
-            textEdit3 = new DevExpress.XtraEditors.TextEdit();
-            spinEdit2 = new DevExpress.XtraEditors.SpinEdit();
+            txtProductPriceLastTransfer = new DevExpress.XtraEditors.TextEdit();
+            txtProductPriceTransferMinute = new DevExpress.XtraEditors.SpinEdit();
             labelControl4 = new DevExpress.XtraEditors.LabelControl();
-            textEdit4 = new DevExpress.XtraEditors.TextEdit();
+            txtProductPriceFilter = new DevExpress.XtraEditors.TextEdit();
             labelControl5 = new DevExpress.XtraEditors.LabelControl();
             labelControl6 = new DevExpress.XtraEditors.LabelControl();
             groupControl1 = new DevExpress.XtraEditors.GroupControl();
-            textEdit1 = new DevExpress.XtraEditors.TextEdit();
-            spinEdit1 = new DevExpress.XtraEditors.SpinEdit();
+            txtProductStockLastTransfer = new DevExpress.XtraEditors.TextEdit();
+            txtProductStockTransferMinute = new DevExpress.XtraEditors.SpinEdit();
             labelControl1 = new DevExpress.XtraEditors.LabelControl();
-            textEdit2 = new DevExpress.XtraEditors.TextEdit();
+            txtProductStockFilter = new DevExpress.XtraEditors.TextEdit();
             labelControl2 = new DevExpress.XtraEditors.LabelControl();
             labelControl3 = new DevExpress.XtraEditors.LabelControl();
             groupControl3 = new DevExpress.XtraEditors.GroupControl();
-            textEdit5 = new DevExpress.XtraEditors.TextEdit();
-            spinEdit3 = new DevExpress.XtraEditors.SpinEdit();
+            txtProductLastTransfer = new DevExpress.XtraEditors.TextEdit();
+            txtProductTransferMinute = new DevExpress.XtraEditors.SpinEdit();
             labelControl7 = new DevExpress.XtraEditors.LabelControl();
-            textEdit6 = new DevExpress.XtraEditors.TextEdit();
+            txtProductFilter = new DevExpress.XtraEditors.TextEdit();
             labelControl8 = new DevExpress.XtraEditors.LabelControl();
             labelControl12 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)groupControlCustomer).BeginInit();
@@ -63,19 +63,19 @@
             ((System.ComponentModel.ISupportInitialize)txtCustomerFilter.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)groupControl2).BeginInit();
             groupControl2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)textEdit3.Properties).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)spinEdit2.Properties).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)textEdit4.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductPriceLastTransfer.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductPriceTransferMinute.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductPriceFilter.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)groupControl1).BeginInit();
             groupControl1.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)textEdit1.Properties).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)spinEdit1.Properties).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)textEdit2.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductStockLastTransfer.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductStockTransferMinute.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductStockFilter.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)groupControl3).BeginInit();
             groupControl3.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)textEdit5.Properties).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)spinEdit3.Properties).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)textEdit6.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductLastTransfer.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductTransferMinute.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductFilter.Properties).BeginInit();
             SuspendLayout();
             // 
             // groupControlCustomer
@@ -143,10 +143,10 @@
             // 
             // groupControl2
             // 
-            groupControl2.Controls.Add(textEdit3);
-            groupControl2.Controls.Add(spinEdit2);
+            groupControl2.Controls.Add(txtProductPriceLastTransfer);
+            groupControl2.Controls.Add(txtProductPriceTransferMinute);
             groupControl2.Controls.Add(labelControl4);
-            groupControl2.Controls.Add(textEdit4);
+            groupControl2.Controls.Add(txtProductPriceFilter);
             groupControl2.Controls.Add(labelControl5);
             groupControl2.Controls.Add(labelControl6);
             groupControl2.Dock = System.Windows.Forms.DockStyle.Top;
@@ -156,22 +156,22 @@
             groupControl2.TabIndex = 7;
             groupControl2.Text = "Malzeme Fiyat Aktarım Ayarları";
             // 
-            // textEdit3
+            // txtProductPriceLastTransfer
             // 
-            textEdit3.Location = new System.Drawing.Point(223, 97);
-            textEdit3.Name = "textEdit3";
-            textEdit3.Properties.ReadOnly = true;
-            textEdit3.Size = new System.Drawing.Size(455, 22);
-            textEdit3.TabIndex = 15;
+            txtProductPriceLastTransfer.Location = new System.Drawing.Point(223, 97);
+            txtProductPriceLastTransfer.Name = "txtProductPriceLastTransfer";
+            txtProductPriceLastTransfer.Properties.ReadOnly = true;
+            txtProductPriceLastTransfer.Size = new System.Drawing.Size(455, 22);
+            txtProductPriceLastTransfer.TabIndex = 15;
             // 
-            // spinEdit2
+            // txtProductPriceTransferMinute
             // 
-            spinEdit2.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
-            spinEdit2.Location = new System.Drawing.Point(223, 40);
-            spinEdit2.Name = "spinEdit2";
-            spinEdit2.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
-            spinEdit2.Size = new System.Drawing.Size(252, 24);
-            spinEdit2.TabIndex = 14;
+            txtProductPriceTransferMinute.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
+            txtProductPriceTransferMinute.Location = new System.Drawing.Point(223, 40);
+            txtProductPriceTransferMinute.Name = "txtProductPriceTransferMinute";
+            txtProductPriceTransferMinute.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            txtProductPriceTransferMinute.Size = new System.Drawing.Size(252, 24);
+            txtProductPriceTransferMinute.TabIndex = 14;
             // 
             // labelControl4
             // 
@@ -181,12 +181,12 @@
             labelControl4.TabIndex = 13;
             labelControl4.Text = "Son Aktarım Tarihi";
             // 
-            // textEdit4
+            // txtProductPriceFilter
             // 
-            textEdit4.Location = new System.Drawing.Point(223, 69);
-            textEdit4.Name = "textEdit4";
-            textEdit4.Size = new System.Drawing.Size(455, 22);
-            textEdit4.TabIndex = 12;
+            txtProductPriceFilter.Location = new System.Drawing.Point(223, 69);
+            txtProductPriceFilter.Name = "txtProductPriceFilter";
+            txtProductPriceFilter.Size = new System.Drawing.Size(455, 22);
+            txtProductPriceFilter.TabIndex = 12;
             // 
             // labelControl5
             // 
@@ -206,10 +206,10 @@
             // 
             // groupControl1
             // 
-            groupControl1.Controls.Add(textEdit1);
-            groupControl1.Controls.Add(spinEdit1);
+            groupControl1.Controls.Add(txtProductStockLastTransfer);
+            groupControl1.Controls.Add(txtProductStockTransferMinute);
             groupControl1.Controls.Add(labelControl1);
-            groupControl1.Controls.Add(textEdit2);
+            groupControl1.Controls.Add(txtProductStockFilter);
             groupControl1.Controls.Add(labelControl2);
             groupControl1.Controls.Add(labelControl3);
             groupControl1.Dock = System.Windows.Forms.DockStyle.Top;
@@ -219,22 +219,22 @@
             groupControl1.TabIndex = 6;
             groupControl1.Text = "Malzeme Stok Aktarım Ayarları";
             // 
-            // textEdit1
+            // txtProductStockLastTransfer
             // 
-            textEdit1.Location = new System.Drawing.Point(223, 98);
-            textEdit1.Name = "textEdit1";
-            textEdit1.Properties.ReadOnly = true;
-            textEdit1.Size = new System.Drawing.Size(455, 22);
-            textEdit1.TabIndex = 15;
+            txtProductStockLastTransfer.Location = new System.Drawing.Point(223, 98);
+            txtProductStockLastTransfer.Name = "txtProductStockLastTransfer";
+            txtProductStockLastTransfer.Properties.ReadOnly = true;
+            txtProductStockLastTransfer.Size = new System.Drawing.Size(455, 22);
+            txtProductStockLastTransfer.TabIndex = 15;
             // 
-            // spinEdit1
+            // txtProductStockTransferMinute
             // 
-            spinEdit1.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
-            spinEdit1.Location = new System.Drawing.Point(223, 41);
-            spinEdit1.Name = "spinEdit1";
-            spinEdit1.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
-            spinEdit1.Size = new System.Drawing.Size(252, 24);
-            spinEdit1.TabIndex = 14;
+            txtProductStockTransferMinute.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
+            txtProductStockTransferMinute.Location = new System.Drawing.Point(223, 41);
+            txtProductStockTransferMinute.Name = "txtProductStockTransferMinute";
+            txtProductStockTransferMinute.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            txtProductStockTransferMinute.Size = new System.Drawing.Size(252, 24);
+            txtProductStockTransferMinute.TabIndex = 14;
             // 
             // labelControl1
             // 
@@ -244,12 +244,12 @@
             labelControl1.TabIndex = 13;
             labelControl1.Text = "Son Aktarım Tarihi";
             // 
-            // textEdit2
+            // txtProductStockFilter
             // 
-            textEdit2.Location = new System.Drawing.Point(223, 70);
-            textEdit2.Name = "textEdit2";
-            textEdit2.Size = new System.Drawing.Size(455, 22);
-            textEdit2.TabIndex = 12;
+            txtProductStockFilter.Location = new System.Drawing.Point(223, 70);
+            txtProductStockFilter.Name = "txtProductStockFilter";
+            txtProductStockFilter.Size = new System.Drawing.Size(455, 22);
+            txtProductStockFilter.TabIndex = 12;
             // 
             // labelControl2
             // 
@@ -269,10 +269,10 @@
             // 
             // groupControl3
             // 
-            groupControl3.Controls.Add(textEdit5);
-            groupControl3.Controls.Add(spinEdit3);
+            groupControl3.Controls.Add(txtProductLastTransfer);
+            groupControl3.Controls.Add(txtProductTransferMinute);
             groupControl3.Controls.Add(labelControl7);
-            groupControl3.Controls.Add(textEdit6);
+            groupControl3.Controls.Add(txtProductFilter);
             groupControl3.Controls.Add(labelControl8);
             groupControl3.Controls.Add(labelControl12);
             groupControl3.Dock = System.Windows.Forms.DockStyle.Top;
@@ -282,22 +282,22 @@
             groupControl3.TabIndex = 5;
             groupControl3.Text = "Malzeme Aktarım Ayarları";
             // 
-            // textEdit5
+            // txtProductLastTransfer
             // 
-            textEdit5.Location = new System.Drawing.Point(223, 103);
-            textEdit5.Name = "textEdit5";
-            textEdit5.Properties.ReadOnly = true;
-            textEdit5.Size = new System.Drawing.Size(455, 22);
-            textEdit5.TabIndex = 9;
+            txtProductLastTransfer.Location = new System.Drawing.Point(223, 103);
+            txtProductLastTransfer.Name = "txtProductLastTransfer";
+            txtProductLastTransfer.Properties.ReadOnly = true;
+            txtProductLastTransfer.Size = new System.Drawing.Size(455, 22);
+            txtProductLastTransfer.TabIndex = 9;
             // 
-            // spinEdit3
+            // txtProductTransferMinute
             // 
-            spinEdit3.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
-            spinEdit3.Location = new System.Drawing.Point(223, 46);
-            spinEdit3.Name = "spinEdit3";
-            spinEdit3.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
-            spinEdit3.Size = new System.Drawing.Size(252, 24);
-            spinEdit3.TabIndex = 8;
+            txtProductTransferMinute.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
+            txtProductTransferMinute.Location = new System.Drawing.Point(223, 46);
+            txtProductTransferMinute.Name = "txtProductTransferMinute";
+            txtProductTransferMinute.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            txtProductTransferMinute.Size = new System.Drawing.Size(252, 24);
+            txtProductTransferMinute.TabIndex = 8;
             // 
             // labelControl7
             // 
@@ -307,12 +307,12 @@
             labelControl7.TabIndex = 6;
             labelControl7.Text = "Son Aktarım Tarihi";
             // 
-            // textEdit6
+            // txtProductFilter
             // 
-            textEdit6.Location = new System.Drawing.Point(223, 75);
-            textEdit6.Name = "textEdit6";
-            textEdit6.Size = new System.Drawing.Size(455, 22);
-            textEdit6.TabIndex = 5;
+            txtProductFilter.Location = new System.Drawing.Point(223, 75);
+            txtProductFilter.Name = "txtProductFilter";
+            txtProductFilter.Size = new System.Drawing.Size(455, 22);
+            txtProductFilter.TabIndex = 5;
             // 
             // labelControl8
             // 
@@ -340,6 +340,7 @@
             Controls.Add(groupControlCustomer);
             Name = "B2BParameterUserControl";
             Size = new System.Drawing.Size(993, 663);
+            Load += B2BParameterUserControl_Load;
             ((System.ComponentModel.ISupportInitialize)groupControlCustomer).EndInit();
             groupControlCustomer.ResumeLayout(false);
             groupControlCustomer.PerformLayout();
@@ -349,21 +350,21 @@
             ((System.ComponentModel.ISupportInitialize)groupControl2).EndInit();
             groupControl2.ResumeLayout(false);
             groupControl2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)textEdit3.Properties).EndInit();
-            ((System.ComponentModel.ISupportInitialize)spinEdit2.Properties).EndInit();
-            ((System.ComponentModel.ISupportInitialize)textEdit4.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductPriceLastTransfer.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductPriceTransferMinute.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductPriceFilter.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)groupControl1).EndInit();
             groupControl1.ResumeLayout(false);
             groupControl1.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)textEdit1.Properties).EndInit();
-            ((System.ComponentModel.ISupportInitialize)spinEdit1.Properties).EndInit();
-            ((System.ComponentModel.ISupportInitialize)textEdit2.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductStockLastTransfer.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductStockTransferMinute.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductStockFilter.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)groupControl3).EndInit();
             groupControl3.ResumeLayout(false);
             groupControl3.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)textEdit5.Properties).EndInit();
-            ((System.ComponentModel.ISupportInitialize)spinEdit3.Properties).EndInit();
-            ((System.ComponentModel.ISupportInitialize)textEdit6.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductLastTransfer.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductTransferMinute.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtProductFilter.Properties).EndInit();
             ResumeLayout(false);
         }
 
@@ -377,24 +378,24 @@
         private DevExpress.XtraEditors.LabelControl labelControl10;
         private DevExpress.XtraEditors.LabelControl labelControl9;
         private DevExpress.XtraEditors.GroupControl groupControl2;
-        private DevExpress.XtraEditors.TextEdit textEdit3;
-        private DevExpress.XtraEditors.SpinEdit spinEdit2;
+        private DevExpress.XtraEditors.TextEdit txtProductPriceLastTransfer;
+        private DevExpress.XtraEditors.SpinEdit txtProductPriceTransferMinute;
         private DevExpress.XtraEditors.LabelControl labelControl4;
-        private DevExpress.XtraEditors.TextEdit textEdit4;
+        private DevExpress.XtraEditors.TextEdit txtProductPriceFilter;
         private DevExpress.XtraEditors.LabelControl labelControl5;
         private DevExpress.XtraEditors.LabelControl labelControl6;
         private DevExpress.XtraEditors.GroupControl groupControl1;
-        private DevExpress.XtraEditors.TextEdit textEdit1;
-        private DevExpress.XtraEditors.SpinEdit spinEdit1;
+        private DevExpress.XtraEditors.TextEdit txtProductStockLastTransfer;
+        private DevExpress.XtraEditors.SpinEdit txtProductStockTransferMinute;
         private DevExpress.XtraEditors.LabelControl labelControl1;
-        private DevExpress.XtraEditors.TextEdit textEdit2;
+        private DevExpress.XtraEditors.TextEdit txtProductStockFilter;
         private DevExpress.XtraEditors.LabelControl labelControl2;
         private DevExpress.XtraEditors.LabelControl labelControl3;
         private DevExpress.XtraEditors.GroupControl groupControl3;
-        private DevExpress.XtraEditors.TextEdit textEdit5;
-        private DevExpress.XtraEditors.SpinEdit spinEdit3;
+        private DevExpress.XtraEditors.TextEdit txtProductLastTransfer;
+        private DevExpress.XtraEditors.SpinEdit txtProductTransferMinute;
         private DevExpress.XtraEditors.LabelControl labelControl7;
-        private DevExpress.XtraEditors.TextEdit textEdit6;
+        private DevExpress.XtraEditors.TextEdit txtProductFilter;
         private DevExpress.XtraEditors.LabelControl labelControl8;
         private DevExpress.XtraEditors.LabelControl labelControl12;
     }

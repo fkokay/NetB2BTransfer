@@ -18,7 +18,8 @@ namespace NetTransfer.Core.Entities
         public string? RestUrl { get; set; }
         public string? ErpUser { get; set; }
         public string? ErpPassword { get; set; }
-        public DateTime? LastTransferDate { get; set; }
+        public string? FirmNo { get; set; }
+        public string? PeriodNo { get; set; }
         public bool Active { get; set; }
     }
 }

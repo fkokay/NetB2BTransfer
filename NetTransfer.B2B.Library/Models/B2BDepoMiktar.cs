@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Integration.Erp
+namespace NetTransfer.B2B.Library.Models
 {
-    public interface IErpService
+    public class B2BDepoMiktar
     {
+        public List<B2BUrun> data = new List<B2BUrun>();
     }
 }

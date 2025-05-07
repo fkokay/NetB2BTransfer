@@ -182,6 +182,26 @@ namespace NetTransfer.Logo.Library.Class
 
             return query;
         }
+        public static string GetItemsPriceQuery(LogoQueryParam param)
+        {
+            return @"SELECT 
+                    'LF' AS kod, 
+                    'Liste Fiyat' AS kod_baslik, 
+                    'Liste Fiyat' AS aciklama, 
+                    '0' AS tarih_aralik_durum, 
+                    GETDATE() - 10 AS baslangic_tarihi, 
+                    GETDATE() + 90 AS bitis_tarihi,
+                    '1' AS durum, 
+                    ITEMS.NAME AS urun_kodu, 
+                    'TRY' AS doviz_kodu, 
+                    CONVERT(DECIMAL(18, 4), PRCLIST .PRICE * (1 - ITEMS.SELLVAT * 0.01)) AS liste_fiyati
+                    FROM     
+                    dbo.LG_200_PRCLIST AS PRCLIST  WITH (NOLOCK) 
+                    LEFT OUTER JOIN dbo.LG_200_CLCARD AS CLNTC WITH (NOLOCK) ON PRCLIST .CLIENTCODE = CLNTC.CODE 
+                    LEFT OUTER JOIN dbo.LG_200_PROJECT AS PROJECT WITH (NOLOCK) ON PRCLIST .PROJECTREF = PROJECT.LOGICALREF 
+                    LEFT OUTER JOIN dbo.LG_200_ITEMS AS ITEMS WITH (NOLOCK) ON PRCLIST .CARDREF = ITEMS.LOGICALREF
+                    WHERE PRCLIST.PTYPE=2 AND PRCLIST.PRIORITY=0 "+param.filter;
+        }
 
     }
 }

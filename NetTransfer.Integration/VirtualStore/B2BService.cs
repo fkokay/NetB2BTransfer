@@ -15,11 +15,50 @@ namespace NetTransfer.Integration.VirtualStore
     {
         public async Task UpdateProductPrice(List<BaseMalzemeFiyatModel> malzemeFiyatList)
         {
+            B2BUrunFiyat b2BUrunFiyat = new B2BUrunFiyat();
+            b2BUrunFiyat.kod = "LF";
+            b2BUrunFiyat.baslik = "Liste Fiyat";
+            b2BUrunFiyat.aciklama = "Liste Fiyat";
+            b2BUrunFiyat.tarih_aralik_durum = 0;
+            b2BUrunFiyat.baslangic_tarihi = DateTime.Now.AddDays(-10);
+            b2BUrunFiyat.bitis_tarihi = DateTime.Now.AddDays(90);
+            b2BUrunFiyat.durum = true;
+            b2BUrunFiyat.urunler = new List<B2BUrun>();
+            foreach (var item in malzemeFiyatList)
+            {
+                b2BUrunFiyat.urunler.Add(new B2BUrun()
+                {
+                    urun_kodu = item.StokKodu,
+                    liste_fiyati = item.Fiyat,
+                    doviz_kodu = "TRY"
+                });
+            }
+
+            var result = await _b2bClient.UrunFiyatTrasnferAsync(b2BUrunFiyat);
         }
 
         public async Task UpdateProductStock(List<BaseMalzemeStokModel> malzemeStokList)
         {
+            B2BDepoMiktar b2BDepoMiktar = new B2BDepoMiktar();
 
+            foreach (var item in malzemeStokList)
+            {
+                b2BDepoMiktar.data.Add(new B2BUrun()
+                {
+                    urun_kodu = item.StokKodu,
+                    depolar = new List<B2BDepo>()
+                    {
+                        new B2BDepo()
+                        {
+                            depo_kodu="0",
+                            depo_baslik = "Depo",
+                            miktar = Convert.ToInt32(item.StokMiktari),
+                        }
+                    }
+                });
+            }
+
+            var result = await _b2bClient.UrunStokTransferAsync(b2BDepoMiktar);
         }
 
         public List<B2BUrun>? MappingProduct(string erp, object? malzemeList)
@@ -133,7 +172,7 @@ namespace NetTransfer.Integration.VirtualStore
                     musteri_durumu = "1",
                 };
 
-                musteriList.Add(musteri);   
+                musteriList.Add(musteri);
             }
 
             return musteriList;

@@ -29,6 +29,7 @@ namespace NetTransfer.UserControls
             var b2bSetting = _context.VirtualStoreSetting.FirstOrDefault();
             if (b2bSetting != null)
             {
+                b2bSetting.VirtualStore = cmbB2B.Text;
                 b2bSetting.Url = txtUrl.Text;
                 b2bSetting.User = txtUser.Text;
                 b2bSetting.Password = txtPassword.Text;
@@ -37,6 +38,7 @@ namespace NetTransfer.UserControls
             {
                 b2bSetting = new VirtualStoreSetting
                 {
+                    VirtualStore = cmbB2B.Text,
                     Url = txtUrl.Text,
                     User = txtUser.Text,
                     Password = txtPassword.Text
@@ -46,11 +48,11 @@ namespace NetTransfer.UserControls
 
             _context.SaveChanges();
 
-            if (cmbB2B.SelectedText == "B2B")
+            if (cmbB2B.Text == "B2B")
             {
-
+                (groupControlParameter.Controls[0] as B2BParameterUserControl).Save();
             }
-            else if (cmbB2B.SelectedText == "Smartstore")
+            else if (cmbB2B.Text == "Smartstore")
             {
                 (groupControlParameter.Controls[0] as SmartstoreParameterUserControl).Save();
             }

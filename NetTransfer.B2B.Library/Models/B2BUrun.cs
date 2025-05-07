@@ -33,5 +33,6 @@ namespace NetTransfer.B2B.Library.Models
         public int asorti_miktar { get; set; }
         public string asorti_kod { get; set; }
         public List<B2BKategori> kategoriler { get; set; }
+        public List<B2BDepo> depolar { get; set; }
     }
 }
