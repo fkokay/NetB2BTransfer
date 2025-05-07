@@ -14,7 +14,7 @@ namespace NetTransferService
 
         private NetTaskScheduler taskScheduler = new NetTaskScheduler();
         private ErpSetting? _erpSetting;
-        private VirtualStoreSetting? _b2bSetting;
+        private VirtualStoreSetting? _virtualStoreSetting;
 
         private B2BParameter? _b2BParameter;
         private SmartstoreParameter? _smartstoreParameter;
@@ -38,84 +38,207 @@ namespace NetTransferService
                 return;
             }
 
-            _b2bSetting = _context.VirtualStoreSetting.FirstOrDefault();
-            if (_b2bSetting == null)
+            _virtualStoreSetting = _context.VirtualStoreSetting.FirstOrDefault();
+            if (_virtualStoreSetting == null)
             {
                 _logger.LogInformation("B2B ayarlarýný tanýmlayýn. Datetime : {time}", DateTimeOffset.Now);
                 return;
             }
 
-            if (_b2bSetting.VirtualStore == "B2B")
+            if (_virtualStoreSetting.VirtualStore == "B2B")
             {
-                _b2bSetting = _context.VirtualStoreSetting.FirstOrDefault();
-                transfer = new Transfer(_logger, _erpSetting, _b2bSetting, _b2BParameter);
+                _virtualStoreSetting = _context.VirtualStoreSetting.FirstOrDefault();
+                transfer = new Transfer(_logger, _erpSetting, _virtualStoreSetting, _b2BParameter);
             }
-            else if (_b2bSetting.VirtualStore == "Smartstore")
+            else if (_virtualStoreSetting.VirtualStore == "Smartstore")
             {
                 _smartstoreParameter = _context.SmartstoreParameter.FirstOrDefault();
-                transfer = new Transfer(_logger, _erpSetting, _b2bSetting, _smartstoreParameter);
+                transfer = new Transfer(_logger, _erpSetting, _virtualStoreSetting, _smartstoreParameter);
             }
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            await Task.Factory.StartNew(() => CariTransferAsync(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
+            await Task.Factory.StartNew(() => CariBakiyeTransferAsync(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
             await Task.Factory.StartNew(() => MalzemeTransfer(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
             await Task.Factory.StartNew(() => MalzemeStokTransfer(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
             await Task.Factory.StartNew(() => MalzemeFiyatTransferAsync(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
+            await Task.Factory.StartNew(() => SiparisTransferAsync(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
+        }
+
+        private async Task SiparisTransferAsync()
+        {
+            int siparisTransferMinute = getSiparisTransferMinute();
+
+
+            if (siparisTransferMinute > 0)
+            {
+                while (true)
+                {
+                    await transfer.SiparisTransfer();
+
+                    await Task.Delay(1000 * 60 * siparisTransferMinute);
+                }
+            }
+        }
+
+        private int getSiparisTransferMinute()
+        {
+            if (_virtualStoreSetting.VirtualStore == "B2B")
+            {
+                return _b2BParameter.OrderTransferMinute;
+            }
+            if (_virtualStoreSetting.VirtualStore == "Smartstore")
+            {
+                return 0;
+            }
+
+            return 0;
+        }
+
+        public async Task CariTransferAsync()
+        {
+            int customerTransferMinute = getCustomerTransferMinute();
+
+
+            if (customerTransferMinute > 0)
+            {
+                while (true)
+                {
+                    await transfer.MalzemeFiyatTransfer();
+
+                    await Task.Delay(1000 * 60 * customerTransferMinute);
+                }
+            }
+        }
+
+        private int getCustomerTransferMinute()
+        {
+            if (_virtualStoreSetting.VirtualStore == "B2B")
+            {
+                return _b2BParameter.CustomerTransferMinute;
+            }
+            if (_virtualStoreSetting.VirtualStore == "Smartstore")
+            {
+                return 0;
+            }
+
+            return 0;
+        }
+
+        public async Task CariBakiyeTransferAsync()
+        {
+            int customerBalanceTransferMinute = getCustomerBakiyeTransferMinute();
+
+
+            if (customerBalanceTransferMinute > 0)
+            {
+                while (true)
+                {
+                    await transfer.CariBakiyeTransfer();
+
+                    await Task.Delay(1000 * 60 * customerBalanceTransferMinute);
+                }
+            }
+        }
+
+        private int getCustomerBakiyeTransferMinute()
+        {
+            if (_virtualStoreSetting.VirtualStore == "B2B")
+            {
+                return _b2BParameter.CustomerTransferMinute;
+            }
+            if (_virtualStoreSetting.VirtualStore == "Smartstore")
+            {
+                return 0;
+            }
+
+            return 0;
         }
 
         public async Task MalzemeTransfer()
         {
-            while (true)
+            int productTransferMinute = getProductTransferMinute();
+            if (productTransferMinute > 0)
             {
-                await transfer.MalzemeTransfer();
-
-                if (_b2bSetting.VirtualStore == "B2B")
+                while (true)
                 {
-                    await Task.Delay(1000 * 60 * 10);
+                    await transfer.MalzemeTransfer();
+                    await Task.Delay(1000 * 60 * productTransferMinute);
                 }
-
-                if (_b2bSetting.VirtualStore == "Smartstore")
-                {
-                    await Task.Delay(1000 * 60 * _smartstoreParameter.ProductTransferMinute);
-                }
-
             }
         }
+
+        private int getProductTransferMinute()
+        {
+            if (_virtualStoreSetting.VirtualStore == "B2B")
+            {
+                return _b2BParameter.ProductTransferMinute;
+            }
+            if (_virtualStoreSetting.VirtualStore == "Smartstore")
+            {
+                return _smartstoreParameter.ProductTransferMinute;
+            }
+
+            return 0;
+        }
+
         public async Task MalzemeStokTransfer()
         {
-            while (true)
+            int productStockTransferMinute = getProductStockTransferMinute();
+            if (productStockTransferMinute > 0)
             {
-                await transfer.MalzemeStokTransfer();
-
-                if (_b2bSetting.VirtualStore == "B2B")
+                while (true)
                 {
-                    await Task.Delay(1000 * 60 * 10);
-                }
+                    await transfer.MalzemeStokTransfer();
 
-                if (_b2bSetting.VirtualStore == "Smartstore")
-                {
-                    await Task.Delay(1000 * 60 * _smartstoreParameter.ProductStockTransferMinute);
+                    await Task.Delay(1000 * 60 * productStockTransferMinute);
                 }
             }
+         
+        }
+
+        private int getProductStockTransferMinute()
+        {
+            if (_virtualStoreSetting.VirtualStore == "B2B")
+            {
+                return _b2BParameter.ProductStockTransferMinute;
+            }
+            if (_virtualStoreSetting.VirtualStore == "Smartstore")
+            {
+                return _smartstoreParameter.ProductStockTransferMinute;
+            }
+
+            return 0;
         }
 
         public async Task MalzemeFiyatTransferAsync()
         {
-            while (true)
+            int productPriceTransferMinute = getProductPriceTransferMinute();
+            if (productPriceTransferMinute > 0)
             {
-                await transfer.MalzemeFiyatTransfer();
-
-                if (_b2bSetting.VirtualStore == "B2B")
+                while (true)
                 {
-                    await Task.Delay(1000 * 60 * 10);
-                }
-
-                if (_b2bSetting.VirtualStore == "Smartstore")
-                {
-                    await Task.Delay(1000 * 60 * _smartstoreParameter.ProductPriceTransferMinute);
+                    await transfer.MalzemeFiyatTransfer();
+                    await Task.Delay(1000 * 60 * productPriceTransferMinute);
                 }
             }
         }
+
+        private int getProductPriceTransferMinute()
+        {
+            if (_virtualStoreSetting.VirtualStore == "B2B")
+            {
+                return _b2BParameter.ProductPriceTransferMinute;
+            }
+            if (_virtualStoreSetting.VirtualStore == "Smartstore")
+            {
+                return _smartstoreParameter.ProductPriceTransferMinute;
+            }
+
+            return 0;
+        }
+
     }
 }

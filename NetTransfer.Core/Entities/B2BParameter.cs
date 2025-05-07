@@ -25,5 +25,7 @@ namespace NetTransfer.Core.Entities
         public int ProductPriceTransferMinute { get; set; } = 0;
         public string? ProductPriceFilter { get; set; }
         public DateTime? ProductPriceLastTransfer { get; set; }
+
+        public int OrderTransferMinute { get; set; } = 0;
     }
 }
