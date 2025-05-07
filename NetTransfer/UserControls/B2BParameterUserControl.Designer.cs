@@ -56,6 +56,9 @@
             txtProductFilter = new DevExpress.XtraEditors.TextEdit();
             labelControl8 = new DevExpress.XtraEditors.LabelControl();
             labelControl12 = new DevExpress.XtraEditors.LabelControl();
+            groupControl4 = new DevExpress.XtraEditors.GroupControl();
+            txtOrderTransferMinute = new DevExpress.XtraEditors.SpinEdit();
+            labelControl15 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)groupControlCustomer).BeginInit();
             groupControlCustomer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)txtCustomerLastTransfer.Properties).BeginInit();
@@ -76,6 +79,9 @@
             ((System.ComponentModel.ISupportInitialize)txtProductLastTransfer.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductTransferMinute.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductFilter.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)groupControl4).BeginInit();
+            groupControl4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)txtOrderTransferMinute.Properties).BeginInit();
             SuspendLayout();
             // 
             // groupControlCustomer
@@ -330,16 +336,45 @@
             labelControl12.TabIndex = 2;
             labelControl12.Text = "Aktarım Süresi (Dakika)";
             // 
+            // groupControl4
+            // 
+            groupControl4.Controls.Add(txtOrderTransferMinute);
+            groupControl4.Controls.Add(labelControl15);
+            groupControl4.Dock = System.Windows.Forms.DockStyle.Top;
+            groupControl4.Location = new System.Drawing.Point(0, 564);
+            groupControl4.Name = "groupControl4";
+            groupControl4.Size = new System.Drawing.Size(993, 76);
+            groupControl4.TabIndex = 8;
+            groupControl4.Text = "Sipariş Aktarım Ayarları";
+            // 
+            // txtOrderTransferMinute
+            // 
+            txtOrderTransferMinute.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
+            txtOrderTransferMinute.Location = new System.Drawing.Point(223, 40);
+            txtOrderTransferMinute.Name = "txtOrderTransferMinute";
+            txtOrderTransferMinute.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            txtOrderTransferMinute.Size = new System.Drawing.Size(252, 24);
+            txtOrderTransferMinute.TabIndex = 14;
+            // 
+            // labelControl15
+            // 
+            labelControl15.Location = new System.Drawing.Point(16, 44);
+            labelControl15.Name = "labelControl15";
+            labelControl15.Size = new System.Drawing.Size(135, 16);
+            labelControl15.TabIndex = 10;
+            labelControl15.Text = "Aktarım Süresi (Dakika)";
+            // 
             // B2BParameterUserControl
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            Controls.Add(groupControl4);
             Controls.Add(groupControl2);
             Controls.Add(groupControl1);
             Controls.Add(groupControl3);
             Controls.Add(groupControlCustomer);
             Name = "B2BParameterUserControl";
-            Size = new System.Drawing.Size(993, 663);
+            Size = new System.Drawing.Size(993, 832);
             Load += B2BParameterUserControl_Load;
             ((System.ComponentModel.ISupportInitialize)groupControlCustomer).EndInit();
             groupControlCustomer.ResumeLayout(false);
@@ -365,6 +400,10 @@
             ((System.ComponentModel.ISupportInitialize)txtProductLastTransfer.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductTransferMinute.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductFilter.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)groupControl4).EndInit();
+            groupControl4.ResumeLayout(false);
+            groupControl4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)txtOrderTransferMinute.Properties).EndInit();
             ResumeLayout(false);
         }
 
@@ -398,5 +437,8 @@
         private DevExpress.XtraEditors.TextEdit txtProductFilter;
         private DevExpress.XtraEditors.LabelControl labelControl8;
         private DevExpress.XtraEditors.LabelControl labelControl12;
+        private DevExpress.XtraEditors.GroupControl groupControl4;
+        private DevExpress.XtraEditors.SpinEdit txtOrderTransferMinute;
+        private DevExpress.XtraEditors.LabelControl labelControl15;
     }
 }

@@ -43,6 +43,8 @@ namespace NetTransfer.UserControls
                 txtProductPriceTransferMinute.Value = b2BParameter.ProductPriceTransferMinute;
                 txtProductPriceFilter.Text = b2BParameter.ProductPriceFilter;
                 txtProductPriceLastTransfer.Text = b2BParameter.ProductPriceLastTransfer?.ToString("dd.MM.yyyy HH:mm:ss");
+
+                txtOrderTransferMinute.Value = b2BParameter.OrderTransferMinute;
             }
         }
 
@@ -59,6 +61,7 @@ namespace NetTransfer.UserControls
                 b2BParameter.ProductStockFilter = txtProductStockFilter.Text;
                 b2BParameter.ProductPriceTransferMinute = (int)txtProductPriceTransferMinute.Value;
                 b2BParameter.ProductPriceFilter = txtProductPriceFilter.Text;
+                b2BParameter.OrderTransferMinute = (int)txtOrderTransferMinute.Value;
             }
             else
             {
@@ -72,6 +75,7 @@ namespace NetTransfer.UserControls
                     ProductStockFilter = txtProductStockFilter.Text,
                     ProductPriceTransferMinute = (int)txtProductPriceTransferMinute.Value,
                     ProductPriceFilter = txtProductPriceFilter.Text,
+                    OrderTransferMinute = (int)txtOrderTransferMinute.Value
                 };
                 _context.B2BParameter.Add(b2BParameter);
             }

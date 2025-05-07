@@ -36,6 +36,10 @@ namespace NetTransfer.UserControls
                 txtRestUrl.Text = erpSetting.RestUrl;
                 txtErpUser.Text = erpSetting.ErpUser;
                 txtErpPassword.Text = erpSetting.ErpPassword;
+                txtFirmaNo.Text = erpSetting.FirmNo;
+                txtPeriodNo.Text = erpSetting.PeriodNo;
+
+
             }
         }
 
@@ -58,10 +62,32 @@ namespace NetTransfer.UserControls
             erpSetting.RestUrl = txtRestUrl.Text;
             erpSetting.ErpUser = txtErpUser.Text;
             erpSetting.ErpPassword = txtErpPassword.Text;
+            erpSetting.FirmNo = txtFirmaNo.Text;
+            erpSetting.PeriodNo = txtPeriodNo.Text;
 
             _context.SaveChanges();
 
             XtraMessageBox.Show("ERP ayarları başarıyla kaydedildi.", "Bilgi", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+        private void cmbErp_TextChanged(object sender, EventArgs e)
+        {
+            if (cmbErp.Text == "Logo")
+            {
+                lblFirmaNo.Visible = true;
+                txtFirmaNo.Visible = true;
+
+                lblPeriodNo.Visible = true;
+                txtPeriodNo.Visible = true;
+            }
+            else
+            {
+                lblFirmaNo.Visible = false;
+                txtFirmaNo.Visible = false;
+
+                lblPeriodNo.Visible = false;
+                txtPeriodNo.Visible = false;
+            }
         }
     }
 }
