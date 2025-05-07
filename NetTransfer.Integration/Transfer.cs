@@ -340,92 +340,101 @@ namespace NetTransfer.Integration
 
         public async Task SiparisTransfer()
         {
+            _logger.LogInformation("Malzeme transferi başlıyor.");
+
             string errorMessage = string.Empty;
-            LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
+            try
+            {
+                LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
 
-            var accessToken = await _b2BClient.GetAccessTokenAsync();
-            if (accessToken != null)
-            {
-                _b2BClient.SetAccessToken(accessToken.token);
-            }
-            var result = await _b2BClient.Siparisler(3);
-            if (result == null)
-            {
-                _logger.LogError("Siparişler alınamadı.");
-                return;
-            }
-
-            foreach (var item in result.List)
-            {
-                var siparisDetayResult = await _b2BClient.SiparisDetay(item.siparis_id);
-                if (siparisDetayResult == null)
+                var accessToken = await _b2BClient.GetAccessTokenAsync();
+                if (accessToken != null)
                 {
-                    _logger.LogError("Sipariş detay bilgisi alınamadı. Sipariş ID: {siparisId}", item.siparis_id);
-                    break;
+                    _b2BClient.SetAccessToken(accessToken.token);
+                }
+                var result = await _b2BClient.Siparisler(3);
+                if (result == null)
+                {
+                    _logger.LogError("Siparişler alınamadı.");
+                    return;
                 }
 
-                var id = logoService.SiparisKaydet(siparisDetayResult, ref errorMessage);
-                int index = 1;
-                foreach (var kalem in siparisDetayResult.siparis_kalemler)
+                foreach (var item in result.List)
                 {
-                    int kalemId = logoService.SiparisKalemKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, ref errorMessage);
-                    index++;
-                    double tutar = kalem.liste_fiyat * kalem.miktar;
-
-                    if (kalem.iskonto_1 > 0)
+                    var siparisDetayResult = await _b2BClient.SiparisDetay(item.siparis_id);
+                    if (siparisDetayResult == null)
                     {
-                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_1 * 0.01)));
-                        tutar = tutar - isk_tutar;
-                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_1, ref errorMessage);
-
-                        index++;
+                        _logger.LogError("Sipariş detay bilgisi alınamadı. Sipariş ID: {siparisId}", item.siparis_id);
+                        break;
                     }
 
-                    if (kalem.iskonto_2 > 0)
+                    var id = logoService.SiparisKaydet(siparisDetayResult, ref errorMessage);
+                    int index = 1;
+                    foreach (var kalem in siparisDetayResult.siparis_kalemler)
                     {
-                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_2 * 0.01)));
-                        tutar = tutar - isk_tutar;
-                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_2, ref errorMessage);
-
+                        int kalemId = logoService.SiparisKalemKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, ref errorMessage);
                         index++;
-                    }
+                        double tutar = kalem.liste_fiyat * kalem.miktar;
 
-                    if (kalem.iskonto_3 > 0)
-                    {
-                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_3 * 0.01)));
-                        tutar = tutar - isk_tutar;
-                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_3, ref errorMessage);
+                        if (kalem.iskonto_1 > 0)
+                        {
+                            double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_1 * 0.01)));
+                            tutar = tutar - isk_tutar;
+                            logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_1, ref errorMessage);
 
-                        index++;
-                    }
+                            index++;
+                        }
 
-                    if (kalem.iskonto_4 > 0)
-                    {
-                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_4 * 0.01)));
-                        tutar = tutar - isk_tutar;
-                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_4, ref errorMessage);
+                        if (kalem.iskonto_2 > 0)
+                        {
+                            double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_2 * 0.01)));
+                            tutar = tutar - isk_tutar;
+                            logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_2, ref errorMessage);
 
-                        index++;
-                    }
+                            index++;
+                        }
 
-                    if (kalem.iskonto_5 > 0)
-                    {
-                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_5 * 0.01)));
-                        tutar = tutar - isk_tutar;
-                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_5, ref errorMessage);
+                        if (kalem.iskonto_3 > 0)
+                        {
+                            double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_3 * 0.01)));
+                            tutar = tutar - isk_tutar;
+                            logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_3, ref errorMessage);
 
-                        index++;
-                    }
+                            index++;
+                        }
 
-                    if (kalem.iskonto_6 > 0)
-                    {
-                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_6 * 0.01)));
-                        tutar = tutar - isk_tutar;
-                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_6, ref errorMessage);
+                        if (kalem.iskonto_4 > 0)
+                        {
+                            double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_4 * 0.01)));
+                            tutar = tutar - isk_tutar;
+                            logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_4, ref errorMessage);
 
-                        index++;
+                            index++;
+                        }
+
+                        if (kalem.iskonto_5 > 0)
+                        {
+                            double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_5 * 0.01)));
+                            tutar = tutar - isk_tutar;
+                            logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_5, ref errorMessage);
+
+                            index++;
+                        }
+
+                        if (kalem.iskonto_6 > 0)
+                        {
+                            double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_6 * 0.01)));
+                            tutar = tutar - isk_tutar;
+                            logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_6, ref errorMessage);
+
+                            index++;
+                        }
                     }
                 }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "");
             }
         }
 

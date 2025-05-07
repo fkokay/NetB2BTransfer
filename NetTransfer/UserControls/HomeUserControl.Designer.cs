@@ -32,8 +32,12 @@
             // 
             // HomeUserControl
             // 
+            Appearance.BackColor = System.Drawing.Color.White;
+            Appearance.Options.UseBackColor = true;
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            BackgroundImage = Properties.Resources.ERP_Graphic_1;
+            BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             Name = "HomeUserControl";
             Size = new System.Drawing.Size(1576, 714);
             ResumeLayout(false);

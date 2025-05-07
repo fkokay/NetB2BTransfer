@@ -69,27 +69,50 @@ namespace NetTransfer.Forms
 
         private void MainForm_Load(object sender, EventArgs e)
         {
+            HomeInitialize();
+
+            Timer timer = new Timer();
+            timer.Interval = 30000;
+            timer.Tick += (s, args) =>
+            {
+                ServiceInitialize();
+            };
+            timer.Start();
             ServiceInitialize();
         }
 
-        private void ServiceInitialize()
+        private void HomeInitialize()
+        {
+            container.Controls.Clear();
+            HomeUserControl homeUserControl = new HomeUserControl();
+            homeUserControl.Dock = DockStyle.Fill;
+
+            container.Controls.Add(homeUserControl);
+        }
+
+        public void ServiceInitialize()
         {
             try
             {
                 var result = ServiceInstaller.GetServiceStatus("NetTransferService");
-                if (result == ServiceState.Running)
-                {
-                    txtServiceStatus.Caption = "Servis Çalışıyor";
-                    txtServiceStatus.ItemAppearance.Normal.ForeColor = Color.Green;
-                }
-                else if (result == ServiceState.Unknown || result == ServiceState.NotFound)
+                if (result == ServiceState.Unknown || result == ServiceState.NotFound)
                 {
                     txtServiceStatus.Caption = "Servis Kurulu Değil";
                     txtServiceStatus.ItemAppearance.Normal.ForeColor = Color.Red;
                 }
-                else
+                else if (result == ServiceState.Running)
+                {
+                    txtServiceStatus.Caption = "Servis Çalışıyor";
+                    txtServiceStatus.ItemAppearance.Normal.ForeColor = Color.Green;
+                }
+                else if (result == ServiceState.Stopped)
                 {
                     txtServiceStatus.Caption = "Servis Durduruldu";
+                    txtServiceStatus.ItemAppearance.Normal.ForeColor = Color.Red;
+                }
+                else
+                {
+                    txtServiceStatus.Caption = "Servis Durumu Bilinmiyor";
                     txtServiceStatus.ItemAppearance.Normal.ForeColor = Color.Red;
                 }
             }
@@ -97,5 +120,6 @@ namespace NetTransfer.Forms
             {
             }
         }
+
     }
 }

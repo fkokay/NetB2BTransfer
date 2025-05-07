@@ -50,10 +50,13 @@
             // 
             // container
             // 
+            container.Appearance.BackColor = System.Drawing.Color.White;
+            container.Appearance.Options.UseBackColor = true;
+            container.BackgroundImageLayout = System.Windows.Forms.ImageLayout.Zoom;
             container.Dock = System.Windows.Forms.DockStyle.Fill;
             container.Location = new System.Drawing.Point(260, 39);
             container.Name = "container";
-            container.Size = new System.Drawing.Size(1015, 655);
+            container.Size = new System.Drawing.Size(900, 626);
             container.TabIndex = 0;
             // 
             // accordionControl1
@@ -63,7 +66,7 @@
             accordionControl1.Location = new System.Drawing.Point(0, 39);
             accordionControl1.Name = "accordionControl1";
             accordionControl1.ScrollBarMode = DevExpress.XtraBars.Navigation.ScrollBarMode.Touch;
-            accordionControl1.Size = new System.Drawing.Size(260, 655);
+            accordionControl1.Size = new System.Drawing.Size(260, 626);
             accordionControl1.TabIndex = 1;
             accordionControl1.ViewType = DevExpress.XtraBars.Navigation.AccordionControlViewType.HamburgerMenu;
             // 
@@ -135,7 +138,7 @@
             fluentDesignFormControl1.Location = new System.Drawing.Point(0, 0);
             fluentDesignFormControl1.Manager = fluentFormDefaultManager;
             fluentDesignFormControl1.Name = "fluentDesignFormControl1";
-            fluentDesignFormControl1.Size = new System.Drawing.Size(1275, 39);
+            fluentDesignFormControl1.Size = new System.Drawing.Size(1160, 39);
             fluentDesignFormControl1.TabIndex = 2;
             fluentDesignFormControl1.TabStop = false;
             fluentDesignFormControl1.TitleItemLinks.Add(txtServiceStatus);
@@ -159,7 +162,7 @@
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            ClientSize = new System.Drawing.Size(1275, 694);
+            ClientSize = new System.Drawing.Size(1160, 665);
             ControlContainer = container;
             Controls.Add(container);
             Controls.Add(accordionControl1);

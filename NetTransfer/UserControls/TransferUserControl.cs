@@ -22,6 +22,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -30,7 +31,8 @@ namespace NetTransfer.UserControls
     public partial class TransferUserControl : DevExpress.XtraEditors.XtraUserControl
     {
         private ILogger _logger;
-        private Timer refreshTimer;
+        private DateTime startDatetime;
+        private CancellationTokenSource cancellation = new CancellationTokenSource();
         private BindingList<Log> logs = new BindingList<Log>();
 
         private readonly NetTransferContext _context;
@@ -108,6 +110,11 @@ namespace NetTransfer.UserControls
             LogStop();
         }
 
+        private void LogStop()
+        {
+            cancellation.Cancel();
+        }
+
         private async void TransferUserControl_Load(object sender, EventArgs e)
         {
             _erpSetting = await _context.ErpSetting.FirstAsync();
@@ -146,10 +153,8 @@ namespace NetTransfer.UserControls
             }
         }
 
-        private DateTime startDateTime;
         private void LogStart()
         {
-            startDateTime = DateTime.Now;
             RealTimeSource realTimeSource = new RealTimeSource()
             {
                 DataSource = logs
@@ -157,49 +162,42 @@ namespace NetTransfer.UserControls
 
             gridControlLog.DataSource = realTimeSource;
 
-            refreshTimer = new Timer();
-            refreshTimer.Interval = 100; // 10 seconds
-            refreshTimer.Tick += RefreshTimer_Tick;
-            refreshTimer.Start();
-        }
+            startDatetime = DateTime.Now;
 
-        private void LogStop()
-        {
-            refreshTimer.Stop();
-        }
-
-        private void RefreshTimer_Tick(object sender, EventArgs e)
-        {
-            if (refreshTimer.Interval == 0)
+            Task.Run(() =>
             {
-                refreshTimer.Interval = 10000;
-            }
-            LoadLog();
+                LoadLog();
+            }, cancellation.Token);
         }
 
         private void LoadLog()
         {
-            string filter = "*[System/Provider/@Name=\"NetTransfer\"] and *[System[TimeCreated[@SystemTime >= '" + startDateTime.ToUniversalTime().ToString("o") + "']]]";
-            EventLogQuery query = new EventLogQuery("Application", PathType.LogName, filter);
-            EventLogReader reader = new EventLogReader(query);
-
-            for (EventRecord eventRecord = reader.ReadEvent(); eventRecord != null; eventRecord = reader.ReadEvent())
+            while (true)
             {
-                if (!logs.Where(m => m.EventId == eventRecord.RecordId.ToString()).Any())
+                string filter = "*[System/Provider/@Name=\"NetTransfer\"] and *[System[TimeCreated[@SystemTime >= '" + startDatetime.ToUniversalTime().ToString("o") + "']]]";
+                EventLogQuery query = new EventLogQuery("Application", PathType.LogName, filter);
+                EventLogReader reader = new EventLogReader(query);
+
+                for (EventRecord eventRecord = reader.ReadEvent(); eventRecord != null; eventRecord = reader.ReadEvent())
                 {
-
-                    var message = eventRecord.FormatDescription().Split("\n");
-                    logs.Insert(0, new Log()
+                    if (!logs.Where(m => m.EventId == eventRecord.RecordId.ToString()).Any())
                     {
-                        Source = eventRecord.ProviderName,
-                        EventId = eventRecord.RecordId.ToString(),
-                        EventLevel = eventRecord.Level.ToString(),
-                        EventMessage = message[message.Length == 1 ? 0 : 3],
-                        EventTime = eventRecord.TimeCreated.Value
-                    });
 
-
+                        var message = eventRecord.FormatDescription().Split("\n");
+                        logs.Insert(0, new Log()
+                        {
+                            Source = eventRecord.ProviderName,
+                            EventId = eventRecord.RecordId.ToString(),
+                            EventLevel = eventRecord.Level.ToString(),
+                            EventMessage = message[message.Length == 1 ? 0 : 3],
+                            EventTime = eventRecord.TimeCreated.Value
+                        });
+                    }
                 }
+
+                startDatetime = DateTime.Now;
+
+                Thread.Sleep(100);
             }
 
         }

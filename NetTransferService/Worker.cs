@@ -24,7 +24,7 @@ namespace NetTransferService
         {
             _logger = logger;
             _configuration = configuration;
-            _context = new NetTransferContext(_configuration.GetConnectionString("DefaultConnection")!.ToString()); ;
+            _context = new NetTransferContext(_configuration.GetConnectionString("DefaultConnection")!.ToString());
 
             InitializeSetting();
         }
@@ -59,12 +59,12 @@ namespace NetTransferService
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Factory.StartNew(() => CariTransferAsync(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
-            await Task.Factory.StartNew(() => CariBakiyeTransferAsync(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
-            await Task.Factory.StartNew(() => MalzemeTransfer(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
-            await Task.Factory.StartNew(() => MalzemeStokTransfer(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
-            await Task.Factory.StartNew(() => MalzemeFiyatTransferAsync(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
-            await Task.Factory.StartNew(() => SiparisTransferAsync(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
+            await Task.Factory.StartNew(() => CariTransferAsync(), stoppingToken, TaskCreationOptions.None, taskScheduler);
+            await Task.Factory.StartNew(() => CariBakiyeTransferAsync(), stoppingToken, TaskCreationOptions.None, taskScheduler);
+            await Task.Factory.StartNew(() => MalzemeTransfer(), stoppingToken, TaskCreationOptions.None, taskScheduler);
+            await Task.Factory.StartNew(() => MalzemeStokTransfer(), stoppingToken, TaskCreationOptions.None, taskScheduler);
+            await Task.Factory.StartNew(() => MalzemeFiyatTransferAsync(), stoppingToken, TaskCreationOptions.None, taskScheduler);
+            await Task.Factory.StartNew(() => SiparisTransferAsync(), stoppingToken, TaskCreationOptions.None, taskScheduler);
         }
 
         private async Task SiparisTransferAsync()
