@@ -88,18 +88,21 @@ namespace NetTransfer.Integration
 
                         if (b2bList == null)
                         {
-                            throw new Exception("Product mapping error");
+                            throw new Exception("Müşteri mapping error");
                         }
 
                         foreach (var item in b2bList)
                         {
                             var result = await _b2BClient.MusteriTransferAsync(item);
-                            if (result != null)
+                            if (result == null)
                             {
-                                if (result.Code != 0)
-                                {
-                                    throw new Exception(result.Message);
-                                }
+                                _logger.LogError("Müşteri transferi sırasında hata oluştu. Müşteri Kodu: {erp_kodu}", item.erp_kodu);
+                                break;
+                            }
+
+                            if (result.Code != 0)
+                            {
+                                throw new Exception(result.Message);
                             }
                         }
                         break;
@@ -129,7 +132,7 @@ namespace NetTransfer.Integration
                 {
                     case "Logo":
                         LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
-                        musteriList = logoService.GetArps(ref errorMessage);
+                        musteriList = logoService.GetArpBalances(ref errorMessage);
 
                         if (!string.IsNullOrEmpty(errorMessage))
                             throw new Exception(errorMessage);
@@ -151,7 +154,7 @@ namespace NetTransfer.Integration
 
                         if (b2bList == null)
                         {
-                            throw new Exception("Product mapping error");
+                            throw new Exception("Müşteri bakiye mapping error");
                         }
 
                         var result = await _b2BClient.MusteriBakiyeTransferAsync(b2bList);

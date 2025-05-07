@@ -161,7 +161,6 @@ namespace NetTransfer.Netsis.Library
                 Marshal.ReleaseComObject(sirket);
                 kernel.FreeNetsisLibrary();
                 Marshal.ReleaseComObject(kernel);
-
             }
         }
     }

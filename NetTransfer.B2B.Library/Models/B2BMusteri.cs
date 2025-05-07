@@ -23,7 +23,7 @@ namespace NetTransfer.B2B.Library.Models
         public string plasiyer { get; set; }
         public string depo_kodu { get; set; }
         public string erp_kodu { get; set; }
-        public List<string> odeme_sekilleri { get; set; }
+        public string odeme_sekilleri { get; set; }
         public string musteri_kosul_kodu { get; set; }
         public string grup_kodu { get; set; }
         public string fiyat_listesi_kodu { get; set; }

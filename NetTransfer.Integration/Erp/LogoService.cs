@@ -18,13 +18,13 @@ namespace NetTransfer.Integration.Erp
 {
     public class LogoService(ErpSetting erpSetting, B2BParameter b2BParameter)
     {
-        public List<ArpModel> GetArps(ref string errorMessage)
+        public List<LogoMusteriModel> GetArps(ref string errorMessage)
         {
             LogoQueryParam param = new LogoQueryParam
             {
                 DbName = erpSetting.SqlDatabase!,
-                firmnr = "200",
-                periodnr = "1",
+                firmnr = erpSetting.FirmNo!.ToString(),
+                periodnr = erpSetting.PeriodNo!.ToString(),
                 filter = b2BParameter.CustomerFilter!,
                 limit = "-1",
                 offset = "0",
@@ -37,7 +37,28 @@ namespace NetTransfer.Integration.Erp
                 param.filter += " AND ((CLCARD.CAPIBLOCK_CREADEDDATE >= '" + b2BParameter.CustomerLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NULL) OR (CLCARD.CAPIBLOCK_MODIFIEDDATE >= '" + b2BParameter.CustomerLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NOT NULL)) ";
             }
 
-            var arpList = DataReader.ReadData<ArpModel>(LogoQuery.GetArpsQuery(param), ref errorMessage);
+            var arpList = DataReader.ReadData<LogoMusteriModel>(LogoQuery.GetArpQuery(param), ref errorMessage);
+
+            if (!string.IsNullOrEmpty(errorMessage))
+                throw new Exception(errorMessage);
+
+            return arpList;
+        }
+        public List<LogoMusteriModel> GetArpBalances(ref string errorMessage)
+        {
+            LogoQueryParam param = new LogoQueryParam
+            {
+                DbName = erpSetting.SqlDatabase!,
+                firmnr = erpSetting.FirmNo!.ToString(),
+                periodnr = erpSetting.PeriodNo!.ToString(),
+                filter = b2BParameter.CustomerFilter!,
+                limit = "-1",
+                offset = "0",
+                orderbyfieldname = "CLCARD.CODE",
+                ascdesc = "ASC",
+            };
+
+            var arpList = DataReader.ReadData<LogoMusteriModel>(LogoQuery.GetArpQuery(param), ref errorMessage);
 
             if (!string.IsNullOrEmpty(errorMessage))
                 throw new Exception(errorMessage);
@@ -49,8 +70,8 @@ namespace NetTransfer.Integration.Erp
             LogoQueryParam param = new LogoQueryParam
             {
                 DbName = erpSetting.SqlDatabase!,
-                firmnr = "200",
-                periodnr = "1",
+                firmnr = erpSetting.FirmNo!.ToString(),
+                periodnr = erpSetting.PeriodNo!.ToString(),
                 filter = " AND (ITEMS.CODE NOT LIKE 'ÿ') AND (LEN(ITEMS.NAME) > 0) AND (ITEMS.NAME NOT IN ('AS 396/A', 'SP 453 M'))",
                 limit = "-1",
                 offset = "0",
@@ -74,8 +95,8 @@ namespace NetTransfer.Integration.Erp
             LogoQueryParam param = new LogoQueryParam
             {
                 DbName = erpSetting.SqlDatabase!,
-                firmnr = "200",
-                periodnr = "1",
+                firmnr = erpSetting.FirmNo!.ToString(),
+                periodnr = erpSetting.PeriodNo!.ToString(),
                 filter = " AND (ITEMS.CODE NOT LIKE 'ÿ') AND (LEN(ITEMS.NAME) > 0) AND (ITEMS.NAME NOT IN ('AS 396/A', 'SP 453 M'))",
                 limit = "-1",
                 offset = "0",
@@ -83,7 +104,7 @@ namespace NetTransfer.Integration.Erp
                 ascdesc = "ASC",
             };
 
-            var data = DataReader.ReadData<ItemModel>(LogoQuery.GetItemsQuery(param), ref errorMessage);
+            var data = DataReader.ReadData<ItemModel>(LogoQuery.GetItemStockQuery(param), ref errorMessage);
 
             if (data == null)
             {
@@ -110,8 +131,8 @@ namespace NetTransfer.Integration.Erp
             LogoQueryParam param = new LogoQueryParam
             {
                 DbName = erpSetting.SqlDatabase!,
-                firmnr = "200",
-                periodnr = "1",
+                firmnr = erpSetting.FirmNo!.ToString(),
+                periodnr = erpSetting.PeriodNo!.ToString(),
                 filter = " AND (ITEMS.CODE NOT LIKE 'ÿ') AND (LEN(ITEMS.NAME) > 0) AND (ITEMS.NAME NOT IN ('AS 396/A', 'SP 453 M'))",
                 limit = "-1",
                 offset = "0",
@@ -206,7 +227,6 @@ namespace NetTransfer.Integration.Erp
                 return 0;
             }
         }
-
         public int SiparisKalemKaydet(B2BSiparisUstBilgiler ustBilgiler, B2BSiparisKalem kalem, int siparisId, int index, ref string errorMessage)
         {
 
