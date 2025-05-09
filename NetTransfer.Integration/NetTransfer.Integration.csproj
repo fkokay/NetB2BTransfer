@@ -13,6 +13,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NetTransfer.B2B.Library\NetTransfer.B2B.Library.csproj" />
     <ProjectReference Include="..\NetTransfer.Core\NetTransfer.Core.csproj" />
+    <ProjectReference Include="..\NetTransfer.Data\NetTransfer.Data.csproj" />
     <ProjectReference Include="..\NetTransfer.Logo.Library\NetTransfer.Logo.Library.csproj" />
     <ProjectReference Include="..\NetTransfer.Netsis.Library\NetTransfer.Netsis.Library.csproj" />
     <ProjectReference Include="..\NetTransfer.Opak.Library\NetTransfer.Opak.Library.csproj" />

@@ -60,7 +60,7 @@ namespace NetTransfer.Integration.Erp
                 ascdesc = "ASC",
             };
 
-            var arpList = DataReader.ReadData<LogoMusteriModel>(connectionString, LogoQuery.GetArpQuery(param), ref errorMessage);
+            var arpList = DataReader.ReadData<LogoMusteriModel>(connectionString, LogoQuery.GetArpBalanceQuery(param), ref errorMessage);
 
             if (!string.IsNullOrEmpty(errorMessage))
                 throw new Exception(errorMessage);
@@ -141,6 +141,11 @@ namespace NetTransfer.Integration.Erp
                 orderbyfieldname = "ITEMS.CODE",
                 ascdesc = "ASC",
             };
+
+            if (b2BParameter.ProductPriceLastTransfer != null)
+            {
+                param.filter += " AND ((PRCLIST.CAPIBLOCK_CREADEDDATE >= '" + b2BParameter.ProductPriceLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND PRCLIST.CAPIBLOCK_MODIFIEDDATE IS NULL) OR (PRCLIST.CAPIBLOCK_MODIFIEDDATE >= '" + b2BParameter.ProductPriceLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND PRCLIST.CAPIBLOCK_MODIFIEDDATE IS NOT NULL)) ";
+            }
 
             var data = DataReader.ReadData<ItemPriceModel>(connectionString, LogoQuery.GetItemsPriceQuery(param), ref errorMessage);
 
@@ -298,7 +303,7 @@ namespace NetTransfer.Integration.Erp
                 return 0;
             }
         }
-        public void SiparisKalemIskontoKaydet(B2BSiparisUstBilgiler ustBilgiler, B2BSiparisKalem kalem, int siparisId, int index,int satirId, double iskontoTutar, double iskontoOran, ref string errorMessage)
+        public void SiparisKalemIskontoKaydet(B2BSiparisUstBilgiler ustBilgiler, B2BSiparisKalem kalem, int siparisId, int index, int satirId, double iskontoTutar, double iskontoOran, ref string errorMessage)
         {
 
             try
@@ -358,6 +363,11 @@ namespace NetTransfer.Integration.Erp
             {
                 errorMessage = ex.Message;
             }
+        }
+
+        public string GetSipariNo(int id, ref string errorMessage)
+        {
+            return DataReader.GetExecuteScalar(connectionString, "SELECT FICHENO FROM LG_200_01_ORFICHE WHERE GENEXP4 = '" + id + "'", ref errorMessage);
         }
     }
 }

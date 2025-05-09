@@ -26,5 +26,18 @@ namespace NetTransfer.Core.Data
             }
         }
 
+        public static string GetExecuteScalar(string connectionString, string query, ref string errorMessage)
+        {
+            using (var connect = new SqlConnection(connectionString))
+            {
+                using (var cmd = new SqlCommand(query, connect) { CommandTimeout = 9999999 })
+                {
+                    connect.Open();
+                    var returnValue = cmd.ExecuteScalar() + "";
+                    return !string.IsNullOrEmpty(returnValue) ? returnValue : string.Empty;
+                }
+            }
+        }
+
     }
 }

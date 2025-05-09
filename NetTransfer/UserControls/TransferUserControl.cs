@@ -56,6 +56,8 @@ namespace NetTransfer.UserControls
 
         private async void InitializeTransfer()
         {
+            string conn = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
+
             _erpSetting = await _context.ErpSetting.FirstAsync();
             _b2BSetting = await _context.VirtualStoreSetting.FirstAsync();
 
@@ -76,7 +78,7 @@ namespace NetTransfer.UserControls
                     }
                 );
 
-                transfer = new Transfer(_logger, _erpSetting, _b2BSetting, _b2BParameter);
+                transfer = new Transfer(_logger, conn, _erpSetting, _b2BSetting, _b2BParameter);
             }
 
             if (_b2BSetting.VirtualStore == "Smartstore")
@@ -91,7 +93,7 @@ namespace NetTransfer.UserControls
                    }
                );
 
-                transfer = new Transfer(_logger, _erpSetting, _b2BSetting, _smartstoreParameter);
+                transfer = new Transfer(_logger, conn, _erpSetting, _b2BSetting, _smartstoreParameter);
             }
         }
 
@@ -122,6 +124,7 @@ namespace NetTransfer.UserControls
 
             LogStart();
 
+            cancellationTransfer = new CancellationTokenSource();
             btnCancel.Enabled = true;
             btnTransfer.Enabled = false;
             if (transfer != null)
@@ -132,6 +135,7 @@ namespace NetTransfer.UserControls
                     {
                         await transfer.CariTransfer();
                     }, cancellationTransfer.Token);
+
                 }
                 else if (cmbTransferType.SelectedItem.ToString() == "Cari Bakiye Aktarım")
                 {
@@ -165,7 +169,7 @@ namespace NetTransfer.UserControls
                 {
                     await Task.Run(async () =>
                     {
-                        await transfer.MalzemeStokTransfer();
+                        await transfer.SiparisTransfer();
                     }, cancellationTransfer.Token);
                 }
                 else if (cmbTransferType.SelectedItem.ToString() == "SanalPos Aktarım")
@@ -179,7 +183,7 @@ namespace NetTransfer.UserControls
             btnCancel.Enabled = false;
             btnTransfer.Enabled = true;
 
-
+            cancellationTransfer.Cancel();
             LogStop();
         }
 

@@ -3,6 +3,7 @@ using Microsoft.Data.SqlClient;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.Core.Entities;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -58,151 +59,231 @@ namespace NetTransfer.B2B.Library
         public void SetAccessToken(string token)
         {
             _accessToken = token;
-        }   
+        }
+        public bool IsAccessToken()
+        {
+            return string.IsNullOrEmpty(_accessToken) ? false : true;
+        }
         public async Task<B2BResponse?> MusteriTransferAsync(B2BMusteri musteri)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                var json = JsonConvert.SerializeObject(new List<B2BMusteri>() { musteri });
-                var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/musteriler/tanim", new StringContent(json, Encoding.UTF8, "application/json"));
-                if (response.IsSuccessStatusCode)
+                using (var client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var json = @" {  ""data"": [ " + JsonConvert.SerializeObject(new List<B2BMusteri>() { musteri }) + " ] }  ";
+                    var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/musteriler/tanim", new StringContent(json, Encoding.UTF8, "application/json"));
+
+                    string value = await response.Content.ReadAsStringAsync();
+                    B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<B2BResponse?> MusteriTopluTransferAsync(List<B2BMusteri> musteriAll)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var json = @" {  ""data"":  " + JsonConvert.SerializeObject(musteriAll) + "  }  ";
+                    var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/musteriler/tanim", new StringContent(json, Encoding.UTF8, "application/json"));
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
 
 
                     return result;
                 }
-
-                return null;
+            }
+            catch (Exception)
+            {
+                throw;
             }
         }
         public async Task<B2BResponse?> MusteriBakiyeTransferAsync(List<B2BMusteriBakiye> musteriBakiyeleri)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                var json = JsonConvert.SerializeObject(musteriBakiyeleri);
-                var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/musteriler/cari_bakiye_tanim", new StringContent(json, Encoding.UTF8, "application/json"));
-                if (response.IsSuccessStatusCode)
+                using (var client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var json = @"{""data"" :" + JsonConvert.SerializeObject(musteriBakiyeleri) + "}";
+                    var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/musteriler/cari_bakiye_tanim", new StringContent(json, Encoding.UTF8, "application/json"));
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
 
 
                     return result;
                 }
+            }
+            catch (Exception)
+            {
 
-                return null;
+                throw;
             }
         }
         public async Task<B2BResponse?> UrunTransferAsync(B2BUrun urun)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                var json = JsonConvert.SerializeObject(urun);
-                var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/ekle", new StringContent(json, Encoding.UTF8, "application/json"));
-                if (response.IsSuccessStatusCode)
+                using (var client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var json = JsonConvert.SerializeObject(urun);
+                    var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/ekle", new StringContent(json, Encoding.UTF8, "application/json"));
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
 
 
                     return result;
                 }
+            }
+            catch (Exception)
+            {
 
-                return null;
+                throw;
             }
         }
         public async Task<B2BResponse?> UrunStokTransferAsync(B2BDepoMiktar depoMiktar)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                var json = JsonConvert.SerializeObject(depoMiktar);
-                var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/toplu/depo_miktar/tanimlama", new StringContent(json, Encoding.UTF8, "application/json"));
-                if (response.IsSuccessStatusCode)
+                using (var client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var json = JsonConvert.SerializeObject(depoMiktar);
+                    var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/toplu/depo_miktar/tanimlama", new StringContent(json, Encoding.UTF8, "application/json"));
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
 
 
                     return result;
                 }
+            }
+            catch (Exception)
+            {
 
-                return null;
+                throw;
             }
         }
         public async Task<B2BResponse?> UrunFiyatTrasnferAsync(B2BUrunFiyat b2BUrunFiyat)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                var json = JsonConvert.SerializeObject(b2BUrunFiyat);
-                var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/fiyat_listeleri/tanimlama", new StringContent(json, Encoding.UTF8, "application/json"));
-                if (response.IsSuccessStatusCode)
+                using (var client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var json = JsonConvert.SerializeObject(b2BUrunFiyat);
+                    var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/fiyat_listeleri/tanimlama", new StringContent(json, Encoding.UTF8, "application/json"));
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
 
 
                     return result;
                 }
+            }
+            catch (Exception)
+            {
 
-                return null;
+                throw;
             }
         }
         public async Task<B2BResponseList<B2BSiparis>?> Siparisler(int siparisDurumu)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                var response = await client.GetAsync(_b2BSetting.Url + $"/entegrasyon/siparisler/list?siparis_durumu={siparisDurumu}");
-                if (response.IsSuccessStatusCode)
+                using (var client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var response = await client.GetAsync(_b2BSetting.Url + $"/entegrasyon/siparisler/list?siparis_durumu={siparisDurumu}");
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponseList<B2BSiparis>? result = JsonConvert.DeserializeObject<B2BResponseList<B2BSiparis>>(value: value);
 
 
                     return result;
                 }
+            }
+            catch (Exception)
+            {
 
-                return null;
+                throw;
             }
         }
         public async Task<B2BResponseSiparisDetay?> SiparisDetay(int sip_id)
         {
-            using (var client = new HttpClient())
+            try
             {
-                client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
-                client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
-
-                var response = await client.GetAsync(_b2BSetting.Url + $"/entegrasyon/siparisler/detay/{sip_id}");
-                if (response.IsSuccessStatusCode)
+                using (var client = new HttpClient())
                 {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var response = await client.GetAsync(_b2BSetting.Url + $"/entegrasyon/siparisler/detay/{sip_id}");
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponseSiparisDetay? result = JsonConvert.DeserializeObject<B2BResponseSiparisDetay>(value: value);
 
-                    
+
 
                     return result;
                 }
+            }
+            catch (Exception)
+            {
 
-                return null;
+                throw;
+            }
+        }
+        public async Task<B2BResponse?> SiparisDurumGunncelle(int sip_id,string siparis_no)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var data = new JObject(
+                     new JProperty("siparis_id", sip_id),
+                     new JProperty("siparis_durum_id", 3),
+                      new JProperty("email_bildirimi", "H"),
+                      new JProperty("icerik", siparis_no)
+                                                );
+
+                    string json = data.ToString(Newtonsoft.Json.Formatting.None);
+
+                    var response = await client.PostAsync(_b2BSetting.Url + $"/entegrasyon/siparisler/durum/guncelle",new StringContent(json, Encoding.UTF8, "application/json"));
+                    string value = await response.Content.ReadAsStringAsync();
+                    B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
+
+
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
     }

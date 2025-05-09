@@ -91,13 +91,6 @@ namespace NetTransfer.Logo.Library.Class
         }
         public static string GetArpBalanceQuery(LogoQueryParam param)
         {
-            var offsetfilter = "";
-            if (param.limit != "-1")
-            {
-                offsetfilter = " OFFSET " + param.offset + " ROWS \r\n" +
-                               " FETCH NEXT " + param.limit + " ROWS ONLY;";
-            }
-
             var query = "SELECT\r\n" +
                         "CLCARD.LOGICALREF,\r\n" +
                         "CLCARD.CODE,\r\n" +
@@ -106,7 +99,7 @@ namespace NetTransfer.Logo.Library.Class
                         "ISNULL((SELECT SUM(GNTOTCL.DEBIT)-SUM(GNTOTCL.CREDIT) FROM " + LogoUtils.TableViewNameWithFirmPlusPeriod(param.DbName, param.firmnr, param.periodnr, "GNTOTCL") + " AS GNTOTCL WITH(NOLOCK) WHERE CLCARD.LOGICALREF=GNTOTCL.CARDREF AND GNTOTCL.TOTTYP=1),0.00) AS BALANCE \r\n" +
                         " FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "CLCARD") + " AS CLCARD WITH(NOLOCK)  \r\n" +
                         " WHERE (CLCARD.CARDTYPE<>22) " + param.filter + "\r\n" +
-                        " ORDER BY " + param.orderbyfieldname + " " + param.ascdesc + "" + offsetfilter + " ";
+                        " ORDER BY " + param.orderbyfieldname + " " + param.ascdesc;
 
             return query;
         }
@@ -248,15 +241,15 @@ namespace NetTransfer.Logo.Library.Class
                     "'0' AS tarih_aralik_durum, " +
                     "GETDATE() - 10 AS baslangic_tarihi, " +
                     "GETDATE() + 90 AS bitis_tarihi, " +
-                    "'1' AS durum, " +
+                    "1 AS durum, " +
                     "ITEMS.NAME AS urun_kodu, " +
                     "'TRY' AS doviz_kodu, " +
                     "CONVERT(DECIMAL(18, 4), PRCLIST .PRICE * (1 - ITEMS.SELLVAT * 0.01)) AS liste_fiyati " +
                     "FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "PRCLIST") + " AS PRCLIST  WITH (NOLOCK) " +
-                    " LEFT OUTER JOIN dbo.LG_200_CLCARD AS CLNTC WITH(NOLOCK) ON PRCLIST .CLIENTCODE = CLNTC.CODE " +
-                    " LEFT OUTER JOIN dbo.LG_200_PROJECT AS PROJECT WITH(NOLOCK) ON PRCLIST .PROJECTREF = PROJECT.LOGICALREF " +
-                    " LEFT OUTER JOIN dbo.LG_200_ITEMS AS ITEMS WITH(NOLOCK) ON PRCLIST .CARDREF = ITEMS.LOGICALREF " +
-                    " WHERE PRCLIST.PTYPE = 2 AND PRCLIST.PRIORITY = 0 " + param.filter;
+                    " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "CLCARD") + " AS CLNTC WITH(NOLOCK) ON PRCLIST .CLIENTCODE = CLNTC.CODE " +
+                    " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "PROJECT") + " AS PROJECT WITH(NOLOCK) ON PRCLIST .PROJECTREF = PROJECT.LOGICALREF " +
+                    " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "ITEMS") + " AS ITEMS WITH(NOLOCK) ON PRCLIST .CARDREF = ITEMS.LOGICALREF " +
+                    " WHERE PRCLIST.PTYPE = 2 AND (PRCLIST.LOGICALREF IN (SELECT MAX(LOGICALREF) FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "PRCLIST") + " AS F GROUP BY CARDREF)) " + param.filter;
         }
 
     }

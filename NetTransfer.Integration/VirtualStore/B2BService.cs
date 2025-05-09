@@ -104,7 +104,7 @@ namespace NetTransfer.Integration.VirtualStore
             foreach (var item in itemList)
             {
                 B2BUrun urun = new B2BUrun();
-                urun.marka = new B2BMarka() { kod = item.MARKCODE, baslik = item.MARKNAME };
+                urun.marka = new B2BMarka() { kod = item.STGRPCODE, baslik = item.STGRPNAME };
                 urun.grup = new B2BGrup() { kod = item.STGRPCODE, baslik = item.STGRPNAME };
                 urun.birim = new B2BBirim() { kod = item.UNITCODE, baslik = item.UNITCODE };
                 urun.barkod_no = item.BARCODE;
@@ -167,7 +167,7 @@ namespace NetTransfer.Integration.VirtualStore
                     cari_kod = item.CODE,
                     adi = item.CUSTNAME,
                     soyadi = item.CUSTSURNAME,
-                    telefon = item.TELNRS1,
+                    telefon = "",
                     adres = item.ADDR1 + (string.IsNullOrEmpty(item.ADDR2) ? "" : " " + item.ADDR2),
                     il = item.CITY,
                     ilce = item.TOWN,
@@ -186,7 +186,7 @@ namespace NetTransfer.Integration.VirtualStore
                     .Replace(",", "").Replace(";", "").Replace(":", "").Replace("/", "").Replace("\\", "").Replace("'", "").Replace("\"", "")
                     .Replace("<", "").Replace(">", "").Replace("[", "").Replace("]", "").Replace("{", "").Replace("}", "") + "@turkuaz.com",
                     kullanici_adi = item.CODE,
-                    sifre = item.CODE.Substring(6),
+                    sifre = item.CODE.Length > 6 ? item.CODE.Substring(6) : item.CODE,
                     email_durum_bildirimi = "H",
                     musteri_durumu = "1",
                 };
@@ -226,8 +226,8 @@ namespace NetTransfer.Integration.VirtualStore
                 var musteriBakiye = new B2BMusteriBakiye
                 {
                     cari_kod = item.CODE,
-                    doviz_kodu = "TL",
-                    bakiye = item.BALANCE,
+                    doviz_kodu = "TRY",
+                    bakiye = Math.Round(item.BALANCE,2),
                     gecikmis_gun = 0,
                     gecikmis_bakiye = 0,
                     borc_alacak_tipi = item.BALANCE > 0 ? "B" : "A",
