@@ -1,16 +1,21 @@
 using Microsoft.EntityFrameworkCore;
 using NetTransferService;
+using System.Runtime.Versioning;
 
-var builder = Host.CreateApplicationBuilder(args);
+HostApplicationBuilder builder = Host.CreateApplicationBuilder(args);
+builder.Services.AddHostedService<Worker>();
 builder.Logging.ClearProviders();
-builder.Logging.AddEventLog();
+
+// Ensure the following code is only executed on Windows platforms  
+if (OperatingSystem.IsWindows())
+{
+    builder.Logging.AddEventLog();
+}
 
 builder.Services.AddWindowsService(opt =>
 {
-    opt.ServiceName = "NetTransferService";  
+    opt.ServiceName = "NetTransferService";
 });
 
-builder.Services.AddHostedService<Worker>();
-
-var host = builder.Build();
+IHost host = builder.Build();
 host.Run();

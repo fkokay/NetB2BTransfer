@@ -43,6 +43,7 @@
             fluentDesignFormControl1 = new DevExpress.XtraBars.FluentDesignSystem.FluentDesignFormControl();
             txtServiceStatus = new DevExpress.XtraBars.BarStaticItem();
             fluentFormDefaultManager = new DevExpress.XtraBars.FluentDesignSystem.FluentFormDefaultManager(components);
+            btnQueryBuilder = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             ((System.ComponentModel.ISupportInitialize)accordionControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fluentDesignFormControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fluentFormDefaultManager).BeginInit();
@@ -127,6 +128,7 @@
             // 
             // accordionControlElement3
             // 
+            accordionControlElement3.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { btnQueryBuilder });
             accordionControlElement3.Expanded = true;
             accordionControlElement3.Name = "accordionControlElement3";
             accordionControlElement3.Text = "Eklentiler";
@@ -157,6 +159,13 @@
             fluentFormDefaultManager.Form = this;
             fluentFormDefaultManager.Items.AddRange(new DevExpress.XtraBars.BarItem[] { txtServiceStatus });
             fluentFormDefaultManager.MaxItemId = 1;
+            // 
+            // btnQueryBuilder
+            // 
+            btnQueryBuilder.Name = "btnQueryBuilder";
+            btnQueryBuilder.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
+            btnQueryBuilder.Text = "Sorgu Oluşturma Aracı";
+            btnQueryBuilder.Click += btnQueryBuilder_Click;
             // 
             // MainForm
             // 
@@ -196,5 +205,6 @@
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnB2BSetting;
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnServiceSetting;
         private DevExpress.XtraBars.BarStaticItem txtServiceStatus;
+        private DevExpress.XtraBars.Navigation.AccordionControlElement btnQueryBuilder;
     }
 }

@@ -253,7 +253,7 @@ namespace NetTransfer.B2B.Library
                 throw;
             }
         }
-        public async Task<B2BResponse?> SiparisDurumGunncelle(int sip_id,string siparis_no)
+        public async Task<B2BResponse?> SiparisDurumGunncelle(int sip_id, string siparis_no)
         {
             try
             {
@@ -271,7 +271,7 @@ namespace NetTransfer.B2B.Library
 
                     string json = data.ToString(Newtonsoft.Json.Formatting.None);
 
-                    var response = await client.PostAsync(_b2BSetting.Url + $"/entegrasyon/siparisler/durum/guncelle",new StringContent(json, Encoding.UTF8, "application/json"));
+                    var response = await client.PostAsync(_b2BSetting.Url + $"/entegrasyon/siparisler/durum/guncelle", new StringContent(json, Encoding.UTF8, "application/json"));
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
 

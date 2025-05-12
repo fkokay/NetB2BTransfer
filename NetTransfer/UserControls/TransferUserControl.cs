@@ -116,7 +116,7 @@ namespace NetTransfer.UserControls
 
         private async void btnTransfer_Click(object sender, EventArgs e)
         {
-            if (string.IsNullOrEmpty(cmbTransferType.SelectedItem.ToString()))
+            if (cmbTransferType.SelectedItem == null)
             {
                 MessageBox.Show("Lütfen aktarım türünü seçiniz.");
                 return;
@@ -257,7 +257,7 @@ namespace NetTransfer.UserControls
 
         public bool IsTransfer()
         {
-            if (cancellationTransfer.IsCancellationRequested)
+            if (btnTransfer.Enabled)
             {
                 return false;
             }

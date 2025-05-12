@@ -1,4 +1,5 @@
-﻿using DevExpress.XtraBars;
+﻿using DevExpress.DataAccess.UI.Native.DataFederation;
+using DevExpress.XtraBars;
 using DevExpress.XtraEditors;
 using NetTransfer.Models;
 using NetTransfer.UserControls;
@@ -158,5 +159,8 @@ namespace NetTransfer.Forms
             }
         }
 
+        private void btnQueryBuilder_Click(object sender, EventArgs e)
+        {
+        }
     }
 }

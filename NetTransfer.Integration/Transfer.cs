@@ -463,7 +463,7 @@ namespace NetTransfer.Integration
                         }
 
                         var id = logoService.SiparisKaydet(siparisDetayResult, ref errorMessage);
-                        var sipariNo = logoService.GetSipariNo(id, ref errorMessage);
+                        var sipariNo = logoService.GetSipariNo(item.siparis_id, ref errorMessage);
                         int index = 1;
                         foreach (var kalem in siparisDetayResult.siparis_kalemler)
                         {
@@ -526,7 +526,22 @@ namespace NetTransfer.Integration
                             }
                         }
 
-                        await _b2BClient.SiparisDurumGunncelle(id, sipariNo);
+                        var siparisDurumGunceleResult = await _b2BClient.SiparisDurumGunncelle(item.siparis_id, sipariNo);
+                        if (siparisDurumGunceleResult == null)
+                        {
+                            _logger.LogError("Sipariş durumu güncellenemedi. Sipariş ID: {siparisId}", item.siparis_id);
+                        }
+                        else
+                        {
+                            if (siparisDurumGunceleResult.Code == 200)
+                            {
+                                _logger.LogWarning("Sipariş durumu güncellendi. Sipariş ID: {siparisId} Sipariş NO : {siparisNo}", id, sipariNo);
+                            }
+                            else
+                            {
+                                _logger.LogError(siparisDurumGunceleResult.Message);
+                            }
+                        }
                     }
                 }
                 else
