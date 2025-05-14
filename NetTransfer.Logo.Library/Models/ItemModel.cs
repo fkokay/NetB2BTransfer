@@ -145,8 +145,8 @@ namespace NetTransfer.Logo.Library.Models
         [DataMember(Name = "IMAGE")]
         public byte[] IMAGE { get; set; }
 
-        [DataMember(Name = "STATUS")]
-        public string STATUS { get; set; }
+        [DataMember(Name = "ACTIVE")]
+        public int ACTIVE { get; set; }
 
         [DataMember(Name = "DIFFSTOCKAMOUNT")]
         public int DIFFSTOCKAMOUNT { get; set; }

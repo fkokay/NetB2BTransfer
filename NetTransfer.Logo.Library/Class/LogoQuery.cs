@@ -242,7 +242,7 @@ namespace NetTransfer.Logo.Library.Class
                     "GETDATE() - 10 AS baslangic_tarihi, " +
                     "GETDATE() + 90 AS bitis_tarihi, " +
                     "1 AS durum, " +
-                    "ITEMS.NAME AS urun_kodu, " +
+                    "ITEMS.CODE AS urun_kodu, " +
                     "'TRY' AS doviz_kodu, " +
                     "CONVERT(DECIMAL(18, 4), PRCLIST .PRICE * (1 - ITEMS.SELLVAT * 0.01)) AS liste_fiyati " +
                     "FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "PRCLIST") + " AS PRCLIST  WITH (NOLOCK) " +
@@ -252,5 +252,9 @@ namespace NetTransfer.Logo.Library.Class
                     " WHERE PRCLIST.PTYPE = 2 AND (PRCLIST.LOGICALREF IN (SELECT MAX(LOGICALREF) FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "PRCLIST") + " AS F GROUP BY CARDREF)) " + param.filter;
         }
 
+        public static string GetOrderFicheNoQuery(LogoQueryParam param)
+        {
+            return "SELECT FICHENO FROM " + LogoUtils.TableNameWithFirmPlusPeriod(param.DbName, param.firmnr, param.periodnr, "ORFICHE") + " WHERE GENEXP4 = '" + param.datareference + "'";
+        }
     }
 }

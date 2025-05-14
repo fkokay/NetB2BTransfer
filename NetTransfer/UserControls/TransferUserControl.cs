@@ -41,7 +41,7 @@ namespace NetTransfer.UserControls
         private CancellationTokenSource cancellationTransfer = new CancellationTokenSource();
         private BindingList<Log> logs = new BindingList<Log>();
         private ErpSetting _erpSetting;
-        private VirtualStoreSetting _b2BSetting;
+        private VirtualStoreSetting _virtualStoreSetting;
         private B2BParameter _b2BParameter;
         private SmartstoreParameter _smartstoreParameter;
 
@@ -59,10 +59,10 @@ namespace NetTransfer.UserControls
             string conn = ConfigurationManager.ConnectionStrings["DefaultConnection"].ConnectionString;
 
             _erpSetting = await _context.ErpSetting.FirstAsync();
-            _b2BSetting = await _context.VirtualStoreSetting.FirstAsync();
+            _virtualStoreSetting = await _context.VirtualStoreSetting.FirstAsync();
 
             cmbTransferType.Properties.Items.Clear();
-            if (_b2BSetting.VirtualStore == "B2B")
+            if (_virtualStoreSetting.VirtualStore == "B2B")
             {
                 _b2BParameter = _context.B2BParameter.FirstOrDefault();
                 cmbTransferType.Properties.Items.AddRange(
@@ -78,10 +78,10 @@ namespace NetTransfer.UserControls
                     }
                 );
 
-                transfer = new Transfer(_logger, conn, _erpSetting, _b2BSetting, _b2BParameter);
+                transfer = new Transfer(_logger, conn, _erpSetting, _virtualStoreSetting, _b2BParameter);
             }
 
-            if (_b2BSetting.VirtualStore == "Smartstore")
+            if (_virtualStoreSetting.VirtualStore == "Smartstore")
             {
                 _smartstoreParameter = _context.SmartstoreParameter.FirstOrDefault();
                 cmbTransferType.Properties.Items.AddRange(
@@ -93,7 +93,7 @@ namespace NetTransfer.UserControls
                    }
                );
 
-                transfer = new Transfer(_logger, conn, _erpSetting, _b2BSetting, _smartstoreParameter);
+                transfer = new Transfer(_logger, conn, _erpSetting, _virtualStoreSetting, _smartstoreParameter);
             }
         }
 
@@ -272,6 +272,39 @@ namespace NetTransfer.UserControls
             cancellationTransfer.Cancel();
             btnCancel.Enabled = false;
             btnTransfer.Enabled = true;
+        }
+
+        private void btnLastTransferClear_Click(object sender, EventArgs e)
+        {
+            if (_virtualStoreSetting.VirtualStore == "B2B")
+            {
+                if (_b2BParameter == null)
+                {
+                    return;
+                }
+                _b2BParameter.CustomerLastTransfer = null;
+                _b2BParameter.ProductLastTransfer = null;
+                _b2BParameter.ProductStockLastTransfer = null;
+                _b2BParameter.ProductPriceLastTransfer = null;
+                _context.B2BParameter.Update(_b2BParameter);
+                _context.SaveChanges();
+            }
+
+            if (_virtualStoreSetting.VirtualStore == "Smartstore")
+            {
+                if (_smartstoreParameter == null)
+                {
+                    return;
+                }
+
+                _smartstoreParameter.ProductLastTransfer = null;
+                _smartstoreParameter.ProductStockLastTransfer = null;
+                _smartstoreParameter.ProductPriceLastTransfer = null;
+                _context.SmartstoreParameter.Update(_smartstoreParameter);
+                _context.SaveChanges();
+            }
+
+            MessageBox.Show("Son aktarım tarihi sıfırlandı.");
         }
     }
 }

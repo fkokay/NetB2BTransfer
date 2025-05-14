@@ -13,7 +13,7 @@ namespace NetTransfer.Integration.VirtualStore
 {
     public class B2BService(B2BClient _b2bClient)
     {
-        public async Task UpdateProductPrice(List<BaseMalzemeFiyatModel> malzemeFiyatList)
+        public async Task<B2BResponse?> UpdateProductPrice(List<BaseMalzemeFiyatModel> malzemeFiyatList)
         {
             try
             {
@@ -34,7 +34,7 @@ namespace NetTransfer.Integration.VirtualStore
                     }).ToList()
                 };
 
-                var result = await _b2bClient.UrunFiyatTrasnferAsync(b2BUrunFiyat);
+                return await _b2bClient.UrunFiyatTrasnferAsync(b2BUrunFiyat);
             }
             catch (Exception ex)
             {
@@ -101,6 +101,10 @@ namespace NetTransfer.Integration.VirtualStore
         private List<B2BUrun> MappingProductLogo(List<ItemModel>? itemList)
         {
             List<B2BUrun> urunList = new List<B2BUrun>();
+
+            if (itemList == null)
+                return urunList;
+
             foreach (var item in itemList)
             {
                 B2BUrun urun = new B2BUrun();
@@ -111,12 +115,12 @@ namespace NetTransfer.Integration.VirtualStore
                 urun.urun_kodu = item.CODE;
                 urun.doviz_kodu = "TRY";
                 urun.baslik = item.NAME;
-                urun.aciklama = item.NAME2 + " " + item.NAME3 + " " + item.NAME4 + " " + item.NAME;
+                urun.aciklama = item.NAME3;
                 urun.icerik = "";
                 urun.kdv_durumu = "kdv_haric";
                 urun.kdv_orani = item.VAT;
                 urun.liste_fiyati = item.PRICE;
-                urun.durum = item.EXTACCESSFLAGS == 6 || item.EXTACCESSFLAGS == 7 ? 1 : 0;
+                urun.durum = item.ACTIVE == 0 ? (item.EXTACCESSFLAGS == 6 || item.EXTACCESSFLAGS == 7 ? 1 : 0) : 0;
                 urun.yeni_urun = "0";
                 urun.yeni_urun_tarih = Convert.ToDateTime("2024-01-01");
                 urun.minimum_satin_alma_miktari = 1;
@@ -227,7 +231,7 @@ namespace NetTransfer.Integration.VirtualStore
                 {
                     cari_kod = item.CODE,
                     doviz_kodu = "TRY",
-                    bakiye = Math.Round(item.BALANCE,2),
+                    bakiye = Math.Round(item.BALANCE, 2),
                     gecikmis_gun = 0,
                     gecikmis_bakiye = 0,
                     borc_alacak_tipi = item.BALANCE > 0 ? "B" : "A",

@@ -74,7 +74,7 @@ namespace NetTransfer.Integration.Erp
                 DbName = erpSetting.SqlDatabase!,
                 firmnr = erpSetting.FirmNo!.ToString(),
                 periodnr = erpSetting.PeriodNo!.ToString(),
-                filter = " AND (ITEMS.CODE NOT LIKE 'ÿ') AND (LEN(ITEMS.NAME) > 0) AND (ITEMS.NAME NOT IN ('AS 396/A', 'SP 453 M'))",
+                filter = b2BParameter.ProductFilter!.ToString(),
                 limit = "-1",
                 offset = "0",
                 orderbyfieldname = "ITEMS.CODE",
@@ -99,7 +99,7 @@ namespace NetTransfer.Integration.Erp
                 DbName = erpSetting.SqlDatabase!,
                 firmnr = erpSetting.FirmNo!.ToString(),
                 periodnr = erpSetting.PeriodNo!.ToString(),
-                filter = " AND (ITEMS.CODE NOT LIKE 'ÿ') AND (LEN(ITEMS.NAME) > 0) AND (ITEMS.NAME NOT IN ('AS 396/A', 'SP 453 M'))",
+                filter = b2BParameter.ProductStockFilter!.ToString(),
                 limit = "-1",
                 offset = "0",
                 orderbyfieldname = "ITEMS.CODE",
@@ -135,7 +135,7 @@ namespace NetTransfer.Integration.Erp
                 DbName = erpSetting.SqlDatabase!,
                 firmnr = erpSetting.FirmNo!.ToString(),
                 periodnr = erpSetting.PeriodNo!.ToString(),
-                filter = " AND (ITEMS.CODE NOT LIKE 'ÿ') AND (LEN(ITEMS.NAME) > 0) AND (ITEMS.NAME NOT IN ('AS 396/A', 'SP 453 M'))",
+                filter = b2BParameter.ProductPriceFilter!.ToString(),
                 limit = "-1",
                 offset = "0",
                 orderbyfieldname = "ITEMS.CODE",
@@ -364,10 +364,15 @@ namespace NetTransfer.Integration.Erp
                 errorMessage = ex.Message;
             }
         }
-
         public string GetSipariNo(int id, ref string errorMessage)
         {
-            return DataReader.GetExecuteScalar(connectionString, "SELECT FICHENO FROM LG_200_01_ORFICHE WHERE GENEXP4 = '" + id + "'", ref errorMessage);
+            LogoQueryParam param = new LogoQueryParam();
+            param.DbName = erpSetting.SqlDatabase!;
+            param.firmnr = erpSetting.FirmNo!.ToString();
+            param.periodnr = erpSetting.PeriodNo!.ToString();
+            param.datareference = id.ToString();
+
+            return DataReader.GetExecuteScalar(connectionString, LogoQuery.GetOrderFicheNoQuery(param), ref errorMessage);
         }
     }
 }

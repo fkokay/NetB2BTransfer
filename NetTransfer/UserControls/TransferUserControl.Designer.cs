@@ -35,10 +35,11 @@
             gridColumn3 = new DevExpress.XtraGrid.Columns.GridColumn();
             gridColumn2 = new DevExpress.XtraGrid.Columns.GridColumn();
             panelControl1 = new DevExpress.XtraEditors.PanelControl();
+            btnLastTransferClear = new DevExpress.XtraEditors.SimpleButton();
+            btnCancel = new DevExpress.XtraEditors.SimpleButton();
             cmbTransferType = new DevExpress.XtraEditors.ComboBoxEdit();
             labelControl1 = new DevExpress.XtraEditors.LabelControl();
             btnTransfer = new DevExpress.XtraEditors.SimpleButton();
-            btnCancel = new DevExpress.XtraEditors.SimpleButton();
             ((System.ComponentModel.ISupportInitialize)groupControl1).BeginInit();
             groupControl1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)gridControlLog).BeginInit();
@@ -116,6 +117,7 @@
             // 
             // panelControl1
             // 
+            panelControl1.Controls.Add(btnLastTransferClear);
             panelControl1.Controls.Add(btnCancel);
             panelControl1.Controls.Add(cmbTransferType);
             panelControl1.Controls.Add(labelControl1);
@@ -126,6 +128,26 @@
             panelControl1.Name = "panelControl1";
             panelControl1.Size = new System.Drawing.Size(1470, 66);
             panelControl1.TabIndex = 0;
+            // 
+            // btnLastTransferClear
+            // 
+            btnLastTransferClear.Location = new System.Drawing.Point(639, 5);
+            btnLastTransferClear.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            btnLastTransferClear.Name = "btnLastTransferClear";
+            btnLastTransferClear.Size = new System.Drawing.Size(118, 45);
+            btnLastTransferClear.TabIndex = 5;
+            btnLastTransferClear.Text = "Son Aktarım \r\nTarihlerini Temizle";
+            btnLastTransferClear.Click += btnLastTransferClear_Click;
+            // 
+            // btnCancel
+            // 
+            btnCancel.Location = new System.Drawing.Point(513, 4);
+            btnCancel.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new System.Drawing.Size(118, 45);
+            btnCancel.TabIndex = 4;
+            btnCancel.Text = "İptal Et";
+            btnCancel.Click += btnCancel_Click;
             // 
             // cmbTransferType
             // 
@@ -154,16 +176,6 @@
             btnTransfer.TabIndex = 1;
             btnTransfer.Text = "Aktar";
             btnTransfer.Click += btnTransfer_Click;
-            // 
-            // btnCancel
-            // 
-            btnCancel.Location = new System.Drawing.Point(513, 4);
-            btnCancel.Margin = new System.Windows.Forms.Padding(4, 2, 4, 2);
-            btnCancel.Name = "btnCancel";
-            btnCancel.Size = new System.Drawing.Size(118, 45);
-            btnCancel.TabIndex = 4;
-            btnCancel.Text = "İptal Et";
-            btnCancel.Click += btnCancel_Click;
             // 
             // TransferUserControl
             // 
@@ -198,5 +210,6 @@
         private DevExpress.XtraEditors.LabelControl labelControl1;
         private DevExpress.XtraEditors.ComboBoxEdit cmbTransferType;
         private DevExpress.XtraEditors.SimpleButton btnCancel;
+        private DevExpress.XtraEditors.SimpleButton btnLastTransferClear;
     }
 }

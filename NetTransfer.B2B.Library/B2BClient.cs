@@ -37,21 +37,14 @@ namespace NetTransfer.B2B.Library
                     };
 
                     var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/giris", formData);
-                    if (response.IsSuccessStatusCode)
-                    {
-                        string value = await response.Content.ReadAsStringAsync();
-                        B2BPerson? result = JsonConvert.DeserializeObject<B2BPerson>(value: value);
+                    string value = await response.Content.ReadAsStringAsync();
+                    B2BPerson? result = JsonConvert.DeserializeObject<B2BPerson>(value: value);
 
 
-                        return result;
-                    }
-                    else
-                    {
-                        return null;
-                    }
+                    return result;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return null;
             }
@@ -134,7 +127,7 @@ namespace NetTransfer.B2B.Library
                 throw;
             }
         }
-        public async Task<B2BResponse?> UrunTransferAsync(B2BUrun urun)
+        public async Task<B2BResponse?> UrunTopluTransferAsync(List<B2BUrun> urunler)
         {
             try
             {
@@ -143,8 +136,8 @@ namespace NetTransfer.B2B.Library
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
-                    var json = JsonConvert.SerializeObject(urun);
-                    var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/ekle", new StringContent(json, Encoding.UTF8, "application/json"));
+                    var json = @" {  ""data"":  " + JsonConvert.SerializeObject(urunler) + "  }  ";
+                    var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/toplu/urun/tanim", new StringContent(json, Encoding.UTF8, "application/json"));
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
 

@@ -21,6 +21,7 @@ using NetTransfer.B2B.Library;
 using Microsoft.Data.SqlClient;
 using System.Data;
 using NetTransfer.Data;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace NetTransfer.Integration
 {
@@ -206,7 +207,7 @@ namespace NetTransfer.Integration
                         var result = await _b2BClient.MusteriBakiyeTransferAsync(b2bList);
                         if (result != null)
                         {
-                            if (result.Code != 0)
+                            if (result.Code != 200)
                             {
                                 throw new Exception(result.Message);
                             }
@@ -221,7 +222,7 @@ namespace NetTransfer.Integration
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Cari transferi sırasında hata oluştu.");
+                _logger.LogError(ex, "Cari bakiye transferi sırasında hata oluştu.");
             }
         }
 
@@ -241,14 +242,23 @@ namespace NetTransfer.Integration
                     case "Logo":
                         LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
                         malzemeList = logoService.GetMalzemeList(ref errorMessage);
+
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Netsis":
                         NetsisService netsisService = new NetsisService(_erpSetting);
                         malzemeList = netsisService.GetMalzemeList(ref errorMessage);
+
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Opak":
                         OpakService opakService = new OpakService(_erpSetting);
                         malzemeList = opakService.GetMalzemeList(ref errorMessage);
+
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     default:
                         _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);
@@ -271,20 +281,42 @@ namespace NetTransfer.Integration
                             {
                                 _b2BClient.SetAccessToken(resultAccessToken.token);
                             }
-                        }
-
-                        int index = 1;
-                        foreach (var item in b2bList)
-                        {
-                            var result = await _b2BClient.UrunTransferAsync(item);
-                            if (result.Code == 200)
-                            {
-                                _logger.LogError("B2B ürün aktarımı başarılı {Count}/{index} : {detay}", result.Detay, b2bList.Count, index);
-                            }
                             else
                             {
-                                _logger.LogError("B2B ürün aktarım hatası {Count}/{index}: {message}{valitaion}", result.Message, result.Validation, b2bList.Count, index);
+                                _logger.LogError("Token alınamadı.");
                             }
+                        }
+
+                        int count = PaginationBuilder.GetPageCount(b2bList, 25);
+                        for (int i = 1; i <= count; i++)
+                        {
+                            var productList = PaginationBuilder.GetPage(b2bList, i, 25).ToList();
+
+                            var result = await _b2BClient.UrunTopluTransferAsync(productList);
+
+                            if (result == null)
+                            {
+                                _logger.LogError("Ürün transferi sırasında hata oluştu.");
+                                break;
+                            }
+
+                            int pagetotal = i == 1 ? 0 : ((i - 1) * 25);
+                            int total = pagetotal + productList.Count;
+
+                            _logger.LogInformation($"Ürün aktarım durumu : {total}/{b2bList.Count} aktarıldı");
+                            _logger.LogInformation($"Ürün aktarım detay : {result.Detay}");
+
+                            //if (result.Code == 200)
+                            //{
+                            //    int pagetotal = i == 1 ? 0 : ((i - 1) * 25);
+                            //    int total = pagetotal + productList.Count;
+
+                            //    _logger.LogInformation($"Ürün aktarım durumu : {total}/{b2bList.Count} aktarıldı");
+                            //}
+                            //else
+                            //{
+                            //    throw new Exception(result.Message);
+                            //}
                         }
 
                         await UpdateProductLastTransfer();
@@ -325,10 +357,16 @@ namespace NetTransfer.Integration
                     case "Logo":
                         LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
                         malzemeStokList = logoService.GetMalzemeStokList(ref errorMessage);
+
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Stok Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Netsis":
                         NetsisService service = new NetsisService(_erpSetting);
                         malzemeStokList = service.GetMalzemeStokList(ref errorMessage);
+
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Stok Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Opak":
                         break;
@@ -343,13 +381,21 @@ namespace NetTransfer.Integration
                         if (!_b2BClient.IsAccessToken())
                         {
                             var resultAccessToken = await _b2BClient.GetAccessTokenAsync();
-                            if (resultAccessToken != null)
+                            if (resultAccessToken == null)
                             {
-                                _b2BClient.SetAccessToken(resultAccessToken.token);
+                                _logger.LogError("Token alınamadı.");
+                                return;
                             }
+
+                            _b2BClient.SetAccessToken(resultAccessToken.token);
                         }
 
-                        await _b2BTransfer.UpdateProductStock(malzemeStokList);
+                        int count = PaginationBuilder.GetPageCount(malzemeStokList, 100);
+                        for (int i = 1; i <= count; i++)
+                        {
+                            var stokList = PaginationBuilder.GetPage(malzemeStokList, i, 100).ToList();
+                            await _b2BTransfer.UpdateProductStock(stokList);
+                        }
 
                         await UpdateProductStockLastTransfer();
                         break;
@@ -365,7 +411,7 @@ namespace NetTransfer.Integration
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "");
+                _logger.LogError(ex, "Malzeme Stok Transferi sırasında hata oluştu.");
             }
         }
 
@@ -406,7 +452,16 @@ namespace NetTransfer.Integration
                             }
                         }
 
-                        await _b2BTransfer.UpdateProductPrice(malzemeFiyatList);
+                        var result = await _b2BTransfer.UpdateProductPrice(malzemeFiyatList);
+                        if (result == null)
+                        {
+                            _logger.LogError("Malzeme fiyat aktarımı sırasında bilinmeyen bir hata oluştu");
+                        }
+                        else
+                        {
+                            _logger.LogWarning(result.Message);
+                            _logger.LogWarning("Malzeme fiyat aktarım detay : " + result.Detay);
+                        }
 
                         await UpdateProductPriceLastTransfer();
                         break;
@@ -422,7 +477,7 @@ namespace NetTransfer.Integration
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "");
+                _logger.LogError(ex, "Malzeme fiyat aktarım hatası");
             }
         }
 
