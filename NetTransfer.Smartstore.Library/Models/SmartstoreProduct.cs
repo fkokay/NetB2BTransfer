@@ -363,5 +363,7 @@ namespace NetTransfer.Smartstore.Library.Models
         public List<SmartstoreProductVariantAttributeValue> ProductVariantAttributeValues { get; set; } = new List<SmartstoreProductVariantAttributeValue>();
         [JsonIgnore]
         public List<SmartstoreProductVariantAttribute> ProductVariantAttributes { get; set; } = new List<SmartstoreProductVariantAttribute>();
+        [JsonIgnore]
+        public List<SmartstoreProductTag> ProductTags { get; set; } = new List<SmartstoreProductTag>();
     }
 }

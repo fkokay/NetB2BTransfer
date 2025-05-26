@@ -24,9 +24,9 @@ namespace NetTransfer.Opak.Library.Models
         public string KISAACIKLAMA { get; set; }
         public double MIKTAR { get; set; }
         public int VARYANTLIURUN { get; set; }
+        public string STOKMIKTAR { get; set; }
 
         public List<OpakVaryant> MalzemeVaryantList = new List<OpakVaryant>();
-
         public List<OpakMalzemeResim> MalzemeResimList = new List<OpakMalzemeResim>();
 
     }

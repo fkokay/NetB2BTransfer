@@ -23,13 +23,13 @@ namespace NetTransfer.Integration.VirtualStore
                     baslik = "Liste Fiyat",
                     aciklama = "Liste Fiyat",
                     tarih_aralik_durum = 0,
-                    baslangic_tarihi = DateTime.Now.AddDays(-10),
-                    bitis_tarihi = DateTime.Now.AddDays(90),
+                    baslangic_tarihi = DateTime.Now.AddDays(-10).ToString("yyyy-MM-dd HH:mm:ss"),
+                    bitis_tarihi = DateTime.Now.AddDays(90).ToString("yyyy-MM-dd HH:mm:ss"),
                     durum = true,
-                    urunler = malzemeFiyatList.Select(item => new B2BUrun
+                    urunler = malzemeFiyatList.Select(item => new B2BUrunFiyatItem
                     {
                         urun_kodu = item.StokKodu,
-                        liste_fiyati = item.Fiyat,
+                        list_fiyati = Convert.ToDecimal(item.Fiyat),
                         doviz_kodu = "TRY"
                     }).ToList()
                 };

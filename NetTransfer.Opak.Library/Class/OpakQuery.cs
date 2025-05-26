@@ -15,12 +15,12 @@ namespace NetTransfer.Opak.Library.Class
 
         public static string GetMalzemeResimQuery(string stok_kodu)
         {
-            return @$"SELECT * FROM VOW_B2CSTOKRESIMSB_ozgurtek WHERE KOD='{stok_kodu}' ";
+            return @$"SELECT * FROM VOW_B2CSTOKRESIMSB_ozgurtek WHERE KOD='{stok_kodu}' AND SIRA > 0 ";
         }
 
         public static string GetMalzemeVaryantQuery(string stok_kodu)
         {
-            return @$"SELECT * FROM VOW_STOKDETAYNATIVE_ozgurtek WHERE STOKKOD='{stok_kodu}' ";
+            return @$"SELECT * FROM VOW_STOKDETAYNATIVE_ozgurtek WHERE STOKKOD='{stok_kodu}' ORDER BY SIRA";
         }
     }
 }

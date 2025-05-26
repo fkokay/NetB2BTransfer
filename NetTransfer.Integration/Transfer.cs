@@ -452,15 +452,22 @@ namespace NetTransfer.Integration
                             }
                         }
 
-                        var result = await _b2BTransfer.UpdateProductPrice(malzemeFiyatList);
-                        if (result == null)
+                        _logger.LogWarning("Malzeme fiyat liste miktarı : " + malzemeFiyatList.Count);
+
+                        int count = PaginationBuilder.GetPageCount(malzemeFiyatList, 100);
+                        for (int i = 1; i <= count; i++)
                         {
-                            _logger.LogError("Malzeme fiyat aktarımı sırasında bilinmeyen bir hata oluştu");
-                        }
-                        else
-                        {
-                            _logger.LogWarning(result.Message);
-                            _logger.LogWarning("Malzeme fiyat aktarım detay : " + result.Detay);
+                            var list = PaginationBuilder.GetPage(malzemeFiyatList, i, 100).ToList();
+                            var result = await _b2BTransfer.UpdateProductPrice(list);
+                            if (result == null)
+                            {
+                                _logger.LogError("Malzeme fiyat aktarımı sırasında bilinmeyen bir hata oluştu");
+                            }
+                            else
+                            {
+                                _logger.LogWarning(result.Message);
+                                _logger.LogWarning("Malzeme fiyat aktarım detay : " + result.Detay);
+                            }
                         }
 
                         await UpdateProductPriceLastTransfer();

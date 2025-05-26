@@ -47,6 +47,19 @@ namespace NetTransfer.Integration.VirtualStore
                     if (productResult.value.Any())
                     {
                         result = productResult.value.First();
+
+                        SmartstoreUpdateProduct updateProduct = new SmartstoreUpdateProduct();
+                        updateProduct.Id = result.Id;
+                        updateProduct.Name = product.Name;
+                        updateProduct.ShortDescription = product.ShortDescription;
+                        updateProduct.StockQuantity = product.StockQuantity;
+                        updateProduct.Price = product.Price;
+                        updateProduct.SpecialPrice = product.SpecialPrice;
+                        updateProduct.IsFreeShipping = false;
+                        updateProduct.IsShipEnabled = false;
+
+                        await _smartStoreClient.UpdateProduct(updateProduct);
+
                     }
                     else
                     {
@@ -149,7 +162,7 @@ namespace NetTransfer.Integration.VirtualStore
             #endregion
 
             #region Variant
-            _ = await DeleteProductVariantAttributeCombination(product.Id);
+            _ = await DeleteProductVariantAttributeCombination(result.Id);
 
             if (product.ProductAttributes != null)
             {
@@ -216,19 +229,57 @@ namespace NetTransfer.Integration.VirtualStore
                     attributes.Add(new KeyValuePair<int, ICollection<object>>(productVariantAttribute.Id, productVariantAttributeValues.Select(m => m.Id as object).ToList()));
                 }
 
+
                 RawAttribute rawAttribute = new RawAttribute();
                 rawAttribute.Attributes = attributes;
-                var json = JsonConvert.SerializeObject(rawAttribute);
-                model.RawAttributes = json;
 
+                model.RawAttributes = JsonConvert.SerializeObject(rawAttribute);
                 model.HashCode = GetHashCode(rawAttribute);
 
                 SmartstoreProductVariantAttributeCombination? smartstoreProductVariantAttributeCombination = await CreateProductVariantAttributeCombination(model);
             }
             #endregion
 
+            #region Tag
+            if (product.ProductTags != null)
+            {
+                foreach (var item in product.ProductTags)
+                {
+                    SmartstoreProductTag? smartstoreProductTag = await CreateProductTag(item);
+                }
+
+                SmartstoreProductTagMapping productTagMapping = new SmartstoreProductTagMapping();
+                productTagMapping.tagNames = product.ProductTags.Select(m => m.Name).ToList();
+
+                await CreateProductTagMapping(result.Id, productTagMapping);
+            }
+            #endregion
+
             _logger.LogInformation($"Ürün transferi tamamlandı : {product.Name}");
             return result;
+        }
+
+        private async Task<ResponseSmartList<SmartstoreProductTag>> CreateProductTagMapping(int productId, SmartstoreProductTagMapping productTagMapping)
+        {
+            return await _smartStoreClient.UpdateProductTags(productId, productTagMapping);
+        }
+
+        private async Task<SmartstoreProductTag?> CreateProductTag(SmartstoreProductTag productTag)
+        {
+            var productTagResult = await _smartStoreClient.GetProductTag(productTag.Name);
+            if (productTagResult != null)
+            {
+                if (productTagResult.value.Any())
+                {
+                    return productTagResult.value.First();
+                }
+                else
+                {
+                    return await _smartStoreClient.ProductTagTransfer(productTag);
+                }
+            }
+
+            return null;
         }
 
         public int GetHashCode(RawAttribute rawAttribute)
@@ -361,6 +412,7 @@ namespace NetTransfer.Integration.VirtualStore
                 }
             }
         }
+
         public async Task<SmartstoreManufacturer?> CreateManufacturer(SmartstoreManufacturer smartstoreManufacturer)
         {
             var manufacuterResult = await _smartStoreClient.GetManufacturer(smartstoreManufacturer.Name);
@@ -400,7 +452,7 @@ namespace NetTransfer.Integration.VirtualStore
         }
         public async Task<SmartstoreCategory?> CreateCategory(SmartstoreCategory smartstoreCategory)
         {
-            var categoryResult = await _smartStoreClient.GetCategory(smartstoreCategory.Name);
+            var categoryResult = await _smartStoreClient.GetCategory(smartstoreCategory.ParentId,smartstoreCategory.Name);
             if (categoryResult != null)
             {
                 if (categoryResult.value.Any())
@@ -546,7 +598,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.BackorderModeId = 0;
                 product.AllowBackInStockSubscriptions = false;
                 product.OrderMinimumQuantity = 1;
-                product.OrderMaximumQuantity = 50;
+                product.OrderMaximumQuantity = int.MaxValue;
                 product.QuantityStep = 1;
                 product.QuantityControlType = "Spinner";
                 product.HideQuantityControl = false;
@@ -757,7 +809,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.Visibility = "Full";
                 product.Condition = "New";
                 product.Name = NetsisUtils.CevirNetsis(item.STOK_ADI);
-                product.ShortDescription = NetsisUtils.CevirNetsis(item.KISAACIKLAMA);
+                product.ShortDescription = "";
                 product.FullDescription = NetsisUtils.CevirNetsis(item.ACIKLAMA);
                 product.AdminComment = "";
                 product.ProductTemplateId = 1;
@@ -765,7 +817,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.HomePageDisplayOrder = 0;
                 product.MetaKeywords = "";
                 product.MetaTitle = NetsisUtils.CevirNetsis(item.STOK_ADI);
-                product.MetaDescription = NetsisUtils.CevirNetsis(item.KISAACIKLAMA);
+                product.MetaDescription = "";
                 product.AllowCustomerReviews = true;
                 product.ApprovedRatingSum = 0;
                 product.NotApprovedRatingSum = 0;
@@ -800,7 +852,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.IsTaxExempt = false;
                 product.IsEsd = false;
                 product.TaxCategoryId = 1;
-                product.ManageInventoryMethodId = 0;
+                product.ManageInventoryMethodId = item.STOKMIKTAR == "E" ? (item.VARYANTLIURUN > 0 ? 2 : 1) : 0;
                 product.StockQuantity = 10000;
                 product.DisplayStockAvailability = false;
                 product.DisplayStockQuantity = false;
@@ -810,7 +862,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.BackorderModeId = 0;
                 product.AllowBackInStockSubscriptions = false;
                 product.OrderMinimumQuantity = 1;
-                product.OrderMaximumQuantity = 50;
+                product.OrderMaximumQuantity = int.MaxValue;
                 product.QuantityStep = 1;
                 product.QuantityControlType = "Spinner";
                 product.HideQuantityControl = false;
@@ -872,7 +924,7 @@ namespace NetTransfer.Integration.VirtualStore
                     foreach (var resim in item.MalzemeResimList)
                     {
                         SmartstoreFile smartstoreFile = new SmartstoreFile();
-                        smartstoreFile.FileName = $"content/{resim.KOD}_{resim.SIRA}.jpg";
+                        smartstoreFile.FileName = $"catalog/{resim.KOD}_{resim.ID}.jpg";
                         smartstoreFile.File = resim.RESIM;
                         smartstoreFile.MimeType = "image/jpeg";
 
@@ -882,8 +934,14 @@ namespace NetTransfer.Integration.VirtualStore
 
                 if (item.MalzemeVaryantList != null)
                 {
+                    if (item.MalzemeVaryantList.Any())
+                    {
+                        product.Price = item.MalzemeVaryantList.OrderBy(m => m.FIYAT4).Select(m => m.FIYAT4).First();
+                        product.AttributeCombinationRequired = true;
+                    }
+                 
+
                     product.ProductAttributes = new List<SmartstoreProductAttribute>();
-                    //product.ProductVariantAttributes = new List<SmartstoreProductVariantAttribute>();
                     product.ProductVariantAttributeCombinations = new List<SmartstoreProductVariantAttributeCombination>();
                     product.ProductVariantAttributeValues = new List<SmartstoreProductVariantAttributeValue>();
 
@@ -937,12 +995,27 @@ namespace NetTransfer.Integration.VirtualStore
                         smartstoreProductVariantAttributeCombination.Variant = varyant.OZELLIK;
                         smartstoreProductVariantAttributeCombination.Value = varyant.DEGER;
                         smartstoreProductVariantAttributeCombination.Sku = varyant.KOD;
-                        smartstoreProductVariantAttributeCombination.Price = Convert.ToDecimal(varyant.FIYAT1);
+                        smartstoreProductVariantAttributeCombination.Price = Convert.ToDecimal(varyant.FIYAT4);
                         smartstoreProductVariantAttributeCombination.IsActive = true;
                         smartstoreProductVariantAttributeCombination.StockQuantity = varyant.MIKTAR;
                         smartstoreProductVariantAttributeCombination.AllowOutOfStockOrders = true;
 
                         product.ProductVariantAttributeCombinations.Add(smartstoreProductVariantAttributeCombination);
+                    }
+
+                }
+
+                if (!string.IsNullOrEmpty(item.KISAACIKLAMA))
+                {
+                    var tags = item.KISAACIKLAMA.Trim().Split(',').Select(m => m.Trim()).ToList();
+                    foreach (var tag in tags)
+                    {
+                        product.ProductTags.Add(new SmartstoreProductTag()
+                        {
+                            Id = 0,
+                            Name = tag,
+                            Published = true,
+                        });
                     }
 
                 }

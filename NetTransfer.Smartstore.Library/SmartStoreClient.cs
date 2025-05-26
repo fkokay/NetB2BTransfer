@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using NetTransfer.Core.Entities;
 using Newtonsoft.Json;
 using NetTransfer.Smartstore.Library.Models;
+using System.IO;
 namespace NetTransfer.Smartstore.Library
 {
     public class SmartStoreClient(VirtualStoreSetting _b2BSetting)
@@ -30,7 +31,7 @@ namespace NetTransfer.Smartstore.Library
                         result.status = response.IsSuccessStatusCode;
                     }
 
-                    return result;                   
+                    return result;
                 }
             }
         }
@@ -94,7 +95,7 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-        public async Task<bool> UpdateProductPrice(int productId, double price,double specialPrice)
+        public async Task<bool> UpdateProductPrice(int productId, double price, double specialPrice)
         {
             using (var httpClient = new HttpClient())
             {
@@ -112,6 +113,34 @@ namespace NetTransfer.Smartstore.Library
                         Id = productId
                     };
                     var json = JsonConvert.SerializeObject(jsonContent);
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // API'ye isteği gönder
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        public async Task<bool> UpdateProduct(SmartstoreUpdateProduct updateProduct)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_b2BSetting.Url}/products({updateProduct.Id})"))
+                {
+                    // Gerekli başlıklar
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    // JSON içeriği
+                    var json = JsonConvert.SerializeObject(updateProduct);
+
                     request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
                     // API'ye isteği gönder
@@ -257,12 +286,13 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-        public async Task<ResponseSmartList<SmartstoreCategory>?> GetCategory(string name)
+        public async Task<ResponseSmartList<SmartstoreCategory>?> GetCategory(int? parentId, string name)
         {
 
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/categories?count=true&filter=Name eq '{name}'"))
+                string filter = parentId.HasValue ? $"parentId eq {parentId.Value} and Name eq '{name}'" : $"Name eq '{name}'";
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/categories?count=true&filter={filter}"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
@@ -441,6 +471,8 @@ namespace NetTransfer.Smartstore.Library
                     var fileContent = new ByteArrayContent(smartstoreFile.File);
                     fileContent.Headers.ContentType = MediaTypeHeaderValue.Parse(smartstoreFile.MimeType);
                     multipartContent.Add(fileContent, "file", smartstoreFile.FileName);
+                    multipartContent.Add(new StringContent(smartstoreFile.FileName, Encoding.UTF8), "path");
+
 
                     request.Content = multipartContent;
 
@@ -577,8 +609,57 @@ namespace NetTransfer.Smartstore.Library
             }
         }
 
+        public async Task<ResponseSmartList<SmartstoreProductTag>?> GetProductTag(string name)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/producttags?count=true&filter=Name eq '{name}'"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
 
-        public async Task<ResponseSmartList<SmartstoreProductVariantAttributeValue>?> GetProductVariantAttributeValue(int productVariantAttributeId,string name)
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProductTag>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<SmartstoreProductTag?> ProductTagTransfer(SmartstoreProductTag productTag)
+        {
+            var json = JsonConvert.SerializeObject(productTag);
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"{_b2BSetting.Url}/producttags"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    request.Content = new StringContent(json);
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreProductTag>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public async Task<ResponseSmartList<SmartstoreProductVariantAttributeValue>?> GetProductVariantAttributeValue(int productVariantAttributeId, string name)
         {
             using (var httpClient = new HttpClient())
             {
@@ -692,6 +773,34 @@ namespace NetTransfer.Smartstore.Library
                     {
                         var result = await response.Content.ReadAsStringAsync();
                         return JsonConvert.DeserializeObject<SmartstoreProductVariantAttributeCombination>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public async Task<ResponseSmartList<SmartstoreProductTag>> UpdateProductTags(int productId, SmartstoreProductTagMapping productTagMapping)
+        {
+            var json = JsonConvert.SerializeObject(productTagMapping);
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"{_b2BSetting.Url}/products({productId})/updateproducttags"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    request.Content = new StringContent(json);
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProductTag>>(result);
                     }
                     else
                     {

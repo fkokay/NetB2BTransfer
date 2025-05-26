@@ -9,6 +9,7 @@ namespace NetTransfer.Opak.Library.Models
     
     public class OpakMalzemeResim
     {
+        public int ID { get; set; }
         public int SIRA { get; set; }
         public string KOD { get; set; }
         public byte[] RESIM { get; set; }

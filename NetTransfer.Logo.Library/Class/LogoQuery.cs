@@ -244,7 +244,7 @@ namespace NetTransfer.Logo.Library.Class
                     "1 AS durum, " +
                     "ITEMS.CODE AS urun_kodu, " +
                     "'TRY' AS doviz_kodu, " +
-                    "CONVERT(DECIMAL(18, 4), PRCLIST .PRICE * (1 - ITEMS.SELLVAT * 0.01)) AS liste_fiyati " +
+                    "CONVERT(DECIMAL(18, 4), PRCLIST.PRICE) AS liste_fiyati " +
                     "FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "PRCLIST") + " AS PRCLIST  WITH (NOLOCK) " +
                     " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "CLCARD") + " AS CLNTC WITH(NOLOCK) ON PRCLIST .CLIENTCODE = CLNTC.CODE " +
                     " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "PROJECT") + " AS PROJECT WITH(NOLOCK) ON PRCLIST .PROJECTREF = PROJECT.LOGICALREF " +
