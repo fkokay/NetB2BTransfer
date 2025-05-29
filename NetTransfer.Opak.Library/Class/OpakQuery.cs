@@ -10,17 +10,32 @@ namespace NetTransfer.Opak.Library.Class
     {
         public static string GetMalzemeQuery()
         {
-            return "SELECT * FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='E'";
+            return "SELECT * FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='E' AND VARYANTLIURUN > 0 AND STOK_KODU='HN871'";
+        }
+
+        public static string GetMalzemeStokQuery()
+        {
+            return "SELECT STOK_KODU,MIKTAR,STOKMIKTAR FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='E'";
         }
 
         public static string GetMalzemeResimQuery(string stok_kodu)
         {
-            return @$"SELECT * FROM VOW_B2CSTOKRESIMSB_ozgurtek WHERE KOD='{stok_kodu}' AND SIRA > 0 ";
+            return @$"SELECT * FROM VOW_B2CSTOKRESIMSB_ozgurtek WHERE KOD='{stok_kodu}' AND SIRA > 0";
+        }
+
+        public static string GetVaryantResimQuery(string stok_kodu)
+        {
+            return @$"SELECT * FROM VOW_B2CSTOKRESIMSB_ozgurtek WHERE KOD='{stok_kodu}'";
         }
 
         public static string GetMalzemeVaryantQuery(string stok_kodu)
         {
             return @$"SELECT * FROM VOW_STOKDETAYNATIVE_ozgurtek WHERE STOKKOD='{stok_kodu}' ORDER BY SIRA";
+        }
+
+        public static string GetMalzemeFiyatQuery()
+        {
+            return "SELECT STOK_KODU,SATIS_FIAT1 FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='E'";
         }
     }
 }

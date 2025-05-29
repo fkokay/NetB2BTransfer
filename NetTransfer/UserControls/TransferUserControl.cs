@@ -89,7 +89,8 @@ namespace NetTransfer.UserControls
                    {
                     "Malzeme Aktarım",
                     "Malzeme Stok Aktarım",
-                    "Malzeme Fiyat Aktarım"
+                    "Malzeme Fiyat Aktarım",
+                    "Sipariş Aktarım"
                    }
                );
 
@@ -167,6 +168,7 @@ namespace NetTransfer.UserControls
                 }
                 else if (cmbTransferType.SelectedItem.ToString() == "Sipariş Aktarım")
                 {
+                    _logger.LogWarning("Sipariş Aktarım");
                     await Task.Run(async () =>
                     {
                         await transfer.SiparisTransfer();
@@ -200,6 +202,7 @@ namespace NetTransfer.UserControls
 
         private void LogStart()
         {
+            cancellationLog = new CancellationTokenSource();
             RealTimeSource realTimeSource = new RealTimeSource()
             {
                 DataSource = logs
@@ -207,19 +210,19 @@ namespace NetTransfer.UserControls
 
             gridControlLog.DataSource = realTimeSource;
 
-            startDatetime = DateTime.Now;
+            startDatetime = DateTime.Now.AddMinutes(-1);
 
             Task.Run(() =>
             {
-                LoadLog();
+                LoadLogWhile();
             }, cancellationLog.Token);
         }
 
-        private void LoadLog()
+        private void LoadLogWhile()
         {
-            while (true)
+            while (!cancellationLog.IsCancellationRequested)
             {
-                string filter = "*[System/Provider/@Name=\"NetTransfer\"] and *[System[TimeCreated[@SystemTime >= '" + startDatetime.ToUniversalTime().ToString("o") + "']]]";
+                string filter = "*[System/Provider/@Name=\"NetTransfer\"] and *[System[TimeCreated[@SystemTime >= '" + startDatetime.AddMinutes(-1).ToUniversalTime().ToString("o") + "']]]";
                 EventLogQuery query = new EventLogQuery("Application", PathType.LogName, filter);
                 EventLogReader reader = new EventLogReader(query);
 
@@ -227,14 +230,12 @@ namespace NetTransfer.UserControls
                 {
                     if (!logs.Where(m => m.EventId == eventRecord.RecordId.ToString()).Any())
                     {
-
-                        var message = eventRecord.FormatDescription().Split("\n");
                         logs.Insert(0, new Log()
                         {
                             Source = eventRecord.ProviderName,
                             EventId = eventRecord.RecordId.ToString(),
                             EventLevel = eventRecord.Level.ToString(),
-                            EventMessage = message[message.Length == 1 ? 0 : 3],
+                            EventMessage = eventRecord.FormatDescription().Replace("\r\n", ""),
                             EventTime = eventRecord.TimeCreated.Value
                         });
                     }

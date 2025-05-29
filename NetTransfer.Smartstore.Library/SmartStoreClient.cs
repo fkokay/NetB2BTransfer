@@ -9,6 +9,7 @@ using NetTransfer.Core.Entities;
 using Newtonsoft.Json;
 using NetTransfer.Smartstore.Library.Models;
 using System.IO;
+using System.Net;
 namespace NetTransfer.Smartstore.Library
 {
     public class SmartStoreClient(VirtualStoreSetting _b2BSetting)
@@ -663,7 +664,9 @@ namespace NetTransfer.Smartstore.Library
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/productvariantattributevalues?count=true&filter=ProductVariantAttributeId eq {productVariantAttributeId} and Name eq '{name}'"))
+
+
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/productvariantattributevalues?count=true&filter=ProductVariantAttributeId eq {productVariantAttributeId} and Name eq '{Uri.EscapeDataString(name)}'"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
@@ -809,5 +812,100 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
+
+        public async Task<ResponseSmartList<SmartstoreOrder>?> GetOrders(int orderStatusId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders?count=true&filter=orderStatusId eq {orderStatusId}"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreOrder>>(json);
+                        result!.status = true;
+                        return result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<ResponseSmartList<SmartstoreOrderItem>?> GetOrderItems(int orderId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders({orderId})/orderitems"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        var result= JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreOrderItem>>(json);
+                        result!.status = true;
+
+                        return result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<SmartstoreBillingAddress?> GetOrderBillingAddress(int orderId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders({orderId})/billingaddress"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreBillingAddress>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<SmartstoreShippingAddress?> GetOrderShippingAddress(int orderId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders({orderId})/shippingaddress"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreShippingAddress>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
     }
 }

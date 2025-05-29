@@ -216,6 +216,19 @@ namespace NetTransfer.Integration.VirtualStore
                 model.IsActive = combination.IsActive;
                 model.StockQuantity = combination.StockQuantity;
                 model.AllowOutOfStockOrders = combination.AllowOutOfStockOrders;
+                var files = product.ProductVariantAttributeCombinations.Where(m=>m.Sku == combination.Sku).First().Files;
+
+                List<int> mediaFileIds = new List<int>();
+                foreach (var file in files)
+                {
+                    SmartstoreFileItemInfo? fileItemInfo = await CreateMediaFile(file);
+                    if (fileItemInfo != null)
+                    {
+                        mediaFileIds.Add(fileItemInfo.Id);
+                    }
+                }
+
+                model.AssignedMediaFileIds = string.Join(",", mediaFileIds);
 
 
                 var list = product.ProductVariantAttributeCombinations.Where(m => m.Sku == combination.Sku);
@@ -263,7 +276,6 @@ namespace NetTransfer.Integration.VirtualStore
         {
             return await _smartStoreClient.UpdateProductTags(productId, productTagMapping);
         }
-
         private async Task<SmartstoreProductTag?> CreateProductTag(SmartstoreProductTag productTag)
         {
             var productTagResult = await _smartStoreClient.GetProductTag(productTag.Name);
@@ -281,8 +293,7 @@ namespace NetTransfer.Integration.VirtualStore
 
             return null;
         }
-
-        public int GetHashCode(RawAttribute rawAttribute)
+        private int GetHashCode(RawAttribute rawAttribute)
         {
             var combiner = HashCodeCombiner.Start();
             var attributes = rawAttribute.Attributes.OrderBy(x => x.Key).ToArray();
@@ -306,7 +317,6 @@ namespace NetTransfer.Integration.VirtualStore
 
             return combiner.CombinedHash;
         }
-
         private async Task<bool?> DeleteProductVariantAttributeCombination(int productId)
         {
             var result = await _smartStoreClient.GetProductVariantAttributeCombination(productId);
@@ -314,18 +324,19 @@ namespace NetTransfer.Integration.VirtualStore
             {
                 foreach (var item in result.value)
                 {
-                    return await _smartStoreClient.DeleteProductVariantAttributeCombination(item.Id);
+                    if (!await _smartStoreClient.DeleteProductVariantAttributeCombination(item.Id))
+                    {
+                        return false;
+                    }
                 }
             }
 
-            return null;
+            return true;
         }
-
         private async Task<SmartstoreProductVariantAttributeCombination?> CreateProductVariantAttributeCombination(SmartstoreProductVariantAttributeCombination combination)
         {
             return await _smartStoreClient.ProductvariantattributecombinationsTransfer(combination);
         }
-
         private async Task<SmartstoreProductVariantAttributeValue?> CreateProductVariantAttributeValues(SmartstoreProductVariantAttributeValue productVariantAttributeValue)
         {
             var productAttributeResult = await _smartStoreClient.GetProductVariantAttributeValue(productVariantAttributeValue.ProductVariantAttributeId, productVariantAttributeValue.Name);
@@ -343,7 +354,6 @@ namespace NetTransfer.Integration.VirtualStore
 
             return null;
         }
-
         private async Task<SmartstoreProductVariantAttribute?> CreateProductVariantAttribute(SmartstoreProductVariantAttribute productVariantAttribute)
         {
             var productAttributeResult = await _smartStoreClient.GetProductVariantAttribute(productVariantAttribute.ProductId, productVariantAttribute.ProductAttributeId);
@@ -361,7 +371,6 @@ namespace NetTransfer.Integration.VirtualStore
 
             return null;
         }
-
         private async Task<SmartstoreProductAttribute?> CreateProductAttribute(SmartstoreProductAttribute productAttribute)
         {
             var productAttributeResult = await _smartStoreClient.GetProductAttribute(productAttribute.Name);
@@ -379,7 +388,6 @@ namespace NetTransfer.Integration.VirtualStore
 
             return null;
         }
-
         public async Task UpdateProductPrice(List<BaseMalzemeFiyatModel> malzemeFiyatList)
         {
             foreach (var item in malzemeFiyatList)
@@ -412,7 +420,6 @@ namespace NetTransfer.Integration.VirtualStore
                 }
             }
         }
-
         public async Task<SmartstoreManufacturer?> CreateManufacturer(SmartstoreManufacturer smartstoreManufacturer)
         {
             var manufacuterResult = await _smartStoreClient.GetManufacturer(smartstoreManufacturer.Name);
@@ -517,6 +524,43 @@ namespace NetTransfer.Integration.VirtualStore
             return null;
 
 
+        }
+
+        public async Task<List<SmartstoreOrder>?> GetSmartstoreOrder(int orderStatusId= 10)
+        {
+            try
+            {
+                var ordersResult = await _smartStoreClient.GetOrders(orderStatusId);
+                if (ordersResult != null)
+                {
+                    if (ordersResult.status)
+                    {
+                        foreach (var item in ordersResult.value)
+                        {
+                            var orderItemsResult = await _smartStoreClient.GetOrderItems(item.Id);
+                            var orderShippingAddressResult = await _smartStoreClient.GetOrderShippingAddress(item.Id);
+                            var orderBillingAddressResult = await _smartStoreClient.GetOrderBillingAddress(item.Id);
+
+                            if (orderItemsResult!.status)
+                                item.OrderItems = orderItemsResult.value;
+
+                            if (orderShippingAddressResult != null)
+                                item.ShippingAddress = orderShippingAddressResult;
+
+                            if (orderBillingAddressResult != null)
+                                item.BillingAddress = orderBillingAddressResult;
+                        }
+
+                        return ordersResult.value;
+                    }
+                }
+
+                return null;
+            }
+            catch (Exception)
+            {
+                throw;
+            }
         }
 
         #region MappingProduct
@@ -853,7 +897,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.IsEsd = false;
                 product.TaxCategoryId = 1;
                 product.ManageInventoryMethodId = item.STOKMIKTAR == "E" ? (item.VARYANTLIURUN > 0 ? 2 : 1) : 0;
-                product.StockQuantity = 10000;
+                product.StockQuantity = Convert.ToInt32(item.MIKTAR);
                 product.DisplayStockAvailability = false;
                 product.DisplayStockQuantity = false;
                 product.MinStockQuantity = 0;
@@ -956,7 +1000,7 @@ namespace NetTransfer.Integration.VirtualStore
                         smartstoreProductAttribute.Alias = "";
                         smartstoreProductAttribute.AllowFiltering = true;
                         smartstoreProductAttribute.DisplayOrder = attributeIndex;
-                        smartstoreProductAttribute.FacetTemplateHint = "Checkboxes";
+                        smartstoreProductAttribute.FacetTemplateHint = "Boxes";
                         smartstoreProductAttribute.IndexOptionNames = false;
                         smartstoreProductAttribute.ExportMappings = null;
 
@@ -999,6 +1043,16 @@ namespace NetTransfer.Integration.VirtualStore
                         smartstoreProductVariantAttributeCombination.IsActive = true;
                         smartstoreProductVariantAttributeCombination.StockQuantity = varyant.MIKTAR;
                         smartstoreProductVariantAttributeCombination.AllowOutOfStockOrders = true;
+                        foreach (var resim in varyant.MalzemeResimList)
+                        {
+                            SmartstoreFile smartstoreFile = new SmartstoreFile();
+                            smartstoreFile.FileName = $"catalog/{resim.KOD}_{resim.ID}.jpg";
+                            smartstoreFile.File = resim.RESIM;
+                            smartstoreFile.MimeType = "image/jpeg";
+
+                            smartstoreProductVariantAttributeCombination.Files.Add(smartstoreFile);
+                        }
+                        
 
                         product.ProductVariantAttributeCombinations.Add(smartstoreProductVariantAttributeCombination);
                     }

@@ -33,5 +33,8 @@ namespace NetTransfer.Smartstore.Library.Models
         public int StockQuantity { get; set; }
         public bool AllowOutOfStockOrders { get; set; }
         public int HashCode { get; set; }
+
+        [JsonIgnore]
+        public List<SmartstoreFile> Files { get; set; } = new List<SmartstoreFile>();
     }
 }
