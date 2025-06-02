@@ -57,6 +57,8 @@ namespace NetTransfer.Integration.VirtualStore
                         updateProduct.SpecialPrice = product.SpecialPrice;
                         updateProduct.IsFreeShipping = false;
                         updateProduct.IsShipEnabled = false;
+                        updateProduct.HomePageDisplayOrder = 0;
+                        updateProduct.ShowOnHomePage = product.ShowOnHomePage;
 
                         await _smartStoreClient.UpdateProduct(updateProduct);
 
@@ -842,10 +844,10 @@ namespace NetTransfer.Integration.VirtualStore
             }
             return productList;
         }
-        private List<SmartstoreProduct> MappingProductOpak(List<OpakMalzeme>? data)
+        private List<SmartstoreProduct> MappingProductOpak(List<OpakMalzeme>? malzemeList)
         {
             List<SmartstoreProduct> productList = new List<SmartstoreProduct>();
-            foreach (var item in data)
+            foreach (var item in malzemeList)
             {
                 SmartstoreProduct product = new SmartstoreProduct();
                 product.ProductTypeId = 5;
@@ -857,7 +859,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.FullDescription = NetsisUtils.CevirNetsis(item.ACIKLAMA);
                 product.AdminComment = "";
                 product.ProductTemplateId = 1;
-                product.ShowOnHomePage = false;
+                product.ShowOnHomePage = item.ANASAYFA == "E";
                 product.HomePageDisplayOrder = 0;
                 product.MetaKeywords = "";
                 product.MetaTitle = NetsisUtils.CevirNetsis(item.STOK_ADI);
@@ -890,7 +892,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.RecurringCycleLength = 100;
                 product.RecurringCyclePeriodId = 0;
                 product.RecurringTotalCycles = 10;
-                product.IsShippingEnabled = true;
+                product.IsShippingEnabled = false;
                 product.IsFreeShipping = false;
                 product.AdditionalShippingCharge = 0;
                 product.IsTaxExempt = false;

@@ -509,7 +509,7 @@ namespace NetTransfer.Integration
                     case "B2B":
                         break;
                     case "Smartstore":
-                        orderList = await _smartstoreTransfer.GetSmartstoreOrder(orderStatusId: 10);
+                        orderList = await _smartstoreTransfer.GetSmartstoreOrder(orderStatusId: _smartstoreParameter.OrderStatusId);
                         break;
                 }
 

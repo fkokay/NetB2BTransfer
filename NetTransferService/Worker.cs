@@ -269,7 +269,7 @@ namespace NetTransferService
             }
             if (_virtualStoreSetting.VirtualStore == "Smartstore")
             {
-                return 0;
+                return _smartstoreParameter.OrderTransferMinute;
             }
 
             return 0;

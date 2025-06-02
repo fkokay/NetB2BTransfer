@@ -10,7 +10,7 @@ namespace NetTransfer.Opak.Library.Class
     {
         public static string GetMalzemeQuery()
         {
-            return "SELECT * FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='E' AND VARYANTLIURUN > 0 AND STOK_KODU='HN871'";
+            return "SELECT * FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='E'";
         }
 
         public static string GetMalzemeStokQuery()

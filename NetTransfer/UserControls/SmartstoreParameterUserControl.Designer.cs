@@ -49,6 +49,11 @@
             txtProductPriceFilter = new DevExpress.XtraEditors.TextEdit();
             labelControl5 = new DevExpress.XtraEditors.LabelControl();
             labelControl6 = new DevExpress.XtraEditors.LabelControl();
+            groupControl4 = new DevExpress.XtraEditors.GroupControl();
+            txtOrderStatusId = new DevExpress.XtraEditors.TextEdit();
+            labelControl7 = new DevExpress.XtraEditors.LabelControl();
+            txtOrderTransferMinute = new DevExpress.XtraEditors.SpinEdit();
+            labelControl15 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)groupControlCustomer).BeginInit();
             groupControlCustomer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)txtProductLastTransfer.Properties).BeginInit();
@@ -64,6 +69,10 @@
             ((System.ComponentModel.ISupportInitialize)txtProductPriceLastTransfer.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductPriceTransferMinute.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductPriceFilter.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)groupControl4).BeginInit();
+            groupControl4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)txtOrderStatusId.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)txtOrderTransferMinute.Properties).BeginInit();
             SuspendLayout();
             // 
             // groupControlCustomer
@@ -255,10 +264,57 @@
             labelControl6.TabIndex = 10;
             labelControl6.Text = "Aktarım Süresi (Dakika)";
             // 
+            // groupControl4
+            // 
+            groupControl4.Controls.Add(txtOrderStatusId);
+            groupControl4.Controls.Add(labelControl7);
+            groupControl4.Controls.Add(txtOrderTransferMinute);
+            groupControl4.Controls.Add(labelControl15);
+            groupControl4.Dock = System.Windows.Forms.DockStyle.Top;
+            groupControl4.Location = new System.Drawing.Point(0, 423);
+            groupControl4.Name = "groupControl4";
+            groupControl4.Size = new System.Drawing.Size(963, 121);
+            groupControl4.TabIndex = 9;
+            groupControl4.Text = "Sipariş Aktarım Ayarları";
+            // 
+            // txtOrderStatusId
+            // 
+            txtOrderStatusId.EditValue = "10";
+            txtOrderStatusId.Location = new System.Drawing.Point(223, 70);
+            txtOrderStatusId.Name = "txtOrderStatusId";
+            txtOrderStatusId.Size = new System.Drawing.Size(455, 22);
+            txtOrderStatusId.TabIndex = 16;
+            // 
+            // labelControl7
+            // 
+            labelControl7.Location = new System.Drawing.Point(16, 73);
+            labelControl7.Name = "labelControl7";
+            labelControl7.Size = new System.Drawing.Size(96, 16);
+            labelControl7.TabIndex = 15;
+            labelControl7.Text = "Sipariş Durum Id";
+            // 
+            // txtOrderTransferMinute
+            // 
+            txtOrderTransferMinute.EditValue = new decimal(new int[] { 0, 0, 0, 0 });
+            txtOrderTransferMinute.Location = new System.Drawing.Point(223, 40);
+            txtOrderTransferMinute.Name = "txtOrderTransferMinute";
+            txtOrderTransferMinute.Properties.Buttons.AddRange(new DevExpress.XtraEditors.Controls.EditorButton[] { new DevExpress.XtraEditors.Controls.EditorButton(DevExpress.XtraEditors.Controls.ButtonPredefines.Combo) });
+            txtOrderTransferMinute.Size = new System.Drawing.Size(252, 24);
+            txtOrderTransferMinute.TabIndex = 14;
+            // 
+            // labelControl15
+            // 
+            labelControl15.Location = new System.Drawing.Point(16, 44);
+            labelControl15.Name = "labelControl15";
+            labelControl15.Size = new System.Drawing.Size(135, 16);
+            labelControl15.TabIndex = 10;
+            labelControl15.Text = "Aktarım Süresi (Dakika)";
+            // 
             // SmartstoreParameterUserControl
             // 
             AutoScaleDimensions = new System.Drawing.SizeF(7F, 16F);
             AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            Controls.Add(groupControl4);
             Controls.Add(groupControl2);
             Controls.Add(groupControl1);
             Controls.Add(groupControlCustomer);
@@ -283,6 +339,11 @@
             ((System.ComponentModel.ISupportInitialize)txtProductPriceLastTransfer.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductPriceTransferMinute.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductPriceFilter.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)groupControl4).EndInit();
+            groupControl4.ResumeLayout(false);
+            groupControl4.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)txtOrderStatusId.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)txtOrderTransferMinute.Properties).EndInit();
             ResumeLayout(false);
         }
 
@@ -309,5 +370,10 @@
         private DevExpress.XtraEditors.TextEdit txtProductPriceFilter;
         private DevExpress.XtraEditors.LabelControl labelControl5;
         private DevExpress.XtraEditors.LabelControl labelControl6;
+        private DevExpress.XtraEditors.GroupControl groupControl4;
+        private DevExpress.XtraEditors.TextEdit txtOrderStatusId;
+        private DevExpress.XtraEditors.LabelControl labelControl7;
+        private DevExpress.XtraEditors.SpinEdit txtOrderTransferMinute;
+        private DevExpress.XtraEditors.LabelControl labelControl15;
     }
 }

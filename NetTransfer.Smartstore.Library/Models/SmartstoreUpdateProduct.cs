@@ -25,6 +25,11 @@ namespace NetTransfer.Smartstore.Library.Models
         public bool IsShipEnabled { get; set; }
         [JsonProperty("IsFreeShipping")]
         public bool IsFreeShipping { get; set; }
+        [JsonProperty("ShowOnHomePage")]
+        public bool ShowOnHomePage { get; set; }
+
+        [JsonProperty("HomePageDisplayOrder")]
+        public int HomePageDisplayOrder { get; set; }
 
     }
 }
