@@ -539,9 +539,13 @@ namespace NetTransfer.Integration.VirtualStore
                     {
                         foreach (var item in ordersResult.value)
                         {
+                            var orderCustomerResult = await _smartStoreClient.GetOrderCustomer(item.Id);
                             var orderItemsResult = await _smartStoreClient.GetOrderItems(item.Id);
                             var orderShippingAddressResult = await _smartStoreClient.GetOrderShippingAddress(item.Id);
                             var orderBillingAddressResult = await _smartStoreClient.GetOrderBillingAddress(item.Id);
+
+                            if (orderCustomerResult != null)
+                                item.OrderCustomer = orderCustomerResult;
 
                             if (orderItemsResult!.status)
                                 item.OrderItems = orderItemsResult.value;

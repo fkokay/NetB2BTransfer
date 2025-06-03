@@ -135,11 +135,13 @@ namespace NetTransfer.Integration.Erp
                 case "Smartstore":
                     foreach (var item in orderList as List<SmartstoreOrder>)
                     {
+                        string cariKod = string.IsNullOrEmpty(item.OrderCustomer.CustomerNumber) ? "H01" : item.OrderCustomer.CustomerNumber;
+
                         OpakSiparis opakSiparis = new OpakSiparis();
                         opakSiparis.ID = 0;
                         opakSiparis.SUBEID = 1;
                         opakSiparis.DEPOID = 1;
-                        opakSiparis.CARIKOD = "H01";
+                        opakSiparis.CARIKOD = cariKod;
                         opakSiparis.CARIADI = "";
                         opakSiparis.ALTHESAP = "001";
                         opakSiparis.BELGENO = item.OrderNumber ?? item.Id.ToString();

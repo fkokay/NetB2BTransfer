@@ -544,8 +544,6 @@ namespace NetTransfer.Integration
                         {
                             if (item.KALEMSAYISI > 0)
                             {
-                                var json = JsonConvert.SerializeObject(item);
-                                _logger.LogInformation(json);
                                 var result = await opakService.SaveOrderAsync(item);
                                 if (result == null)
                                 {

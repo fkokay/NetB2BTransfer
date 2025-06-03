@@ -68,6 +68,8 @@ namespace NetTransfer.Smartstore.Library.Models
         public int CustomerTaxDisplayTypeId { get; set; }
 
         [JsonIgnore]
+        public SmartstoreCustomer OrderCustomer { get; set; }
+        [JsonIgnore]
         public List<SmartstoreOrderItem> OrderItems { get; set; }
         [JsonIgnore]
         public SmartstoreBillingAddress BillingAddress { get; set; }
