@@ -75,5 +75,10 @@ namespace NetTransfer.Opak.Library.Class
             }
 
         }
+
+        public static string GetSevkiyatQuery(DateTime? guncellemeTarihi)
+        {
+            return "SELECT * FROM VOW_SIPARISKARGOFIRMAVEBARKOD_ozgurtek";
+        }
     }
 }

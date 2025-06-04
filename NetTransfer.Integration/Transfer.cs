@@ -705,6 +705,58 @@ namespace NetTransfer.Integration
 
         }
 
+        public async Task SevkiyatTransfer()
+        {
+            _logger.LogInformation("Sevkiyat Transferi Başladı");
+            string errorMessage = string.Empty;
+            try
+            {
+                object sevkiyatList = null;
+                switch (_erpSetting.Erp)
+                {
+                    case "Logo":
+                        break;
+                    case "Netsis":
+                        break;
+                    case "Opak":
+                        OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                        sevkiyatList = opakService.GetSevkiyatList(ref errorMessage);
+                        break;
+                    default:
+                        _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);
+                        break;
+                }
+
+                switch (_virtualStoreSetting.VirtualStore)
+                {
+                    case "Smartstore":
+
+                        var list =sevkiyatList as List<OpakSevkiyat>;
+                        foreach (var item in list)
+                        {
+                            SmartstoreAddShipment model = new SmartstoreAddShipment();
+                            model.Carrier = item.KARGOFIRMASI;
+                            model.TrackingNumber = item.KARGOBARKODU;
+                            model.TrackingUrl = "";
+                            model.IsShipped = true;
+                            model.NotifyCustomer = true;
+
+                            await _smartstoreTransfer.AddShipment(model,item.SIPARISGUID);
+                        }
+                   
+                        break;
+                    default:
+                        _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _virtualStoreSetting.VirtualStore);
+                        break;
+                }
+                _logger.LogInformation("Sevkiyat Transferi Bitti");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Sevkiyat Transferi sırasında hata oluştu.");
+            }
+        }
+
         private async Task UpdateCustomerLastTransfer()
         {
             try

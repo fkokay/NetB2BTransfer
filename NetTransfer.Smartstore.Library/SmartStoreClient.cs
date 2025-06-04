@@ -558,7 +558,6 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-
         public async Task<ResponseSmartList<SmartstoreProductVariantAttribute>?> GetProductVariantAttribute(int productId, int productAttributeId)
         {
             using (var httpClient = new HttpClient())
@@ -581,7 +580,6 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-
         public async Task<SmartstoreProductVariantAttribute?> ProductVariantAttributeTransfer(SmartstoreProductVariantAttribute productVariantAttribute)
         {
             var json = JsonConvert.SerializeObject(productVariantAttribute);
@@ -836,6 +834,30 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
+        public async Task<ResponseSmartList<SmartstoreOrder>?> GetOrdersWithOrderGuid(string orderGuid)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders?count=true&filter=OrderGuid eq '{orderGuid}'"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var json = await response.Content.ReadAsStringAsync();
+                        var result = JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreOrder>>(json);
+                        result!.status = true;
+                        return result;
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
         public async Task<ResponseSmartList<SmartstoreOrderItem>?> GetOrderItems(int orderId)
         {
             using (var httpClient = new HttpClient())
@@ -919,6 +941,54 @@ namespace NetTransfer.Smartstore.Library
                     {
                         var result = await response.Content.ReadAsStringAsync();
                         return JsonConvert.DeserializeObject<SmartstoreCustomer>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public async Task<SmartstoreShipment?> AddShipment(SmartstoreAddShipment shipment,int orderId)
+        {
+            var json = JsonConvert.SerializeObject(shipment);
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"{_b2BSetting.Url}/orders({orderId})/addshipment"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+                    request.Content = new StringContent(json);
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+                    var response = await httpClient.SendAsync(request);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreShipment>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+        public async Task<ResponseSmartList<SmartstoreShipment>?> GetShipment(int orderId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders({orderId})/shipments"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+                    var response = await httpClient.SendAsync(request);
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreShipment>>(result);
                     }
                     else
                     {

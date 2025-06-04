@@ -97,6 +97,22 @@ namespace NetTransfer.Integration.Erp
 
             return malzemeFiyatList;
         }
+        public List<OpakSevkiyat> GetSevkiyatList(ref string errorMessage)
+        {
+            List<OpakSevkiyat> sevkiyatList = new List<OpakSevkiyat>();
+
+            var data = DataReader.ReadData<OpakSevkiyat>(connectionString, OpakQuery.GetSevkiyatQuery(null), ref errorMessage);
+            if (data == null)
+            {
+                return new List<OpakSevkiyat>();
+            }
+            else
+            {
+                sevkiyatList = data;
+            }
+
+            return sevkiyatList;
+        }
 
         public async Task<OpakResponse?> SaveOrderAsync(OpakSiparis order)
         {

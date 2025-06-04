@@ -26,6 +26,7 @@ namespace NetTransferService
         private System.Timers.Timer timerMalzemeStokTransfer;
         private System.Timers.Timer timerMalzemeFiyatTransfer;
         private System.Timers.Timer timerSiparisTransfer;
+        private System.Timers.Timer timerSevkiyatTransfer;
 
         //    private Transfer transfer;
         public Worker(ILogger<Worker> logger, IConfiguration configuration)
@@ -137,7 +138,25 @@ namespace NetTransferService
 
                 TimerSiparisTransfer_Elapsed(this, new System.Timers.ElapsedEventArgs(DateTime.Now));
             }
+
+            if (getSevkiyatTransferMinute() > 0)
+            {
+                timerSevkiyatTransfer = new System.Timers.Timer();
+                timerSevkiyatTransfer.Interval = 60000 * getSiparisTransferMinute();
+                timerSevkiyatTransfer.Elapsed += TimerSevkiyatTransfer_Elapsed; ;
+                timerSevkiyatTransfer.Enabled = true;
+                timerSevkiyatTransfer.Start();
+
+                TimerSevkiyatTransfer_Elapsed(this, new System.Timers.ElapsedEventArgs(DateTime.Now));
+            }
         }
+
+        private void TimerSevkiyatTransfer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)
+        {
+            _logger.LogWarning("TimerSevkiyatTransfer_Elapsed");
+            Task.Factory.StartNew(() => transfer.SevkiyatTransfer(), CancellationToken.None, TaskCreationOptions.None, taskScheduler);
+        }
+
         public override Task StopAsync(CancellationToken cancellationToken)
         {
             if (timerCariTransfer != null)
@@ -152,6 +171,8 @@ namespace NetTransferService
                 timerMalzemeFiyatTransfer.Dispose();
             if (timerSiparisTransfer != null)
                 timerSiparisTransfer.Dispose();
+            if (timerSevkiyatTransfer != null)
+                timerSevkiyatTransfer.Dispose();
 
             _logger.LogWarning("Net Transfer Durduruldu");
             return base.StopAsync(cancellationToken);
@@ -274,6 +295,21 @@ namespace NetTransferService
 
             return 0;
         }
+
+        private int getSevkiyatTransferMinute()
+        {
+            if (_virtualStoreSetting.VirtualStore == "B2B")
+            {
+                return 0;
+            }
+            if (_virtualStoreSetting.VirtualStore == "Smartstore")
+            {
+                return _smartstoreParameter.OrderShipmentMinute;
+            }
+
+            return 0;
+        }
+
         private int getProductPriceTransferMinute()
         {
             if (_virtualStoreSetting.VirtualStore == "B2B")

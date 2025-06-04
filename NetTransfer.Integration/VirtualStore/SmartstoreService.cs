@@ -532,7 +532,6 @@ namespace NetTransfer.Integration.VirtualStore
 
 
         }
-
         public async Task<List<SmartstoreOrder>?> GetSmartstoreOrder(int orderStatusId= 10)
         {
             try
@@ -572,6 +571,32 @@ namespace NetTransfer.Integration.VirtualStore
             {
                 throw;
             }
+        }
+        public async Task<SmartstoreShipment> AddShipment(SmartstoreAddShipment smartstoreShipment,string orderGuid)
+        {
+            var orderResult = await _smartStoreClient.GetOrdersWithOrderGuid(orderGuid);
+            if (orderResult != null)
+            {
+                if (orderResult.value.Any())
+                {
+                    var order = orderResult.value.First();
+                    var orderShipmentResult = await _smartStoreClient.GetShipment(order.Id);
+                    if (orderShipmentResult != null)
+                    {
+                        if (orderShipmentResult.value.Any())
+                        {
+                            return orderShipmentResult.value.First();
+                        }
+                        else
+                        {
+                            return await _smartStoreClient.AddShipment(smartstoreShipment, order.Id);
+                        }
+                    }
+                }
+            }
+
+
+            return null;
         }
 
         #region MappingProduct
