@@ -10,6 +10,7 @@ using Newtonsoft.Json;
 using NetTransfer.Smartstore.Library.Models;
 using System.IO;
 using System.Net;
+using System.Threading;
 namespace NetTransfer.Smartstore.Library
 {
     public class SmartStoreClient(VirtualStoreSetting _b2BSetting)
@@ -607,7 +608,6 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-
         public async Task<ResponseSmartList<SmartstoreProductTag>?> GetProductTag(string name)
         {
             using (var httpClient = new HttpClient())
@@ -657,7 +657,6 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-
         public async Task<ResponseSmartList<SmartstoreProductVariantAttributeValue>?> GetProductVariantAttributeValue(int productVariantAttributeId, string name)
         {
             using (var httpClient = new HttpClient())
@@ -682,7 +681,6 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-
         public async Task<SmartstoreProductVariantAttributeValue?> ProductVariantAttributeValueTransfer(SmartstoreProductVariantAttributeValue productVariantAttributeValue)
         {
             var json = JsonConvert.SerializeObject(productVariantAttributeValue);
@@ -781,7 +779,6 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-
         public async Task<ResponseSmartList<SmartstoreProductTag>> UpdateProductTags(int productId, SmartstoreProductTagMapping productTagMapping)
         {
             var json = JsonConvert.SerializeObject(productTagMapping);
@@ -809,7 +806,6 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-
         public async Task<ResponseSmartList<SmartstoreOrder>?> GetOrders(int orderStatusId)
         {
             using (var httpClient = new HttpClient())
@@ -949,13 +945,12 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-
-        public async Task<SmartstoreShipment?> AddShipment(SmartstoreAddShipment shipment,int orderId)
+        public async Task<SmartstoreShipment?> AddShipment(SmartstoreAddShipment shipment,int orderId, string carrier)
         {
             var json = JsonConvert.SerializeObject(shipment);
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"{_b2BSetting.Url}/orders({orderId})/addshipment"))
+                using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"{_b2BSetting.Url}/orders({orderId})/addshipment?carrier={Uri.EscapeDataString(carrier)}"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");

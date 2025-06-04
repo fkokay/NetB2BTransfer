@@ -41,7 +41,7 @@ namespace NetTransfer.Integration
         private NetTransferContext _context;
         private B2BParameter _b2bParameter;
         private SmartstoreParameter _smartstoreParameter;
-       
+
 
         public Transfer(ILogger logger, string connectionString, ErpSetting erpSetting, VirtualStoreSetting virtualStoreSetting, B2BParameter b2BParameter)
         {
@@ -334,6 +334,7 @@ namespace NetTransfer.Integration
                         }
                         else
                         {
+                            _logger.LogWarning("Aktarılacak ürün sayısı: " + smartStoreList.Count); 
                             foreach (var item in smartStoreList)
                             {
                                 _ = await _smartstoreTransfer.CreateProduct(item);
@@ -731,24 +732,40 @@ namespace NetTransfer.Integration
                 {
                     case "Smartstore":
 
-                        var list =sevkiyatList as List<OpakSevkiyat>;
+                        var list = sevkiyatList as List<OpakSevkiyat>;
+
+                        _logger.LogInformation("Aktarılacak sevkiyat sayısı: " + list.Count);
+
                         foreach (var item in list)
                         {
                             SmartstoreAddShipment model = new SmartstoreAddShipment();
-                            model.Carrier = item.KARGOFIRMASI;
                             model.TrackingNumber = item.KARGOBARKODU;
                             model.TrackingUrl = "";
                             model.IsShipped = true;
                             model.NotifyCustomer = true;
+                            int orderId = Convert.ToInt32(item.SIPARISNO.Replace("B2C", ""));
 
-                            await _smartstoreTransfer.AddShipment(model,item.SIPARISGUID);
+                            _logger.LogInformation("Sipariş ID: " + orderId + " Kargo Firması: " + item.KARGOFIRMASI + " Kargo Takip No: " + item.KARGOBARKODU);
+
+                            var result = await _smartstoreTransfer.AddShipment(model, orderId, item.KARGOFIRMASI);
+                            if (result != null)
+                            {
+                                _logger.LogInformation("Sevkiyat aktarıldı " + result.Id);
+                            }
+                            else
+                            {
+                                _logger.LogInformation("Sevkiyat aktarımı sırasında bilinmeyen bir hata oluştu");
+                            }
                         }
-                   
+
                         break;
                     default:
                         _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _virtualStoreSetting.VirtualStore);
                         break;
                 }
+
+                await UpdateOrderShipmentLastTransfer();
+
                 _logger.LogInformation("Sevkiyat Transferi Bitti");
             }
             catch (Exception ex)
@@ -851,6 +868,33 @@ namespace NetTransfer.Integration
                     case "Smartstore":
                         _smartstoreParameter = _context.SmartstoreParameter.First();
                         _smartstoreParameter.ProductStockLastTransfer = DateTime.Now;
+                        _context.SmartstoreParameter.Update(_smartstoreParameter);
+                        await _context.SaveChangesAsync();
+
+                        break;
+                    default:
+                        break;
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Update Product Last Trasfer Error");
+            }
+        }
+
+        private async Task UpdateOrderShipmentLastTransfer()
+        {
+            try
+            {
+                switch (_virtualStoreSetting.VirtualStore)
+                {
+                    case "B2B":
+                        break;
+                    case "Smartstore":
+                        _smartstoreParameter = _context.SmartstoreParameter.First();
+                        _smartstoreParameter.OrderShipmentLastTransfer = DateTime.Now;
                         _context.SmartstoreParameter.Update(_smartstoreParameter);
                         await _context.SaveChangesAsync();
 

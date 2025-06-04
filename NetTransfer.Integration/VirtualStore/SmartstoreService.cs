@@ -572,26 +572,18 @@ namespace NetTransfer.Integration.VirtualStore
                 throw;
             }
         }
-        public async Task<SmartstoreShipment> AddShipment(SmartstoreAddShipment smartstoreShipment,string orderGuid)
+        public async Task<SmartstoreShipment?> AddShipment(SmartstoreAddShipment smartstoreShipment,int orderId,string carrier)
         {
-            var orderResult = await _smartStoreClient.GetOrdersWithOrderGuid(orderGuid);
-            if (orderResult != null)
+            var orderShipmentResult = await _smartStoreClient.GetShipment(orderId);
+            if (orderShipmentResult != null)
             {
-                if (orderResult.value.Any())
+                if (orderShipmentResult.value.Any())
                 {
-                    var order = orderResult.value.First();
-                    var orderShipmentResult = await _smartStoreClient.GetShipment(order.Id);
-                    if (orderShipmentResult != null)
-                    {
-                        if (orderShipmentResult.value.Any())
-                        {
-                            return orderShipmentResult.value.First();
-                        }
-                        else
-                        {
-                            return await _smartStoreClient.AddShipment(smartstoreShipment, order.Id);
-                        }
-                    }
+                    return orderShipmentResult.value.First();
+                }
+                else
+                {
+                    return await _smartStoreClient.AddShipment(smartstoreShipment, orderId, carrier);
                 }
             }
 

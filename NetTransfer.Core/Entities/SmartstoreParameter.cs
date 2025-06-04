@@ -25,5 +25,6 @@ namespace NetTransfer.Core.Entities
         public int OrderTransferMinute { get; set; } = 0;
         public int OrderStatusId { get; set; } = 10;
         public int OrderShipmentMinute { get; set; } = 0;
+        public DateTime? OrderShipmentLastTransfer { get; set; }
     }
 }

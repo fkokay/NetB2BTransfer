@@ -11,7 +11,7 @@ namespace NetTransfer.Smartstore.Library.Models
         public int OrderId { get; set; }
         public string TrackingNumber { get; set; }
         public string TrackingUrl { get; set; }
-        public int TotalWeight { get; set; }
+        public double TotalWeight { get; set; }
         public DateTime ShippedDateUtc { get; set; }
         public DateTime? DeliveryDateUtc { get; set; }
         public DateTime CreatedOnUtc { get; set; }

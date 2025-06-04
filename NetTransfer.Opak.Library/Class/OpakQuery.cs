@@ -14,7 +14,6 @@ namespace NetTransfer.Opak.Library.Class
             {
                 if (guncellemeTarihi.HasValue)
                 {
-                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE BIRIMAGIRLIK > 0";
                     return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
                 }
                 else
@@ -78,7 +77,15 @@ namespace NetTransfer.Opak.Library.Class
 
         public static string GetSevkiyatQuery(DateTime? guncellemeTarihi)
         {
-            return "SELECT * FROM VOW_SIPARISKARGOFIRMAVEBARKOD_ozgurtek";
+            if (guncellemeTarihi.HasValue)
+            {
+                return $"SELECT * FROM VOW_SIPARISKARGOFIRMAVEBARKOD_ozgurtek WHERE FATURASONDEGISIKLIKTARIHI > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+            }
+            else
+            {
+                return $"SELECT * FROM VOW_SIPARISKARGOFIRMAVEBARKOD_ozgurtek";
+            }
+          
         }
     }
 }

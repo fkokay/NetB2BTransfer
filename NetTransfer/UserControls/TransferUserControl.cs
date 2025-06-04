@@ -74,7 +74,6 @@ namespace NetTransfer.UserControls
                         "Malzeme Stok Aktarım",
                         "Malzeme Fiyat Aktarım",
                         "Sipariş Aktarım",
-                        "Sevkiyat Aktarım",
                         "SanalPos Aktarım"
                     }
                 );
@@ -91,7 +90,8 @@ namespace NetTransfer.UserControls
                     "Malzeme Aktarım",
                     "Malzeme Stok Aktarım",
                     "Malzeme Fiyat Aktarım",
-                    "Sipariş Aktarım"
+                    "Sipariş Aktarım",
+                    "Sevkiyat Aktarım"
                    }
                );
 
@@ -194,12 +194,6 @@ namespace NetTransfer.UserControls
             btnTransfer.Enabled = true;
 
             cancellationTransfer.Cancel();
-            LogStop();
-        }
-
-        private void LogStop()
-        {
-            cancellationLog.Cancel();
         }
 
         private void TransferUserControl_Load(object sender, EventArgs e)
@@ -208,22 +202,29 @@ namespace NetTransfer.UserControls
             btnTransfer.Enabled = true;
         }
 
+        private bool IsLogStart = false;
+
         private void LogStart()
         {
-            cancellationLog = new CancellationTokenSource();
-            RealTimeSource realTimeSource = new RealTimeSource()
+            if (!IsLogStart)
             {
-                DataSource = logs
-            };
+                cancellationLog = new CancellationTokenSource();
+                RealTimeSource realTimeSource = new RealTimeSource()
+                {
+                    DataSource = logs
+                };
 
-            gridControlLog.DataSource = realTimeSource;
+                gridControlLog.DataSource = realTimeSource;
 
-            startDatetime = DateTime.Now.AddMinutes(-1);
+                startDatetime = DateTime.Now.AddMinutes(-1);
 
-            Task.Run(() =>
-            {
-                LoadLogWhile();
-            }, cancellationLog.Token);
+                Task.Run(() =>
+                {
+                    LoadLogWhile();
+                }, cancellationLog.Token); 
+            }
+
+            IsLogStart = true;
         }
 
         private void LoadLogWhile()
@@ -309,6 +310,7 @@ namespace NetTransfer.UserControls
                 _smartstoreParameter.ProductLastTransfer = null;
                 _smartstoreParameter.ProductStockLastTransfer = null;
                 _smartstoreParameter.ProductPriceLastTransfer = null;
+                _smartstoreParameter.OrderShipmentLastTransfer = null;
                 _context.SmartstoreParameter.Update(_smartstoreParameter);
                 _context.SaveChanges();
             }

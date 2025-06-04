@@ -101,7 +101,7 @@ namespace NetTransfer.Integration.Erp
         {
             List<OpakSevkiyat> sevkiyatList = new List<OpakSevkiyat>();
 
-            var data = DataReader.ReadData<OpakSevkiyat>(connectionString, OpakQuery.GetSevkiyatQuery(null), ref errorMessage);
+            var data = DataReader.ReadData<OpakSevkiyat>(connectionString, OpakQuery.GetSevkiyatQuery(smartstoreParameter.OrderShipmentLastTransfer), ref errorMessage);
             if (data == null)
             {
                 return new List<OpakSevkiyat>();
