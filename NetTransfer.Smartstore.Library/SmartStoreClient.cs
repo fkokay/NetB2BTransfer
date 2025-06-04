@@ -712,7 +712,6 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-
         public async Task<ResponseSmartList<SmartstoreProductVariantAttributeCombination>> GetProductVariantAttributeCombination(int productId)
         {
             using (var httpClient = new HttpClient())
@@ -866,7 +865,7 @@ namespace NetTransfer.Smartstore.Library
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders({orderId})/billingaddress"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders({orderId})/billingaddress?expand={Uri.EscapeDataString("City,Town,District")}"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
@@ -888,7 +887,7 @@ namespace NetTransfer.Smartstore.Library
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders({orderId})/shippingaddress"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders({orderId})/shippingaddress?expand={Uri.EscapeDataString("City,Town,District")}"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");

@@ -19,6 +19,7 @@ namespace NetTransfer.Opak.Library.Models
         public double FIYAT5 { get; set; }
         public int MIKTAR { get; set; }
         public int SIRA { get; set; }
+        public int BIRIMAGIRLIK { get; set; }
 
         public List<OpakMalzemeResim> MalzemeResimList = new List<OpakMalzemeResim>();
     }

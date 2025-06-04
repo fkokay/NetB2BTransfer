@@ -44,7 +44,7 @@ namespace NetTransfer.Opak.Library.Models
         public string VERGIDAIRESI { get; set; }
         public string VERGINO { get; set; }
         public string TCNO { get; set; }
-        public int KARGOBEDELI { get; set; }
+        public double KARGOBEDELI { get; set; }
         public List<OpakSiparisKalem> STOKLISTESI { get; set; } = new List<OpakSiparisKalem>();
         public List<OpakSiparisParam> SIPARISEKPARAM { get; set; } = new List<OpakSiparisParam>();
         public List<OpakSiparisOdeme> SIPARISODEME { get; set; } = new List<OpakSiparisOdeme>();

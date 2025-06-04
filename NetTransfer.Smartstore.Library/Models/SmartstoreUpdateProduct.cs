@@ -28,8 +28,12 @@ namespace NetTransfer.Smartstore.Library.Models
         [JsonProperty("ShowOnHomePage")]
         public bool ShowOnHomePage { get; set; }
 
-        [JsonProperty("HomePageDisplayOrder")]
-        public int HomePageDisplayOrder { get; set; }
+        [JsonProperty("Published")]
+        public bool Published { get; set; }
+        [JsonProperty("AdminComment")]
+        public string AdminComment { get; set; }
+        [JsonProperty("Weight")]
+        public double Weight { get; set; }
 
     }
 }

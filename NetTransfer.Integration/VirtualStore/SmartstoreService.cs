@@ -56,16 +56,21 @@ namespace NetTransfer.Integration.VirtualStore
                         updateProduct.Price = product.Price;
                         updateProduct.SpecialPrice = product.SpecialPrice;
                         updateProduct.IsFreeShipping = false;
-                        updateProduct.IsShipEnabled = false;
-                        updateProduct.HomePageDisplayOrder = 0;
+                        updateProduct.IsShipEnabled = true;
                         updateProduct.ShowOnHomePage = product.ShowOnHomePage;
+                        updateProduct.Published = product.Published;
+                        updateProduct.AdminComment = product.AdminComment;
+                        updateProduct.Weight = product.Weight;
 
                         await _smartStoreClient.UpdateProduct(updateProduct);
 
                     }
                     else
                     {
-                        result = await _smartStoreClient.ProductTransfer(product);
+                        if (product.Published)
+                        {
+                            result = await _smartStoreClient.ProductTransfer(product);
+                        }
                     }
                 }
                 else
@@ -858,16 +863,16 @@ namespace NetTransfer.Integration.VirtualStore
                 product.ParentGroupedProductId = 0;
                 product.Visibility = "Full";
                 product.Condition = "New";
-                product.Name = NetsisUtils.CevirNetsis(item.STOK_ADI);
+                product.Name = item.STOK_ADI;
                 product.ShortDescription = "";
-                product.FullDescription = NetsisUtils.CevirNetsis(item.ACIKLAMA);
+                product.FullDescription = item.ACIKLAMA;
                 product.AdminComment = "";
                 product.ProductTemplateId = 1;
                 product.ShowOnHomePage = item.ANASAYFA == "E";
                 product.HomePageDisplayOrder = 0;
-                product.MetaKeywords = "";
-                product.MetaTitle = NetsisUtils.CevirNetsis(item.STOK_ADI);
-                product.MetaDescription = "";
+                product.MetaKeywords = item.KISAACIKLAMA;
+                product.MetaTitle = item.STOK_ADI;
+                product.MetaDescription = item.STOK_ADI;
                 product.AllowCustomerReviews = true;
                 product.ApprovedRatingSum = 0;
                 product.NotApprovedRatingSum = 0;
@@ -875,7 +880,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.NotApprovedTotalReviews = 0;
                 product.SubjectToAcl = false;
                 product.LimitedToStores = false;
-                product.Sku = NetsisUtils.CevirNetsis(item.STOK_KODU);
+                product.Sku = item.STOK_KODU;
                 product.ManufacturerPartNumber = "";
                 product.Gtin = "";
                 product.IsGiftCard = false;
@@ -896,7 +901,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.RecurringCycleLength = 100;
                 product.RecurringCyclePeriodId = 0;
                 product.RecurringTotalCycles = 10;
-                product.IsShippingEnabled = false;
+                product.IsShippingEnabled = true;
                 product.IsFreeShipping = false;
                 product.AdditionalShippingCharge = 0;
                 product.IsTaxExempt = false;
@@ -934,14 +939,14 @@ namespace NetTransfer.Integration.VirtualStore
                 product.LowestAttributeCombinationPrice = null;
                 product.AttributeCombinationRequired = false;
                 product.AttributeChoiceBehaviour = "GrayOutUnavailable";
-                product.Weight = 0;
+                product.Weight = item.BIRIMAGIRLIK;
                 product.Length = 0;
                 product.Width = 0;
                 product.Height = 0;
                 product.AvailableStartDateTimeUtc = null;
                 product.AvailableEndDateTimeUtc = null;
                 product.DisplayOrder = 0;
-                product.Published = true;
+                product.Published = item.AKTIF == "E";
                 product.IsSystemProduct = false;
                 product.SystemName = "";
                 product.CreatedOnUtc = DateTimeOffset.UtcNow;
@@ -1048,6 +1053,7 @@ namespace NetTransfer.Integration.VirtualStore
                         smartstoreProductVariantAttributeCombination.Price = Convert.ToDecimal(varyant.FIYAT4);
                         smartstoreProductVariantAttributeCombination.IsActive = true;
                         smartstoreProductVariantAttributeCombination.StockQuantity = varyant.MIKTAR;
+                        smartstoreProductVariantAttributeCombination.Weight = varyant.BIRIMAGIRLIK;
                         smartstoreProductVariantAttributeCombination.AllowOutOfStockOrders = true;
                         foreach (var resim in varyant.MalzemeResimList)
                         {

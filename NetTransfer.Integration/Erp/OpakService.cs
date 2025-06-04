@@ -1,4 +1,5 @@
-﻿using NetTransfer.Core.Data;
+﻿using Microsoft.IdentityModel.Tokens;
+using NetTransfer.Core.Data;
 using NetTransfer.Core.Entities;
 using NetTransfer.Integration.Models;
 using NetTransfer.Netsis.Library.Class;
@@ -16,27 +17,30 @@ using System.Threading.Tasks;
 
 namespace NetTransfer.Integration.Erp
 {
-    public class OpakService(ErpSetting erpSetting)
+    public class OpakService(ErpSetting erpSetting, SmartstoreParameter smartstoreParameter)
     {
         private readonly string connectionString = $"Data Source={erpSetting.SqlServer};Initial Catalog={erpSetting.SqlDatabase};Integrated Security=False;Persist Security Info=False;User ID={erpSetting.SqlUser};Password={erpSetting.SqlPassword};Trust Server Certificate=True;";
 
         public List<OpakMalzeme>? GetMalzemeList(ref string errorMessage)
         {
-            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeQuery(), ref errorMessage);
+            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeQuery(null, smartstoreParameter.ProductLastTransfer), ref errorMessage);
             if (malzemeList == null)
             {
                 return null;
             }
             foreach (var item in malzemeList)
             {
-                item.MalzemeResimList = DataReader.ReadData<OpakMalzemeResim>(connectionString, OpakQuery.GetMalzemeResimQuery(item.STOK_KODU), ref errorMessage);
-                if (item.VARYANTLIURUN > 0)
+                if (item.AKTIF == "E")
                 {
-                    item.MalzemeVaryantList = DataReader.ReadData<OpakVaryant>(connectionString, OpakQuery.GetMalzemeVaryantQuery(item.STOK_KODU), ref errorMessage);
-                    foreach (var varyant in item.MalzemeVaryantList)
+                    item.MalzemeResimList = DataReader.ReadData<OpakMalzemeResim>(connectionString, OpakQuery.GetMalzemeResimQuery(item.STOK_KODU), ref errorMessage);
+                    if (item.VARYANTLIURUN > 0)
                     {
-                        item.MalzemeResimList.AddRange(DataReader.ReadData<OpakMalzemeResim>(connectionString, OpakQuery.GetMalzemeResimQuery(varyant.KOD), ref errorMessage));
-                        varyant.MalzemeResimList = DataReader.ReadData<OpakMalzemeResim>(connectionString, OpakQuery.GetMalzemeResimQuery(varyant.KOD), ref errorMessage);
+                        item.MalzemeVaryantList = DataReader.ReadData<OpakVaryant>(connectionString, OpakQuery.GetMalzemeVaryantQuery(item.STOK_KODU), ref errorMessage);
+                        foreach (var varyant in item.MalzemeVaryantList)
+                        {
+                            item.MalzemeResimList.AddRange(DataReader.ReadData<OpakMalzemeResim>(connectionString, OpakQuery.GetMalzemeResimQuery(varyant.KOD), ref errorMessage));
+                            varyant.MalzemeResimList = DataReader.ReadData<OpakMalzemeResim>(connectionString, OpakQuery.GetMalzemeResimQuery(varyant.KOD), ref errorMessage);
+                        }
                     }
                 }
             }
@@ -48,7 +52,7 @@ namespace NetTransfer.Integration.Erp
         {
             List<BaseMalzemeStokModel> malzemeStokList = new List<BaseMalzemeStokModel>();
 
-            var data = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeStokQuery(), ref errorMessage);
+            var data = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeStokQuery(smartstoreParameter.ProductStockLastTransfer), ref errorMessage);
 
             if (data == null)
             {
@@ -73,7 +77,7 @@ namespace NetTransfer.Integration.Erp
         {
             List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
 
-            var data = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeFiyatQuery(), ref errorMessage);
+            var data = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeFiyatQuery(smartstoreParameter.ProductPriceLastTransfer), ref errorMessage);
             if (data == null)
             {
                 return new List<BaseMalzemeFiyatModel>();
@@ -144,11 +148,11 @@ namespace NetTransfer.Integration.Erp
                         opakSiparis.CARIKOD = cariKod;
                         opakSiparis.CARIADI = "";
                         opakSiparis.ALTHESAP = "001";
-                        opakSiparis.BELGENO = item.OrderNumber ?? item.Id.ToString();
+                        opakSiparis.BELGENO = $"B2C{item.OrderNumber ?? item.Id.ToString()}";
                         opakSiparis.TARIH = item.CreatedOnUtc.ToString("yyyy-MM-dd");
                         opakSiparis.SAAT = item.CreatedOnUtc.ToString("HH:mm:ss");
                         opakSiparis.ACIKLAMA1 = item.CustomerOrderComment ?? "";
-                        opakSiparis.ACIKLAMA2 = "";
+                        opakSiparis.ACIKLAMA2 = string.Join(",", item.OrderItems.Select(m => m.AttributeDescription).ToArray());
                         opakSiparis.ACIKLAMA3 = "";
                         opakSiparis.ACIKLAMA4 = "";
                         opakSiparis.ACIKLAMA5 = "";
@@ -163,18 +167,25 @@ namespace NetTransfer.Integration.Erp
                         opakSiparis.ISLEMTIPI = 0;
                         opakSiparis.PLASIYERKOD = "";
                         opakSiparis.TESLIMTARIHI = item.CreatedOnUtc.ToString("yyyy-MM-dd");
-                        opakSiparis.ADSOYAD = item.BillingAddress.FirstName + " " + item.BillingAddress.LastName;
+
+                        string adsoyad = item.BillingAddress.FirstName + " " + item.BillingAddress.LastName;
+                        if (!string.IsNullOrEmpty(item.BillingAddress.Company))
+                        {
+                            adsoyad += $" ({item.BillingAddress.Company})";
+                        }
+
+                        opakSiparis.ADSOYAD = adsoyad;
                         opakSiparis.TEL = item.BillingAddress.PhoneNumber;
                         opakSiparis.FAX = "";
                         opakSiparis.CEPTEL = item.BillingAddress.PhoneNumber;
                         opakSiparis.MAIL = item.BillingAddress.Email;
-                        opakSiparis.ADRES = item.BillingAddress.Address1 + " " + item.BillingAddress.Address2;
-                        opakSiparis.ILCE = "";
-                        opakSiparis.IL = item.BillingAddress.City;
-                        opakSiparis.VERGIDAIRESI = "";
-                        opakSiparis.VERGINO = "";
-                        opakSiparis.TCNO = "";
-                        opakSiparis.KARGOBEDELI = 0;
+                        opakSiparis.ADRES = item.BillingAddress.Address1;
+                        opakSiparis.ILCE = item.BillingAddress.Town!.Name;
+                        opakSiparis.IL = item.BillingAddress.City!.Name;
+                        opakSiparis.VERGIDAIRESI = item.BillingAddress.TaxOffice.IsNullOrEmpty() ? "" : item.BillingAddress.TaxOffice;
+                        opakSiparis.VERGINO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? item.BillingAddress.TaxNumber : "";
+                        opakSiparis.TCNO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber;
+                        opakSiparis.KARGOBEDELI = item.OrderShippingInclTax;
 
                         foreach (var orderItem in item.OrderItems)
                         {
@@ -199,7 +210,7 @@ namespace NetTransfer.Integration.Erp
                             siparisKalem.DOVIZADI = "TL";
                             siparisKalem.TARIH = item.CreatedOnUtc;
                             siparisKalem.KUR = 0;
-                            siparisKalem.ACIKLAMA1 = "";
+                            siparisKalem.ACIKLAMA1 = orderItem.AttributeDescription;
 
                             opakSiparis.STOKLISTESI.Add(siparisKalem);
                         }
@@ -220,7 +231,7 @@ namespace NetTransfer.Integration.Erp
                             ID = 0,
                             UUID = item.OrderGuid,
                             ACIKLAMA = "Kimlik No",
-                            DEGER = "",
+                            DEGER = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber,
                             ZORUNLU = false,
                             TIP = 0
                         });//Kimlik No
@@ -229,7 +240,7 @@ namespace NetTransfer.Integration.Erp
                             ID = 0,
                             UUID = item.OrderGuid,
                             ACIKLAMA = "Vergi No",
-                            DEGER = "",
+                            DEGER = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? item.BillingAddress.TaxNumber : "",
                             ZORUNLU = false,
                             TIP = 0
                         });//Vergi No
@@ -247,7 +258,7 @@ namespace NetTransfer.Integration.Erp
                             ID = 0,
                             UUID = item.OrderGuid,
                             ACIKLAMA = "Vergi Dairesi",
-                            DEGER = "",
+                            DEGER = item.BillingAddress.TaxOffice.IsNullOrEmpty() ? "" : item.BillingAddress.TaxOffice,
                             ZORUNLU = false,
                             TIP = 0
                         });//Vergi Dairesi
@@ -256,7 +267,7 @@ namespace NetTransfer.Integration.Erp
                             ID = 0,
                             UUID = item.OrderGuid,
                             ACIKLAMA = "Adres",
-                            DEGER = item.BillingAddress.Address1 + " " + item.BillingAddress.Address2,
+                            DEGER = item.BillingAddress.Address1,
                             ZORUNLU = false,
                             TIP = 0
                         });//Adres
@@ -265,7 +276,7 @@ namespace NetTransfer.Integration.Erp
                             ID = 0,
                             UUID = item.OrderGuid,
                             ACIKLAMA = "İlçe",
-                            DEGER = "",
+                            DEGER = item.BillingAddress.Town.Name,
                             ZORUNLU = false,
                             TIP = 0
                         });//İlçe
@@ -274,7 +285,7 @@ namespace NetTransfer.Integration.Erp
                             ID = 0,
                             UUID = item.OrderGuid,
                             ACIKLAMA = "İl",
-                            DEGER = item.BillingAddress.City,
+                            DEGER = item.BillingAddress.City.Name,
                             ZORUNLU = false,
                             TIP = 0
                         });//İl
@@ -315,16 +326,19 @@ namespace NetTransfer.Integration.Erp
                             TIP = 0
                         });//Telefon
 
-                        opakSiparis.SIPARISODEME.Add(new OpakSiparisOdeme()
+                        if (item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico")
                         {
-                            ID = 0,
-                            ODEMETURU = "Nakit",
-                            BANKAKOD = "9",
-                            TUTAR = item.OrderTotal,
-                            TAKSIT = 0,
-                            AKTARILDIMI = "H",
-                            TARIH = item.PaidDateUtc.HasValue ? item.PaidDateUtc.Value : item.CreatedOnUtc
-                        });
+                            opakSiparis.SIPARISODEME.Add(new OpakSiparisOdeme()
+                            {
+                                ID = 0,
+                                ODEMETURU = "Nakit",
+                                BANKAKOD = "9",
+                                TUTAR = item.OrderTotal,
+                                TAKSIT = 0,
+                                AKTARILDIMI = "H",
+                                TARIH = item.PaidDateUtc.HasValue ? item.PaidDateUtc.Value : item.CreatedOnUtc
+                            });
+                        }
 
                         opakOrderList.Add(opakSiparis);
                     }

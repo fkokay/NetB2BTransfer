@@ -8,14 +8,44 @@ namespace NetTransfer.Opak.Library.Class
 {
     public static class OpakQuery
     {
-        public static string GetMalzemeQuery()
+        public static string GetMalzemeQuery(string? aktif,DateTime? guncellemeTarihi)
         {
-            return "SELECT * FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='E'";
+            if (string.IsNullOrEmpty(aktif))
+            {
+                if (guncellemeTarihi.HasValue)
+                {
+                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE BIRIMAGIRLIK > 0";
+                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+                }
+                else
+                {
+                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek";
+                }
+            }
+            else
+            {
+                if (guncellemeTarihi.HasValue)
+                {
+                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='{aktif}' AND GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+                }
+                else
+                {
+                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='{aktif}'";
+                }
+            }
         }
 
-        public static string GetMalzemeStokQuery()
+        public static string GetMalzemeStokQuery(DateTime? guncellemeTarihi)
         {
-            return "SELECT STOK_KODU,MIKTAR,STOKMIKTAR FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='E'";
+            if (guncellemeTarihi == null)
+            {
+                return $"SELECT KOD,DEPOADI,BAKIYE FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek]";
+            }
+            else
+            {
+                return $"SELECT KOD,DEPOADI,BAKIYE FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+            }
+         
         }
 
         public static string GetMalzemeResimQuery(string stok_kodu)
@@ -33,9 +63,17 @@ namespace NetTransfer.Opak.Library.Class
             return @$"SELECT * FROM VOW_STOKDETAYNATIVE_ozgurtek WHERE STOKKOD='{stok_kodu}' ORDER BY SIRA";
         }
 
-        public static string GetMalzemeFiyatQuery()
+        public static string GetMalzemeFiyatQuery(DateTime? guncellemeTarihi)
         {
-            return "SELECT STOK_KODU,SATIS_FIAT1 FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='E'";
+            if (guncellemeTarihi == null)
+            {
+                return "SELECT KOD,KDV,SFIYAT1,SFIYAT2,SFIYAT3 FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek]";
+            }
+            else
+            {
+                return "SELECT KOD,KDV,SFIYAT1,SFIYAT2,SFIYAT3 FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+            }
+
         }
     }
 }

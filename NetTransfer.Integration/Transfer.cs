@@ -29,38 +29,40 @@ namespace NetTransfer.Integration
 {
     public class Transfer
     {
-        private NetTransferContext _context;
         private readonly string _connectionString;
         private readonly ILogger _logger;
         private readonly B2BClient _b2BClient;
         private readonly SmartStoreClient _smartStoreClient;
         private readonly ErpSetting _erpSetting;
-        private readonly VirtualStoreSetting _b2bSetting;
-        private readonly B2BParameter _b2bParameter;
-        private readonly SmartstoreParameter _smartstoreParameter;
+        private readonly VirtualStoreSetting _virtualStoreSetting;
         private readonly SmartstoreService _smartstoreTransfer;
         private readonly B2BService _b2BTransfer;
 
-        public Transfer(ILogger logger, string connectionString, ErpSetting erpSetting, VirtualStoreSetting b2BSetting, B2BParameter b2BParameter)
+        private NetTransferContext _context;
+        private B2BParameter _b2bParameter;
+        private SmartstoreParameter _smartstoreParameter;
+       
+
+        public Transfer(ILogger logger, string connectionString, ErpSetting erpSetting, VirtualStoreSetting virtualStoreSetting, B2BParameter b2BParameter)
         {
             _logger = logger;
             _connectionString = connectionString;
             _erpSetting = erpSetting;
-            _b2bSetting = b2BSetting;
-            _b2BClient = new B2BClient(b2BSetting);
+            _virtualStoreSetting = virtualStoreSetting;
+            _b2BClient = new B2BClient(virtualStoreSetting);
             _b2BTransfer = new B2BService(_b2BClient);
             _b2bParameter = b2BParameter;
 
             InitializeContext();
         }
 
-        public Transfer(ILogger logger, string connectionString, ErpSetting erpSetting, VirtualStoreSetting b2BSetting, SmartstoreParameter smartstoreParameter)
+        public Transfer(ILogger logger, string connectionString, ErpSetting erpSetting, VirtualStoreSetting virtualStoreSetting, SmartstoreParameter smartstoreParameter)
         {
             _logger = logger;
             _connectionString = connectionString;
             _erpSetting = erpSetting;
-            _b2bSetting = b2BSetting;
-            _smartStoreClient = new SmartStoreClient(b2BSetting);
+            _virtualStoreSetting = virtualStoreSetting;
+            _smartStoreClient = new SmartStoreClient(virtualStoreSetting);
             _smartstoreTransfer = new SmartstoreService(_logger, _smartStoreClient);
             _smartstoreParameter = smartstoreParameter;
 
@@ -97,7 +99,7 @@ namespace NetTransfer.Integration
                         break;
                 }
 
-                switch (_b2bSetting.VirtualStore)
+                switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
                         B2BService b2BTransfer = new B2BService(_b2BClient);
@@ -147,7 +149,7 @@ namespace NetTransfer.Integration
 
                         break;
                     default:
-                        _logger.LogError("Geçersiz sanal mağaza ayarı: CariTransfer.{virtualStore}", _b2bSetting.VirtualStore);
+                        _logger.LogError("Geçersiz sanal mağaza ayarı: CariTransfer.{virtualStore}", _virtualStoreSetting.VirtualStore);
                         break;
                 }
 
@@ -186,7 +188,7 @@ namespace NetTransfer.Integration
                         break;
                 }
 
-                switch (_b2bSetting.VirtualStore)
+                switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
                         B2BService b2BTransfer = new B2BService(_b2BClient);
@@ -216,7 +218,7 @@ namespace NetTransfer.Integration
                         }
                         break;
                     default:
-                        _logger.LogError("Geçersiz sanal mağaza ayarı: CariTransfer.{virtualStore}", _b2bSetting.VirtualStore);
+                        _logger.LogError("Geçersiz sanal mağaza ayarı: CariTransfer.{virtualStore}", _virtualStoreSetting.VirtualStore);
                         break;
                 }
 
@@ -256,7 +258,7 @@ namespace NetTransfer.Integration
                             _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Opak":
-                        OpakService opakService = new OpakService(_erpSetting);
+                        OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeList = opakService.GetMalzemeList(ref errorMessage);
 
                         if (!string.IsNullOrEmpty(errorMessage))
@@ -267,7 +269,7 @@ namespace NetTransfer.Integration
                         break;
                 }
 
-                switch (_b2bSetting.VirtualStore)
+                switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
                         List<B2BUrun>? b2bList = _b2BTransfer.MappingProduct(_erpSetting.Erp, malzemeList);
@@ -307,37 +309,44 @@ namespace NetTransfer.Integration
 
                             _logger.LogInformation($"Ürün aktarım durumu : {total}/{b2bList.Count} aktarıldı");
                             _logger.LogInformation($"Ürün aktarım detay : {result.Detay}");
-
-                            //if (result.Code == 200)
-                            //{
-                            //    int pagetotal = i == 1 ? 0 : ((i - 1) * 25);
-                            //    int total = pagetotal + productList.Count;
-
-                            //    _logger.LogInformation($"Ürün aktarım durumu : {total}/{b2bList.Count} aktarıldı");
-                            //}
-                            //else
-                            //{
-                            //    throw new Exception(result.Message);
-                            //}
                         }
 
                         await UpdateProductLastTransfer();
                         break;
                     case "Smartstore":
+                        #region Tüm Ürünleri Aktar
                         List<SmartstoreProduct>? smartStoreList = _smartstoreTransfer.MappingProduct(_erpSetting.Erp, malzemeList);
                         if (smartStoreList == null)
                         {
                             throw new Exception("Smartstore Product mapping error");
                         }
-                        foreach (var item in smartStoreList)
+
+                        if (smartStoreList.Count == 0)
                         {
-                            _ = await _smartstoreTransfer.CreateProduct(item);
+                            if (_smartstoreParameter.ProductLastTransfer == null)
+                            {
+                                _logger.LogWarning("Aktarılacak ürün bulunamadı. Lütfen ERP sisteminizde ürünlerinizi kontrol ediniz.");
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Aktarılacak ürün bulunamadı.");
+                            }
                         }
+                        else
+                        {
+                            foreach (var item in smartStoreList)
+                            {
+                                _ = await _smartstoreTransfer.CreateProduct(item);
+                            }
+                        }
+                        #endregion
                         break;
                     default:
-                        _logger.LogError("Geçersiz sanal mağaza ayarı: {virtualStore}", _b2bSetting.VirtualStore);
+                        _logger.LogError("Geçersiz sanal mağaza ayarı: {virtualStore}", _virtualStoreSetting.VirtualStore);
                         break;
                 }
+
+                await UpdateProductLastTransfer();
 
                 _logger.LogInformation("Malzeme transferi bitti.");
             }
@@ -371,7 +380,7 @@ namespace NetTransfer.Integration
                             _logger.LogError("Malzeme Stok Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Opak":
-                        OpakService opakService = new OpakService(_erpSetting);
+                        OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeStokList = opakService.GetMalzemeStokList(ref errorMessage);
                         break;
                     default:
@@ -379,7 +388,7 @@ namespace NetTransfer.Integration
                         break;
                 }
 
-                switch (_b2bSetting.VirtualStore)
+                switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
                         if (!_b2BClient.IsAccessToken())
@@ -400,17 +409,15 @@ namespace NetTransfer.Integration
                             var stokList = PaginationBuilder.GetPage(malzemeStokList, i, 100).ToList();
                             await _b2BTransfer.UpdateProductStock(stokList);
                         }
-
-                        await UpdateProductStockLastTransfer();
                         break;
                     case "Smartstore":
                         await _smartstoreTransfer.UpdateProductStock(malzemeStokList);
                         break;
                     default:
-                        _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _b2bSetting.VirtualStore);
+                        _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _virtualStoreSetting.VirtualStore);
                         break;
                 }
-
+                await UpdateProductStockLastTransfer();
                 _logger.LogInformation("Malzeme Stok Transferi Bitti");
             }
             catch (Exception ex)
@@ -438,7 +445,7 @@ namespace NetTransfer.Integration
                         malzemeFiyatList = service.GetMalzemeFiyatList(ref errorMessage);
                         break;
                     case "Opak":
-                        OpakService opakService = new OpakService(_erpSetting);
+                        OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeFiyatList = opakService.GetMalzemeFiyatList(ref errorMessage);
                         break;
                     default:
@@ -446,7 +453,7 @@ namespace NetTransfer.Integration
                         break;
                 }
 
-                switch (_b2bSetting.VirtualStore)
+                switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
                         if (!_b2BClient.IsAccessToken())
@@ -475,16 +482,16 @@ namespace NetTransfer.Integration
                                 _logger.LogWarning("Malzeme fiyat aktarım detay : " + result.Detay);
                             }
                         }
-
-                        await UpdateProductPriceLastTransfer();
                         break;
                     case "Smartstore":
                         await _smartstoreTransfer.UpdateProductPrice(malzemeFiyatList);
                         break;
                     default:
-                        _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _b2bSetting.VirtualStore);
+                        _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _virtualStoreSetting.VirtualStore);
                         break;
                 }
+
+                await UpdateProductPriceLastTransfer();
 
                 _logger.LogInformation("Malzeme Fiyat Transferi Bitti");
             }
@@ -504,7 +511,7 @@ namespace NetTransfer.Integration
             {
                 object? orderList = null;
 
-                switch (_b2bSetting.VirtualStore)
+                switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
                         break;
@@ -527,9 +534,9 @@ namespace NetTransfer.Integration
                     case "Netsis":
                         break;
                     case "Opak":
-                        OpakService opakService = new OpakService(_erpSetting);
+                        OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
 
-                        List<OpakSiparis>? opakList = opakService.MappingOrder(_b2bSetting, orderList);
+                        List<OpakSiparis>? opakList = opakService.MappingOrder(_virtualStoreSetting, orderList);
                         if (opakList == null)
                         {
                             _logger.LogError("Opak sipariş mapping hatası");
@@ -558,7 +565,7 @@ namespace NetTransfer.Integration
                                 else
                                 {
                                     _logger.LogWarning($"{item.BELGENO} nolu sipariş aktarıldı");
-                                } 
+                                }
                             }
                         }
 
@@ -719,12 +726,26 @@ namespace NetTransfer.Integration
         {
             try
             {
-                var parameter = _context.B2BParameter.First();
-                parameter.ProductLastTransfer = DateTime.Now;
-                _context.B2BParameter.Update(parameter);
-                await _context.SaveChangesAsync();
+                switch (_virtualStoreSetting.VirtualStore)
+                {
+                    case "B2B":
+                        _b2bParameter = _context.B2BParameter.First();
+                        _b2bParameter.ProductLastTransfer = DateTime.Now;
+                        _context.B2BParameter.Update(_b2bParameter);
+                        await _context.SaveChangesAsync();
+                        break;
+                    case "Smartstore":
+                        _smartstoreParameter = _context.SmartstoreParameter.First();
+                        _smartstoreParameter.ProductLastTransfer = DateTime.Now;
+                        _context.SmartstoreParameter.Update(_smartstoreParameter);
+                        await _context.SaveChangesAsync();
 
-                _b2bParameter.ProductLastTransfer = parameter.ProductLastTransfer;
+                        break;
+                    default:
+                        break;
+
+                }
+
             }
             catch (Exception ex)
             {
@@ -736,12 +757,26 @@ namespace NetTransfer.Integration
         {
             try
             {
-                var parameter = _context.B2BParameter.First();
-                parameter.ProductPriceLastTransfer = DateTime.Now;
-                _context.B2BParameter.Update(parameter);
-                await _context.SaveChangesAsync();
+                switch (_virtualStoreSetting.VirtualStore)
+                {
+                    case "B2B":
+                        _b2bParameter = _context.B2BParameter.First();
+                        _b2bParameter.ProductPriceLastTransfer = DateTime.Now;
+                        _context.B2BParameter.Update(_b2bParameter);
+                        await _context.SaveChangesAsync();
+                        break;
+                    case "Smartstore":
+                        _smartstoreParameter = _context.SmartstoreParameter.First();
+                        _smartstoreParameter.ProductPriceLastTransfer = DateTime.Now;
+                        _context.SmartstoreParameter.Update(_smartstoreParameter);
+                        await _context.SaveChangesAsync();
 
-                _b2bParameter.ProductPriceLastTransfer = parameter.ProductPriceLastTransfer;
+                        break;
+                    default:
+                        break;
+
+                }
+
             }
             catch (Exception ex)
             {
@@ -753,12 +788,26 @@ namespace NetTransfer.Integration
         {
             try
             {
-                var parameter = _context.B2BParameter.First();
-                parameter.ProductStockLastTransfer = DateTime.Now;
-                _context.B2BParameter.Update(parameter);
-                await _context.SaveChangesAsync();
+                switch (_virtualStoreSetting.VirtualStore)
+                {
+                    case "B2B":
+                        _b2bParameter = _context.B2BParameter.First();
+                        _b2bParameter.ProductStockLastTransfer = DateTime.Now;
+                        _context.B2BParameter.Update(_b2bParameter);
+                        await _context.SaveChangesAsync();
+                        break;
+                    case "Smartstore":
+                        _smartstoreParameter = _context.SmartstoreParameter.First();
+                        _smartstoreParameter.ProductStockLastTransfer = DateTime.Now;
+                        _context.SmartstoreParameter.Update(_smartstoreParameter);
+                        await _context.SaveChangesAsync();
 
-                _b2bParameter.ProductStockLastTransfer = parameter.ProductStockLastTransfer;
+                        break;
+                    default:
+                        break;
+
+                }
+
             }
             catch (Exception ex)
             {
