@@ -46,12 +46,12 @@ namespace NetTransfer.Smartstore.Library.Models
         public bool AllowStoringCreditCardNumber { get; set; }
         public string CardType { get; set; }
         public string CustomerOrderComment { get; set; }
-        public int? AuthorizationTransactionId { get; set; }
+        public string? AuthorizationTransactionId { get; set; }
         public string AuthorizationTransactionCode { get; set; }
         public string AuthorizationTransactionResult { get; set; }
-        public int? CaptureTransactionId { get; set; }
+        public string CaptureTransactionId { get; set; }
         public string CaptureTransactionResult { get; set; }
-        public int? SubscriptionTransactionId { get; set; }
+        public string SubscriptionTransactionId { get; set; }
         public string PurchaseOrderNumber { get; set; }
         public DateTime? PaidDateUtc { get; set; }
         public string ShippingMethod { get; set; }

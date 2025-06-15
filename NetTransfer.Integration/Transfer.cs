@@ -337,7 +337,7 @@ namespace NetTransfer.Integration
                             _logger.LogWarning("Aktarılacak ürün sayısı: " + smartStoreList.Count); 
                             foreach (var item in smartStoreList)
                             {
-                                _ = await _smartstoreTransfer.CreateProduct(item);
+                              _ = await _smartstoreTransfer.CreateProduct(item);
                             }
                         }
                         #endregion
