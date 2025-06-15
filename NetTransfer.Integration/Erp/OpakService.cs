@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
@@ -162,14 +163,52 @@ namespace NetTransfer.Integration.Erp
                         {
                             aciklama += item.CustomerOrderComment;
                         }
-                        else if (item.OrderItems.Where(m => m.AttributeDescription.Length > 0).Any())
+
+                        if (item.OrderItems.Where(m => m.AttributeDescription.Length > 0).Any())
                         {
-                            aciklama += "-" + string.Join(",", item.OrderItems.Select(m => m.Sku + ":" + m.AttributeDescription).ToArray());
+                            bool stringAttribute = false;
+                            string stringAttributeSku = "";
+                            foreach (var orderItem in item.OrderItems)
+                            {
+                                var data = JsonConvert.DeserializeObject<SmartstoreAttribute>(orderItem.RawAttributes);
+                                foreach (var attribute in data.Attributes)
+                                {
+                                    foreach (var value in attribute.Value)
+                                    {
+                                        int valueInt = 0;
+                                        if (!int.TryParse(value, out valueInt))
+                                        {
+                                            stringAttribute = true;
+                                            stringAttributeSku = orderItem.Sku;
+                                        }
+                                    }
+                                }
+                            }
+                            if (stringAttribute)
+                            {
+                                if (!aciklama.IsNullOrEmpty())
+                                {
+                                    aciklama += "-";
+                                }
+                                aciklama += string.Join(",", item.OrderItems.Where(m => m.Sku == stringAttributeSku).Select(m => m.Sku + ":" + WebUtility.HtmlDecode(m.AttributeDescription)).ToArray());
+                            }
                         }
-                        else if (item.ShippingAddressId != item.BillingAddressId)
+
+                        if (item.ShippingAddress.Address1 != item.BillingAddress.Address1)
                         {
-                            aciklama += "-" + $"{item.ShippingAddress.Address1} {item.ShippingAddress.City!.Name}/{item.ShippingAddress.Town!.Name}";
+                            if (!aciklama.IsNullOrEmpty())
+                            {
+                                aciklama += "-";
+                            }
+                            aciklama += $"{item.ShippingAddress.Address1} {item.ShippingAddress.City!.Name}/{item.ShippingAddress.Town!.Name}";
                         }
+
+                        if (!aciklama.IsNullOrEmpty())
+                        {
+                            aciklama += "-";
+                        }
+
+                        aciklama += odemeTuru;
 
                         OpakSiparis opakSiparis = new OpakSiparis();
                         opakSiparis.ID = 0;

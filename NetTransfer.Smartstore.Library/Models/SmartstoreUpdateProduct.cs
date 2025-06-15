@@ -9,8 +9,6 @@ namespace NetTransfer.Smartstore.Library.Models
 {
     public class SmartstoreUpdateProduct
     {
-        [JsonProperty("Id")]
-        public int Id { get; set; }
         [JsonProperty("Name")]
         public string Name { get; set; }
         [JsonProperty("ShortDescription")]
@@ -19,21 +17,12 @@ namespace NetTransfer.Smartstore.Library.Models
         public int StockQuantity { get; set; }
         [JsonProperty("Price")]
         public double Price { get; set; }
-        [JsonProperty("SpecialPrice")]
-        public double? SpecialPrice { get; set; }
-        [JsonProperty("IsShipEnabled")]
-        public bool IsShipEnabled { get; set; }
-        [JsonProperty("IsFreeShipping")]
-        public bool IsFreeShipping { get; set; }
         [JsonProperty("ShowOnHomePage")]
         public bool ShowOnHomePage { get; set; }
-
-        [JsonProperty("Published")]
-        public bool Published { get; set; }
-        [JsonProperty("AdminComment")]
-        public string AdminComment { get; set; }
         [JsonProperty("Weight")]
         public double Weight { get; set; }
+        [JsonProperty("UpdatedOnUtc")]
+        public DateTimeOffset UpdatedOnUtc { get; set; }
 
     }
 }

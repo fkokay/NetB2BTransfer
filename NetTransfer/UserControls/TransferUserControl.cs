@@ -244,7 +244,7 @@ namespace NetTransfer.UserControls
                             Source = eventRecord.ProviderName,
                             EventId = eventRecord.RecordId.ToString(),
                             EventLevel = eventRecord.Level.ToString(),
-                            EventMessage = eventRecord.FormatDescription().Replace("\r\n", ""),
+                            EventMessage = eventRecord.FormatDescription().Replace("\r\n", "").Replace("Category: NetTransfer.UserControls.TransferUserControlEventId: 0",""),
                             EventTime = eventRecord.TimeCreated.Value
                         });
                     }

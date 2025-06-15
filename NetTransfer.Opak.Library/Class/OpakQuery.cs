@@ -18,7 +18,7 @@ namespace NetTransfer.Opak.Library.Class
                 }
                 else
                 {
-                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE VARYANTLIURUN > 0";
+                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek";
                 }
             }
             else

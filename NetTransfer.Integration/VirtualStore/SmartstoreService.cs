@@ -33,49 +33,59 @@ namespace NetTransfer.Integration.VirtualStore
             _smartStoreClient = smartStoreClient;
         }
 
+        public async Task<bool> ProductUpdateWithNotPublished(List<string> productSkus)
+        {
+            bool result = true;
+
+            int count = PaginationBuilder.GetPageCount(productSkus, 50);
+            for (int i = 1; i <= count; i++)
+            {
+                var skus = PaginationBuilder.GetPage(productSkus, i, 50).ToList();
+                var products = await _smartStoreClient.GetProducts(skus);
+                if (products != null)
+                {
+                    foreach (var item in products.value)
+                    {
+                        if (!await _smartStoreClient.UpdateProductPublished(item.Id))
+                        {
+                            _logger.LogError($"Ürün güncellenmedi - UpdateProductPublished : {item.Id} - {item.Sku}");
+                            result = false;
+                        }
+                    }
+                }
+            }
+
+            return result;
+        }
+
         public async Task<SmartstoreProduct?> CreateProduct(SmartstoreProduct product)
         {
             #region Product
             _logger.LogInformation($"Ürün transferi başladı : {product.Name}");
 
             SmartstoreProduct? result = null;
-            var productResult = await _smartStoreClient.GetProduct(product.Sku);
-            if (productResult != null)
+
+            if (product.Id > 0)
             {
-                if (productResult.status)
+                result = product;
+
+                SmartstoreUpdateProduct updateProduct = new SmartstoreUpdateProduct();
+                updateProduct.Name = product.Name;
+                updateProduct.ShortDescription = product.ShortDescription;
+                updateProduct.StockQuantity = product.StockQuantity;
+                updateProduct.Price = product.Price;
+                updateProduct.ShowOnHomePage = product.ShowOnHomePage;
+                updateProduct.Weight = product.Weight;
+                updateProduct.UpdatedOnUtc = DateTime.UtcNow;
+
+                await _smartStoreClient.UpdateProduct(updateProduct, result.Id);
+
+            }
+            else
+            {
+                if (product.Published)
                 {
-                    if (productResult.value.Any())
-                    {
-                        result = productResult.value.First();
-
-                        SmartstoreUpdateProduct updateProduct = new SmartstoreUpdateProduct();
-                        updateProduct.Id = result.Id;
-                        updateProduct.Name = product.Name;
-                        updateProduct.ShortDescription = product.ShortDescription;
-                        updateProduct.StockQuantity = product.StockQuantity;
-                        updateProduct.Price = product.Price;
-                        updateProduct.SpecialPrice = product.SpecialPrice;
-                        updateProduct.IsFreeShipping = false;
-                        updateProduct.IsShipEnabled = true;
-                        updateProduct.ShowOnHomePage = product.ShowOnHomePage;
-                        updateProduct.Published = product.Published;
-                        updateProduct.AdminComment = product.AdminComment;
-                        updateProduct.Weight = product.Weight;
-
-                        await _smartStoreClient.UpdateProduct(updateProduct);
-
-                    }
-                    else
-                    {
-                        if (product.Published)
-                        {
-                            result = await _smartStoreClient.ProductTransfer(product);
-                        }
-                    }
-                }
-                else
-                {
-                    _logger.LogError(productResult.error!.message);
+                    result = await _smartStoreClient.ProductTransfer(product);
                 }
             }
 

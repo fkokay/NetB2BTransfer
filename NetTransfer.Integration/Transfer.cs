@@ -258,6 +258,7 @@ namespace NetTransfer.Integration
                             _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Opak":
+                        _logger.LogWarning("Opak ERP kullanılıyor. Malzemeler veritabanından çekiliyor.");
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeList = opakService.GetMalzemeList(ref errorMessage);
 
@@ -334,10 +335,35 @@ namespace NetTransfer.Integration
                         }
                         else
                         {
-                            _logger.LogWarning("Aktarılacak ürün sayısı: " + smartStoreList.Count); 
-                            foreach (var item in smartStoreList)
+
+
+                            _logger.LogWarning("Pasif ürünler aktarılıyor");
+                            var list = smartStoreList.Where(m => m.Published == false).Select(m => m.Sku).ToList();
+                            _logger.LogWarning("Pasif ürün sayısı: " + list.Count);
+                            await _smartstoreTransfer.ProductUpdateWithNotPublished(list);
+                            _logger.LogWarning("Pasif ürünler aktarıldı.");
+
+                            var transferList = smartStoreList.Where(m => m.Published).ToList();
+                            _logger.LogWarning("Aktarılacak ürün sayısı: " + transferList.Count);
+
+                            var transferListSkus = transferList.Select(m => m.Sku).ToList();
+                            int transferListSkusPageCount = PaginationBuilder.GetPageCount(transferListSkus, 50);
+                            for (int i = 1; i <= transferListSkusPageCount; i++)
                             {
-                              _ = await _smartstoreTransfer.CreateProduct(item);
+                                var skus = PaginationBuilder.GetPage(transferListSkus, i, 50).ToList();
+                                var products = await _smartStoreClient.GetProducts(skus);
+                                if (products != null)
+                                {
+                                    foreach (var item in products.value)
+                                    {
+                                        transferList.Where(m => m.Sku == item.Sku).FirstOrDefault()!.Id = item.Id;
+                                    }
+                                }
+                            }
+
+                            foreach (var item in transferList)
+                            {
+                                _ = await _smartstoreTransfer.CreateProduct(item);
                             }
                         }
                         #endregion
