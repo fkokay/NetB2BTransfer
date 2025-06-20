@@ -24,7 +24,7 @@ namespace NetTransfer.Integration.Erp
 
         public List<OpakMalzeme>? GetMalzemeList(ref string errorMessage)
         {
-            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeQuery(null, smartstoreParameter.ProductLastTransfer), ref errorMessage);
+            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeQuery(smartstoreParameter.ProductFilter, smartstoreParameter.ProductLastTransfer), ref errorMessage);
             if (malzemeList == null)
             {
                 return null;
@@ -53,7 +53,7 @@ namespace NetTransfer.Integration.Erp
         {
             List<BaseMalzemeStokModel> malzemeStokList = new List<BaseMalzemeStokModel>();
 
-            var data = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeStokQuery(smartstoreParameter.ProductStockLastTransfer), ref errorMessage);
+            var data = DataReader.ReadData<OpakMalzemeStok>(connectionString, OpakQuery.GetMalzemeStokQuery(smartstoreParameter.ProductStockLastTransfer), ref errorMessage);
 
             if (data == null)
             {
@@ -65,8 +65,9 @@ namespace NetTransfer.Integration.Erp
                 {
                     malzemeStokList.Add(new BaseMalzemeStokModel
                     {
-                        StokKodu = item.STOK_KODU,
-                        StokMiktari = item.MIKTAR,
+                        StokKodu = item.KOD,
+                        DepoAdi = item.DEPOADI,
+                        StokMiktari = item.BAKIYE,
                     });
                 }
             }
@@ -90,7 +91,7 @@ namespace NetTransfer.Integration.Erp
                     malzemeFiyatList.Add(new BaseMalzemeFiyatModel
                     {
                         StokKodu = item.KOD,
-                        Fiyat = item.SFIYAT1,
+                        Fiyat = item.VARYANTLIURUN < 1 ?item.SFIYAT4 : item.VARYANTFIYAT,
                         IndirimliFiyat = 0
                     });
                 }

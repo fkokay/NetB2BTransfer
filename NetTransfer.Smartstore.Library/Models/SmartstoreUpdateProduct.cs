@@ -13,6 +13,8 @@ namespace NetTransfer.Smartstore.Library.Models
         public string Name { get; set; }
         [JsonProperty("ShortDescription")]
         public string ShortDescription { get; set; }
+        [JsonProperty("FullDescription")]
+        public string FullDescription { get; set; }
         [JsonProperty("StockQuantity")]
         public int StockQuantity { get; set; }
         [JsonProperty("Price")]

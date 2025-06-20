@@ -72,6 +72,7 @@ namespace NetTransfer.Integration.VirtualStore
                 SmartstoreUpdateProduct updateProduct = new SmartstoreUpdateProduct();
                 updateProduct.Name = product.Name;
                 updateProduct.ShortDescription = product.ShortDescription;
+                updateProduct.FullDescription = product.FullDescription;
                 updateProduct.StockQuantity = product.StockQuantity;
                 updateProduct.Price = product.Price;
                 updateProduct.ShowOnHomePage = product.ShowOnHomePage;
@@ -479,7 +480,19 @@ namespace NetTransfer.Integration.VirtualStore
                     {
                         var product = productResult.value.First();
 
-                        var priceResult = await _smartStoreClient.UpdateProductPrice(product.Id, item.Fiyat, item.IndirimliFiyat);
+                        var priceResult = await _smartStoreClient.UpdateProductPrice(product.Id, item.Fiyat);
+                        if (priceResult)
+                        {
+                            _logger.LogInformation($"Ürün fiyatı güncellendi - Stok Kodu : {item.StokKodu} - Fiyat : {item.Fiyat}");
+                        }
+                        else
+                        {
+                            _logger.LogError($"Ürün fiyatı güncellenemedi - Stok Kodu : {item.StokKodu} - Fiyat : {item.Fiyat}");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError($"Ürün bulunamadı - Stok Kodu : {item.StokKodu}");
                     }
                 }
             }
@@ -496,6 +509,10 @@ namespace NetTransfer.Integration.VirtualStore
                         var product = productResult.value.First();
 
                         var priceResult = await _smartStoreClient.UpdateProductStock(product.Id, Convert.ToInt32(item.StokMiktari));
+                    }
+                    else
+                    {
+                        _logger.LogError($"Ürün bulunamadı - Stok Kodu : {item.StokKodu}");
                     }
                 }
             }

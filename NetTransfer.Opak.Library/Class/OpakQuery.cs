@@ -8,29 +8,15 @@ namespace NetTransfer.Opak.Library.Class
 {
     public static class OpakQuery
     {
-        public static string GetMalzemeQuery(string? aktif,DateTime? guncellemeTarihi)
+        public static string GetMalzemeQuery(string? filter, DateTime? guncellemeTarihi)
         {
-            if (string.IsNullOrEmpty(aktif))
+            if (guncellemeTarihi.HasValue)
             {
-                if (guncellemeTarihi.HasValue)
-                {
-                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
-                }
-                else
-                {
-                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek";
-                }
+                return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}' {filter}";
             }
             else
             {
-                if (guncellemeTarihi.HasValue)
-                {
-                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='{aktif}' AND GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
-                }
-                else
-                {
-                    return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE AKTIF='{aktif}'";
-                }
+                return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE 1=1 {filter}";
             }
         }
 
@@ -38,11 +24,11 @@ namespace NetTransfer.Opak.Library.Class
         {
             if (guncellemeTarihi == null)
             {
-                return $"SELECT KOD,DEPOADI,BAKIYE FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek]";
+                return $"SELECT * FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek]";
             }
             else
             {
-                return $"SELECT KOD,DEPOADI,BAKIYE FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+                return $"SELECT - FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
             }
          
         }
@@ -66,11 +52,11 @@ namespace NetTransfer.Opak.Library.Class
         {
             if (guncellemeTarihi == null)
             {
-                return $"SELECT KOD,KDV,SFIYAT1,SFIYAT2,SFIYAT3 FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek]";
+                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek]";
             }
             else
             {
-                return $"SELECT KOD,KDV,SFIYAT1,SFIYAT2,SFIYAT3 FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
             }
 
         }

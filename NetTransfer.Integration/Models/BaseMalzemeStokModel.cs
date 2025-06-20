@@ -9,6 +9,7 @@ namespace NetTransfer.Integration.Models
     public class BaseMalzemeStokModel
     {
         public string StokKodu { get; set; }
+        public string DepoAdi { get; set; }
         public double StokMiktari { get; set; }
     }
 }

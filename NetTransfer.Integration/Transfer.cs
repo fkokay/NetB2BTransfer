@@ -1,16 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using NetTransfer.Core.Data;
 using NetTransfer.Core.Entities;
 using NetTransfer.Core.Utils;
-using NetTransfer.Logo.Library.Class;
-using NetTransfer.Logo.Library.Models;
-using NetTransfer.Netsis.Library.Class;
-using NetTransfer.Netsis.Library.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using NetTransfer.Smartstore.Library.Models;
 using NetTransfer.Smartstore.Library;
 using NetTransfer.Integration.VirtualStore;
@@ -18,12 +8,9 @@ using NetTransfer.Integration.Erp;
 using NetTransfer.Integration.Models;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.B2B.Library;
-using Microsoft.Data.SqlClient;
 using System.Data;
 using NetTransfer.Data;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using NetTransfer.Opak.Library.Models;
-using Newtonsoft.Json;
 
 namespace NetTransfer.Integration
 {
@@ -407,6 +394,9 @@ namespace NetTransfer.Integration
                     case "Opak":
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeStokList = opakService.GetMalzemeStokList(ref errorMessage);
+
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Stok Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     default:
                         _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);
@@ -807,17 +797,22 @@ namespace NetTransfer.Integration
         {
             try
             {
-                NetTransferContext _db = new NetTransferContext(_connectionString);
-                var parameter = _db.B2BParameter.First();
-                parameter.CustomerLastTransfer = DateTime.Now;
-                _db.B2BParameter.Update(parameter);
-                await _context.SaveChangesAsync();
+                switch (_virtualStoreSetting.VirtualStore)
+                {
+                    case "B2B":
+                        NetTransferContext _db = new NetTransferContext(_connectionString);
+                        var parameter = _db.B2BParameter.First();
+                        parameter.CustomerLastTransfer = DateTime.Now;
+                        _db.B2BParameter.Update(parameter);
+                        await _context.SaveChangesAsync();
 
-                _b2bParameter.CustomerLastTransfer = parameter.CustomerLastTransfer;
+                        _b2bParameter.CustomerLastTransfer = parameter.CustomerLastTransfer;
+                        break;
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Update Customer Last Trasfer Error");
+                _logger.LogError(ex, "UpdateCustomerLastTransfer Error");
             }
         }
 
@@ -845,9 +840,6 @@ namespace NetTransfer.Integration
                         _smartstoreParameter.ProductLastTransfer = smartstoreParameter.ProductLastTransfer;
 
                         break;
-                    default:
-                        break;
-
                 }
 
             }
@@ -948,15 +940,12 @@ namespace NetTransfer.Integration
                         _smartstoreParameter.OrderShipmentLastTransfer = smartstoreParameter.OrderShipmentLastTransfer;
 
                         break;
-                    default:
-                        break;
-
                 }
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Update Product Last Trasfer Error");
+                _logger.LogError(ex, "UpdateOrderShipmentLastTransfer Error");
             }
         }
     }

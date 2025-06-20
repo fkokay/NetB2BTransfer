@@ -102,7 +102,8 @@ namespace NetTransfer.Smartstore.Library
                     // JSON içeriği
                     var jsonContent = new
                     {
-                        Published = false
+                        Published = false,
+                        UpdatedOnUtc = DateTime.Now
                     };
                     var json = JsonConvert.SerializeObject(jsonContent);
                     request.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -134,7 +135,7 @@ namespace NetTransfer.Smartstore.Library
                     var jsonContent = new
                     {
                         StockQuantity = stokQuantity,
-                        Id = productId
+                        UpdatedOnUtc = DateTime.Now
                     };
                     var json = JsonConvert.SerializeObject(jsonContent);
                     request.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -152,7 +153,7 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-        public async Task<bool> UpdateProductPrice(int productId, double price, double specialPrice)
+        public async Task<bool> UpdateProductPrice(int productId, double price)
         {
             using (var httpClient = new HttpClient())
             {
@@ -166,7 +167,7 @@ namespace NetTransfer.Smartstore.Library
                     var jsonContent = new
                     {
                         Price = price,
-                        Id = productId
+                        UpdatedOnUtc = DateTime.Now
                     };
                     var json = JsonConvert.SerializeObject(jsonContent);
                     request.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -184,7 +185,40 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-        public async Task<bool> UpdateProduct(SmartstoreUpdateProduct updateProduct,int productId)
+        public async Task<bool> UpdateProductPriceOrSpecialPrice(int productId, double price, double specialPrice)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_b2BSetting.Url}/products({productId})"))
+                {
+                    // Gerekli başlıklar
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    // JSON içeriği
+                    var jsonContent = new
+                    {
+                        Price = price,
+                        SpecialPrice = specialPrice,
+                        UpdatedOnUtc = DateTime.Now
+                    };
+                    var json = JsonConvert.SerializeObject(jsonContent);
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // API'ye isteği gönder
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        public async Task<bool> UpdateProduct(SmartstoreUpdateProduct updateProduct, int productId)
         {
             using (var httpClient = new HttpClient())
             {

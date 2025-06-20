@@ -13,6 +13,9 @@ namespace NetTransfer.Opak.Library.Models
         public double SFIYAT1 { get; set; }
         public double SFIYAT2 { get; set; }
         public double SFIYAT3 { get; set; }
+        public double SFIYAT4 { get; set; }
+        public int VARYANTLIURUN { get; set; }
+        public double VARYANTFIYAT { get; set; }
         public DateTime GUNCELLEMETARIH { get; set; }
     }
 }
