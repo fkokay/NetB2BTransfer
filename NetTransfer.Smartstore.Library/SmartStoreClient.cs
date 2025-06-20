@@ -166,7 +166,6 @@ namespace NetTransfer.Smartstore.Library
                     var jsonContent = new
                     {
                         Price = price,
-                        SpecialPrice = specialPrice,
                         Id = productId
                     };
                     var json = JsonConvert.SerializeObject(jsonContent);
@@ -680,6 +679,39 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
+
+        public async Task<SmartstoreProductVariantAttribute?> ProductVariantAttributeUpdate(SmartstoreProductVariantAttribute productVariantAttribute)
+        {
+            var jsonContent = new
+            {
+                productVariantAttribute.DisplayOrder
+            };
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_b2BSetting.Url}/productvariantattributes({productVariantAttribute.Id})"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var json = JsonConvert.SerializeObject(jsonContent);
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreProductVariantAttribute>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
         public async Task<SmartstoreProductVariantAttribute?> ProductVariantAttributeTransfer(SmartstoreProductVariantAttribute productVariantAttribute)
         {
             var json = JsonConvert.SerializeObject(productVariantAttribute);
@@ -935,6 +967,33 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
+        public async Task<SmartstoreProductVariantAttributeCombination?> ProductVariantAttributeCombinationsUpdate(SmartstoreProductVariantAttributeCombination productVariantAttributeValue)
+        {
+            var json = JsonConvert.SerializeObject(productVariantAttributeValue);
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_b2BSetting.Url}/productvariantattributecombinations({productVariantAttributeValue.Id})"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    request.Content = new StringContent(json);
+                    request.Content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/json");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<SmartstoreProductVariantAttributeCombination>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
         public async Task<ResponseSmartList<SmartstoreProductTag>> UpdateProductTags(int productId, SmartstoreProductTagMapping productTagMapping)
         {
             var json = JsonConvert.SerializeObject(productTagMapping);
@@ -966,7 +1025,7 @@ namespace NetTransfer.Smartstore.Library
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders?count=true&filter=orderStatusId eq {orderStatusId}"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders?count=true&filter=orderStatusId eq 10 or orderStatusId eq 20"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
@@ -1149,5 +1208,27 @@ namespace NetTransfer.Smartstore.Library
             }
         }
 
+        public async Task<List<SmartstorePaymentTransaction>?> GetPaymentTransaction(string orderNumber)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/paymenttransactions?count=false&filter=OrderNumber eq {orderNumber}"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<List<SmartstorePaymentTransaction>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
     }
 }

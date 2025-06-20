@@ -75,6 +75,8 @@ namespace NetTransfer.Smartstore.Library.Models
         public SmartstoreBillingAddress BillingAddress { get; set; }
         [JsonIgnore]
         public SmartstoreShippingAddress ShippingAddress { get; set; }
+        [JsonIgnore]
+        public SmartstorePaymentTransaction? PaymentTransaction { get; set; }
    
     }
 }

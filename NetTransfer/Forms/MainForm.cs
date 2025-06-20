@@ -162,5 +162,14 @@ namespace NetTransfer.Forms
         private void btnQueryBuilder_Click(object sender, EventArgs e)
         {
         }
+
+        private void btnExcelTransfer_Click(object sender, EventArgs e)
+        {
+            container.Controls.Clear();
+            ExcelUserControl excelUserControl = new ExcelUserControl();
+            excelUserControl.Dock = DockStyle.Fill;
+
+            container.Controls.Add(excelUserControl);
+        }
     }
 }

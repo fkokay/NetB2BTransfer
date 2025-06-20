@@ -40,10 +40,11 @@
             accordionControlElement2 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             btnLog = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             accordionControlElement3 = new DevExpress.XtraBars.Navigation.AccordionControlElement();
+            btnQueryBuilder = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             fluentDesignFormControl1 = new DevExpress.XtraBars.FluentDesignSystem.FluentDesignFormControl();
             txtServiceStatus = new DevExpress.XtraBars.BarStaticItem();
             fluentFormDefaultManager = new DevExpress.XtraBars.FluentDesignSystem.FluentFormDefaultManager(components);
-            btnQueryBuilder = new DevExpress.XtraBars.Navigation.AccordionControlElement();
+            btnExcelTransfer = new DevExpress.XtraBars.Navigation.AccordionControlElement();
             ((System.ComponentModel.ISupportInitialize)accordionControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fluentDesignFormControl1).BeginInit();
             ((System.ComponentModel.ISupportInitialize)fluentFormDefaultManager).BeginInit();
@@ -128,10 +129,17 @@
             // 
             // accordionControlElement3
             // 
-            accordionControlElement3.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { btnQueryBuilder });
+            accordionControlElement3.Elements.AddRange(new DevExpress.XtraBars.Navigation.AccordionControlElement[] { btnQueryBuilder, btnExcelTransfer });
             accordionControlElement3.Expanded = true;
             accordionControlElement3.Name = "accordionControlElement3";
             accordionControlElement3.Text = "Eklentiler";
+            // 
+            // btnQueryBuilder
+            // 
+            btnQueryBuilder.Name = "btnQueryBuilder";
+            btnQueryBuilder.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
+            btnQueryBuilder.Text = "Sorgu Oluşturma Aracı";
+            btnQueryBuilder.Click += btnQueryBuilder_Click;
             // 
             // fluentDesignFormControl1
             // 
@@ -160,12 +168,12 @@
             fluentFormDefaultManager.Items.AddRange(new DevExpress.XtraBars.BarItem[] { txtServiceStatus });
             fluentFormDefaultManager.MaxItemId = 1;
             // 
-            // btnQueryBuilder
+            // btnExcelTransfer
             // 
-            btnQueryBuilder.Name = "btnQueryBuilder";
-            btnQueryBuilder.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
-            btnQueryBuilder.Text = "Sorgu Oluşturma Aracı";
-            btnQueryBuilder.Click += btnQueryBuilder_Click;
+            btnExcelTransfer.Name = "btnExcelTransfer";
+            btnExcelTransfer.Style = DevExpress.XtraBars.Navigation.ElementStyle.Item;
+            btnExcelTransfer.Text = "Excel Aktarım";
+            btnExcelTransfer.Click += btnExcelTransfer_Click;
             // 
             // MainForm
             // 
@@ -206,5 +214,6 @@
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnServiceSetting;
         private DevExpress.XtraBars.BarStaticItem txtServiceStatus;
         private DevExpress.XtraBars.Navigation.AccordionControlElement btnQueryBuilder;
+        private DevExpress.XtraBars.Navigation.AccordionControlElement btnExcelTransfer;
     }
 }

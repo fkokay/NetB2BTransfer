@@ -9,6 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="DevExpress.Win.Design" Version="24.2.6" />
+    <PackageReference Include="ExcelDataReader" Version="3.7.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4" />
     <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="9.0.4" />
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="9.0.4" />

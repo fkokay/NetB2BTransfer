@@ -115,6 +115,31 @@ namespace NetTransfer.Integration.VirtualStore
             #endregion
 
             #region Category
+            int? parentId = null;
+            List<SmartstoreCategory> categories = new List<SmartstoreCategory>();
+            foreach (var item in product.Categories)
+            {
+                var resultCateogry = await CreateCategory(MappingCategory(item, parentId));
+                if (resultCateogry != null)
+                {
+                    parentId = resultCateogry.Id;
+                    categories.Add(resultCateogry);
+                }
+            }
+            categories.Reverse();
+            foreach (var item in categories)
+            {
+                SmartstoreProductCategory data = new SmartstoreProductCategory();
+                data.ProductId = result.Id;
+                data.CategoryId = item.Id;
+                data.IsFeaturedProduct = false;
+                data.DisplayOrder = 0;
+                data.IsSystemMapping = false;
+                data.Id = 0;
+
+                var resultProductCategory = await CreateProductCategory(data);
+            }
+
             SmartstoreCategory? category1 = null;
             if (!string.IsNullOrEmpty(product.Category1))
             {
@@ -181,112 +206,117 @@ namespace NetTransfer.Integration.VirtualStore
             #region Variant
             if (product.ProductAttributes != null)
             {
-                foreach (var attribute in product.ProductAttributes)
+                if (product.ProductAttributes.Any())
                 {
-                    SmartstoreProductAttribute? productAttribute = await CreateProductAttribute(attribute);
-                    if (productAttribute != null)
+                    foreach (var attribute in product.ProductAttributes)
                     {
-                        attribute.Id = productAttribute.Id; ;
-                    }
-                }
-
-                var productAttributeIds = product.ProductAttributes.Select(m => m.Id).ToList();
-
-                var productAttributesResult = await _smartStoreClient.GetProductVariantAttributes(result.Id, productAttributeIds);
-                if (productAttributesResult != null)
-                {
-                    foreach (var item in productAttributesResult.value)
-                    {
-                        await _smartStoreClient.DeleteProductVariantAttribute(item.Id);
-                    }
-                }
-
-                int index = 0;
-                foreach (var attribute in product.ProductAttributes)
-                {
-                    SmartstoreProductVariantAttribute productVariantAttributeModel = new SmartstoreProductVariantAttribute();
-                    productVariantAttributeModel.ProductId = result.Id;
-                    productVariantAttributeModel.ProductAttributeId = attribute.Id;
-                    productVariantAttributeModel.TextPrompt = null;
-                    productVariantAttributeModel.CustomData = null;
-                    productVariantAttributeModel.IsRequired = true;
-                    productVariantAttributeModel.AttributeControlTypeId = 40;
-                    productVariantAttributeModel.DisplayOrder = index;
-
-                    SmartstoreProductVariantAttribute? productVariantAttribute = await CreateProductVariantAttribute(productVariantAttributeModel);
-                    if (productVariantAttribute != null)
-                    {
-                        product.ProductVariantAttributes.Add(productVariantAttribute);
-
-                        var productAttributeValueNames = product.ProductVariantAttributeValues.Where(m => m.Attribute == attribute.Name).Select(m => m.Name).Distinct().ToList();
-                        var productAttributeValuesResult = await _smartStoreClient.GetProductVariantAttributeValues(productVariantAttribute.Id, productAttributeValueNames);
-                        if (productAttributeValuesResult != null)
+                        SmartstoreProductAttribute? productAttribute = await CreateProductAttribute(attribute);
+                        if (productAttribute != null)
                         {
-                            foreach (var item in productAttributeValuesResult.value)
+                            attribute.Id = productAttribute.Id; ;
+                        }
+                    }
+
+                    var productAttributeIds = product.ProductAttributes.Select(m => m.Id).ToList();
+
+                    var productAttributesResult = await _smartStoreClient.GetProductVariantAttributes(result.Id, productAttributeIds);
+                    if (productAttributesResult != null)
+                    {
+                        foreach (var item in productAttributesResult.value)
+                        {
+                            await _smartStoreClient.DeleteProductVariantAttribute(item.Id);
+                        }
+                    }
+
+                    int index = 0;
+                    foreach (var attribute in product.ProductAttributes)
+                    {
+                        SmartstoreProductVariantAttribute productVariantAttributeModel = new SmartstoreProductVariantAttribute();
+                        productVariantAttributeModel.ProductId = result.Id;
+                        productVariantAttributeModel.ProductAttributeId = attribute.Id;
+                        productVariantAttributeModel.TextPrompt = null;
+                        productVariantAttributeModel.CustomData = null;
+                        productVariantAttributeModel.IsRequired = true;
+                        productVariantAttributeModel.AttributeControlTypeId = 40;
+                        productVariantAttributeModel.DisplayOrder = index;
+
+                        SmartstoreProductVariantAttribute? productVariantAttribute = await CreateProductVariantAttribute(productVariantAttributeModel);
+                        if (productVariantAttribute != null)
+                        {
+                            product.ProductVariantAttributes.Add(productVariantAttribute);
+
+                            var productAttributeValueNames = product.ProductVariantAttributeValues.Where(m => m.Attribute == attribute.Name).Select(m => m.Name).Distinct().ToList();
+                            var productAttributeValuesResult = await _smartStoreClient.GetProductVariantAttributeValues(productVariantAttribute.Id, productAttributeValueNames);
+                            if (productAttributeValuesResult != null)
                             {
-                                await _smartStoreClient.DeleteProductVariantAttributeValue(item.Id);
+                                foreach (var item in productAttributeValuesResult.value)
+                                {
+                                    await _smartStoreClient.DeleteProductVariantAttributeValue(item.Id);
+                                }
+                            }
+
+                            foreach (var value in product.ProductVariantAttributeValues.Where(m => m.Attribute == attribute.Name))
+                            {
+                                value.ProductVariantAttributeId = productVariantAttribute.Id;
+
+                                SmartstoreProductVariantAttributeValue? productVariantAttributeValue = await CreateProductVariantAttributeValues(value);
+                                if (productVariantAttributeValue != null)
+                                {
+                                    value.Id = productVariantAttributeValue.Id;
+                                }
                             }
                         }
 
-                        foreach (var value in product.ProductVariantAttributeValues.Where(m => m.Attribute == attribute.Name))
-                        {
-                            value.ProductVariantAttributeId = productVariantAttribute.Id;
 
-                            SmartstoreProductVariantAttributeValue? productVariantAttributeValue = await CreateProductVariantAttributeValues(value);
-                            if (productVariantAttributeValue != null)
+                        index++;
+                    }
+
+                    foreach (var combination in product.ProductVariantAttributeCombinations.Select(m => new { m.Sku, m.Price, m.IsActive, m.StockQuantity, m.AllowOutOfStockOrders, m.Weight }).Distinct().ToList())
+                    {
+                        SmartstoreProductVariantAttributeCombination model = new SmartstoreProductVariantAttributeCombination();
+                        model.ProductId = result.Id;
+                        model.Sku = combination.Sku;
+                        model.Price = combination.Price;
+                        model.IsActive = combination.IsActive;
+                        model.StockQuantity = combination.StockQuantity;
+                        model.AllowOutOfStockOrders = combination.AllowOutOfStockOrders;
+                        model.Weight = combination.Weight;
+
+                        var files = product.ProductVariantAttributeCombinations.Where(m => m.Sku == combination.Sku).First().Files;
+
+                        List<int> mediaFileIds = new List<int>();
+                        foreach (var file in files)
+                        {
+                            SmartstoreFileItemInfo? fileItemInfo = await CreateMediaFile(file);
+                            if (fileItemInfo != null)
                             {
-                                value.Id = productVariantAttributeValue.Id;
+                                mediaFileIds.Add(fileItemInfo.Id);
                             }
                         }
-                    }
+
+                        model.AssignedMediaFileIds = string.Join(",", mediaFileIds);
 
 
-                    index++;
-                }
-
-                foreach (var combination in product.ProductVariantAttributeCombinations.Select(m => new { m.Sku, m.Price, m.IsActive, m.StockQuantity, m.AllowOutOfStockOrders }).Distinct().ToList())
-                {
-                    SmartstoreProductVariantAttributeCombination model = new SmartstoreProductVariantAttributeCombination();
-                    model.ProductId = result.Id;
-                    model.Sku = combination.Sku;
-                    model.Price = combination.Price;
-                    model.IsActive = combination.IsActive;
-                    model.StockQuantity = combination.StockQuantity;
-                    model.AllowOutOfStockOrders = combination.AllowOutOfStockOrders;
-                    var files = product.ProductVariantAttributeCombinations.Where(m => m.Sku == combination.Sku).First().Files;
-
-                    List<int> mediaFileIds = new List<int>();
-                    foreach (var file in files)
-                    {
-                        SmartstoreFileItemInfo? fileItemInfo = await CreateMediaFile(file);
-                        if (fileItemInfo != null)
+                        var list = product.ProductVariantAttributeCombinations.Where(m => m.Sku == combination.Sku);
+                        List<KeyValuePair<int, ICollection<object>>> attributes = new List<KeyValuePair<int, ICollection<object>>>();
+                        foreach (var attribute in list)
                         {
-                            mediaFileIds.Add(fileItemInfo.Id);
+                            var productAttribute = product.ProductAttributes.Where(m => m.Name == attribute.Variant).FirstOrDefault();
+                            var productVariantAttribute = product.ProductVariantAttributes.Where(m => m.ProductAttributeId == productAttribute.Id).FirstOrDefault();
+                            var productVariantAttributeValues = product.ProductVariantAttributeValues.Where(m => m.ProductVariantAttributeId == productVariantAttribute.Id && m.Name == attribute.Value).ToList();
+
+                            attributes.Add(new KeyValuePair<int, ICollection<object>>(productVariantAttribute.Id, productVariantAttributeValues.Select(m => m.Id as object).ToList()));
                         }
+
+
+                        RawAttribute rawAttribute = new RawAttribute();
+                        rawAttribute.Attributes = attributes;
+
+                        model.RawAttributes = JsonConvert.SerializeObject(rawAttribute);
+                        model.HashCode = GetHashCode(rawAttribute);
+
+                        SmartstoreProductVariantAttributeCombination? smartstoreProductVariantAttributeCombination = await CreateProductVariantAttributeCombination(model);
                     }
-
-                    model.AssignedMediaFileIds = string.Join(",", mediaFileIds);
-
-
-                    var list = product.ProductVariantAttributeCombinations.Where(m => m.Sku == combination.Sku);
-                    List<KeyValuePair<int, ICollection<object>>> attributes = new List<KeyValuePair<int, ICollection<object>>>();
-                    foreach (var attribute in list)
-                    {
-                        var productAttribute = product.ProductAttributes.Where(m => m.Name == attribute.Variant).FirstOrDefault();
-                        var productVariantAttribute = product.ProductVariantAttributes.Where(m => m.ProductAttributeId == productAttribute.Id).FirstOrDefault();
-                        var productVariantAttributeValues = product.ProductVariantAttributeValues.Where(m => m.ProductVariantAttributeId == productVariantAttribute.Id && m.Name == attribute.Value).ToList();
-
-                        attributes.Add(new KeyValuePair<int, ICollection<object>>(productVariantAttribute.Id, productVariantAttributeValues.Select(m => m.Id as object).ToList()));
-                    }
-
-
-                    RawAttribute rawAttribute = new RawAttribute();
-                    rawAttribute.Attributes = attributes;
-
-                    model.RawAttributes = JsonConvert.SerializeObject(rawAttribute);
-                    model.HashCode = GetHashCode(rawAttribute);
-
-                    SmartstoreProductVariantAttributeCombination? smartstoreProductVariantAttributeCombination = await CreateProductVariantAttributeCombination(model);
                 }
             }
             #endregion
@@ -362,7 +392,12 @@ namespace NetTransfer.Integration.VirtualStore
             {
                 if (productVariantAttributeCombination.value.Any())
                 {
-                    return productVariantAttributeCombination.value.First();
+                    var result = productVariantAttributeCombination.value.First();
+                    combination.Id = result.Id;
+
+                    await _smartStoreClient.ProductVariantAttributeCombinationsUpdate(combination);
+
+                    return result;
                 }
                 else
                 {
@@ -401,7 +436,12 @@ namespace NetTransfer.Integration.VirtualStore
             {
                 if (productAttributeResult.value.Any())
                 {
-                    return productAttributeResult.value.First();
+                    var result = productAttributeResult.value.First();
+                    productVariantAttribute.Id = result.Id;
+
+                    await _smartStoreClient.ProductVariantAttributeUpdate(productVariantAttribute);
+
+                    return result;
                 }
                 else
                 {
@@ -592,6 +632,16 @@ namespace NetTransfer.Integration.VirtualStore
 
                             if (orderBillingAddressResult != null)
                                 item.BillingAddress = orderBillingAddressResult;
+
+
+                            if (item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico")
+                            {
+                                var paymentTransactionResult = await _smartStoreClient.GetPaymentTransaction(item.OrderGuid);
+                                if (paymentTransactionResult != null)
+                                {
+                                    item.PaymentTransaction = paymentTransactionResult.FirstOrDefault();
+                                }
+                            }
                         }
 
                         return ordersResult.value;
@@ -891,7 +941,7 @@ namespace NetTransfer.Integration.VirtualStore
                             continue;
 
                         SmartstoreFile smartstoreFile = new SmartstoreFile();
-                        smartstoreFile.FileName = $"content/{Path.GetFileName(evrak.DOSYAADI)}";
+                        smartstoreFile.FileName = $"catalog/{Path.GetFileName(evrak.DOSYAADI)}";
                         smartstoreFile.File = evrak.BILGI;
                         smartstoreFile.MimeType = MainUtils.GetMimeType(Path.GetExtension(evrak.DOSYAADI)!);
 
@@ -1053,7 +1103,7 @@ namespace NetTransfer.Integration.VirtualStore
                     var attributes = item.MalzemeVaryantList.Select(m => m.OZELLIK).Distinct().ToList();
 
                     int attributeIndex = 0;
-                    foreach (var attribute in attributes)
+                    foreach (var attribute in attributes.OrderBy(m => m))
                     {
                         SmartstoreProductAttribute smartstoreProductAttribute = new SmartstoreProductAttribute();
                         smartstoreProductAttribute.Name = attribute;

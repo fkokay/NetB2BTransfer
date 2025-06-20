@@ -61,16 +61,16 @@ namespace NetTransferService
 
             if (_virtualStoreSetting.VirtualStore == "Smartstore")
             {
-                if (_smartstoreParameter == null)
-                {
-                    return;
-                }
+                //if (_smartstoreParameter == null)
+                //{
+                //    return;
+                //}
 
-                _smartstoreParameter.ProductLastTransfer = null;
-                _smartstoreParameter.ProductStockLastTransfer = null;
-                _smartstoreParameter.ProductPriceLastTransfer = null;
-                _context.SmartstoreParameter.Update(_smartstoreParameter);
-                _context.SaveChanges();
+                //_smartstoreParameter.ProductLastTransfer = null;
+                //_smartstoreParameter.ProductStockLastTransfer = null;
+                //_smartstoreParameter.ProductPriceLastTransfer = null;
+                //_context.SmartstoreParameter.Update(_smartstoreParameter);
+                //_context.SaveChanges();
             }
 
             if (getCustomerTransferMinute() > 0)

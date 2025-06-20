@@ -311,8 +311,6 @@ namespace NetTransfer.Integration
                             _logger.LogInformation($"Ürün aktarım durumu : {total}/{b2bList.Count} aktarıldı");
                             _logger.LogInformation($"Ürün aktarım detay : {result.Detay}");
                         }
-
-                        await UpdateProductLastTransfer();
                         break;
                     case "Smartstore":
                         #region Tüm Ürünleri Aktar
@@ -415,6 +413,8 @@ namespace NetTransfer.Integration
                         break;
                 }
 
+                _logger.LogWarning("Malzeme stok listesi miktarı : " + malzemeStokList.Count);
+
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
@@ -479,6 +479,9 @@ namespace NetTransfer.Integration
                         _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);
                         break;
                 }
+
+                _logger.LogWarning("Malzeme fiyat listesi miktarı : " + malzemeFiyatList.Count);
+
 
                 switch (_virtualStoreSetting.VirtualStore)
                 {
@@ -804,9 +807,10 @@ namespace NetTransfer.Integration
         {
             try
             {
-                var parameter = _context.B2BParameter.First();
+                NetTransferContext _db = new NetTransferContext(_connectionString);
+                var parameter = _db.B2BParameter.First();
                 parameter.CustomerLastTransfer = DateTime.Now;
-                _context.B2BParameter.Update(parameter);
+                _db.B2BParameter.Update(parameter);
                 await _context.SaveChangesAsync();
 
                 _b2bParameter.CustomerLastTransfer = parameter.CustomerLastTransfer;
@@ -821,19 +825,24 @@ namespace NetTransfer.Integration
         {
             try
             {
+                NetTransferContext _db = new NetTransferContext(_connectionString);
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
-                        _b2bParameter = _context.B2BParameter.First();
-                        _b2bParameter.ProductLastTransfer = DateTime.Now;
-                        _context.B2BParameter.Update(_b2bParameter);
-                        await _context.SaveChangesAsync();
+                        var b2BParameter = _db.B2BParameter.First();
+                        b2BParameter.ProductLastTransfer = DateTime.Now;
+                        _db.B2BParameter.Update(b2BParameter);
+                        await _db.SaveChangesAsync();
+
+                        _b2bParameter.ProductLastTransfer = b2BParameter.ProductLastTransfer;
                         break;
                     case "Smartstore":
-                        _smartstoreParameter = _context.SmartstoreParameter.First();
-                        _smartstoreParameter.ProductLastTransfer = DateTime.Now;
-                        _context.SmartstoreParameter.Update(_smartstoreParameter);
-                        await _context.SaveChangesAsync();
+                        var smartstoreParameter = _db.SmartstoreParameter.First();
+                        smartstoreParameter.ProductLastTransfer = DateTime.Now;
+                        _db.SmartstoreParameter.Update(smartstoreParameter);
+                        await _db.SaveChangesAsync();
+
+                        _smartstoreParameter.ProductLastTransfer = smartstoreParameter.ProductLastTransfer;
 
                         break;
                     default:
@@ -844,7 +853,7 @@ namespace NetTransfer.Integration
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Update Product Last Trasfer Error");
+                _logger.LogError(ex, "UpdateProductLastTransfer Error");
             }
         }
 
@@ -852,19 +861,24 @@ namespace NetTransfer.Integration
         {
             try
             {
+                NetTransferContext _db = new NetTransferContext(_connectionString);
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
-                        _b2bParameter = _context.B2BParameter.First();
-                        _b2bParameter.ProductPriceLastTransfer = DateTime.Now;
-                        _context.B2BParameter.Update(_b2bParameter);
-                        await _context.SaveChangesAsync();
+                        var b2BParameter = _db.B2BParameter.First();
+                        b2BParameter.ProductPriceLastTransfer = DateTime.Now;
+                        _db.B2BParameter.Update(b2BParameter);
+                        await _db.SaveChangesAsync();
+
+                        _b2bParameter.ProductPriceLastTransfer = b2BParameter.ProductPriceLastTransfer;
                         break;
                     case "Smartstore":
-                        _smartstoreParameter = _context.SmartstoreParameter.First();
-                        _smartstoreParameter.ProductPriceLastTransfer = DateTime.Now;
-                        _context.SmartstoreParameter.Update(_smartstoreParameter);
-                        await _context.SaveChangesAsync();
+                        var smartstoreParameter = _db.SmartstoreParameter.First();
+                        smartstoreParameter.ProductPriceLastTransfer = DateTime.Now;
+                        _db.SmartstoreParameter.Update(smartstoreParameter);
+                        await _db.SaveChangesAsync();
+
+                        _smartstoreParameter.ProductPriceLastTransfer = smartstoreParameter.ProductPriceLastTransfer;
 
                         break;
                     default:
@@ -875,7 +889,7 @@ namespace NetTransfer.Integration
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Update Product Last Trasfer Error");
+                _logger.LogError(ex, "UpdateProductPriceLastTransfer Error");
             }
         }
 
@@ -883,19 +897,24 @@ namespace NetTransfer.Integration
         {
             try
             {
+                NetTransferContext _db = new NetTransferContext(_connectionString);
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
-                        _b2bParameter = _context.B2BParameter.First();
-                        _b2bParameter.ProductStockLastTransfer = DateTime.Now;
-                        _context.B2BParameter.Update(_b2bParameter);
-                        await _context.SaveChangesAsync();
+                        var b2BParameter = _db.B2BParameter.First();
+                        b2BParameter.ProductStockLastTransfer = DateTime.Now;
+                        _db.B2BParameter.Update(b2BParameter);
+                        await _db.SaveChangesAsync();
+
+                        _b2bParameter.ProductStockLastTransfer = b2BParameter.ProductStockLastTransfer;
                         break;
                     case "Smartstore":
-                        _smartstoreParameter = _context.SmartstoreParameter.First();
-                        _smartstoreParameter.ProductStockLastTransfer = DateTime.Now;
-                        _context.SmartstoreParameter.Update(_smartstoreParameter);
-                        await _context.SaveChangesAsync();
+                        var smartstoreParameter = _db.SmartstoreParameter.First();
+                        smartstoreParameter.ProductStockLastTransfer = DateTime.Now;
+                        _db.SmartstoreParameter.Update(smartstoreParameter);
+                        await _db.SaveChangesAsync();
+
+                        _smartstoreParameter.ProductStockLastTransfer = smartstoreParameter.ProductStockLastTransfer;
 
                         break;
                     default:
@@ -906,7 +925,7 @@ namespace NetTransfer.Integration
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Update Product Last Trasfer Error");
+                _logger.LogError(ex, "UpdateProductStockLastTransfer Error");
             }
         }
 
@@ -914,15 +933,19 @@ namespace NetTransfer.Integration
         {
             try
             {
+                NetTransferContext _db = new NetTransferContext(_connectionString);
+
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
                         break;
                     case "Smartstore":
-                        _smartstoreParameter = _context.SmartstoreParameter.First();
-                        _smartstoreParameter.OrderShipmentLastTransfer = DateTime.Now;
-                        _context.SmartstoreParameter.Update(_smartstoreParameter);
-                        await _context.SaveChangesAsync();
+                        var smartstoreParameter = _db.SmartstoreParameter.First();
+                        smartstoreParameter.OrderShipmentLastTransfer = DateTime.Now;
+                        _db.SmartstoreParameter.Update(smartstoreParameter);
+                        await _db.SaveChangesAsync();
+
+                        _smartstoreParameter.OrderShipmentLastTransfer = smartstoreParameter.OrderShipmentLastTransfer;
 
                         break;
                     default:

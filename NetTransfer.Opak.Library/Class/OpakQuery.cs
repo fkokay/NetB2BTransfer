@@ -66,11 +66,11 @@ namespace NetTransfer.Opak.Library.Class
         {
             if (guncellemeTarihi == null)
             {
-                return "SELECT KOD,KDV,SFIYAT1,SFIYAT2,SFIYAT3 FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek]";
+                return $"SELECT KOD,KDV,SFIYAT1,SFIYAT2,SFIYAT3 FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek]";
             }
             else
             {
-                return "SELECT KOD,KDV,SFIYAT1,SFIYAT2,SFIYAT3 FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+                return $"SELECT KOD,KDV,SFIYAT1,SFIYAT2,SFIYAT3 FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
             }
 
         }

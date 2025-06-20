@@ -353,6 +353,8 @@ namespace NetTransfer.Smartstore.Library.Models
         public string Category1 { get; set; }
         [JsonIgnore]
         public string Category2 { get; set; }
+        [JsonIgnore]
+        public List<string> Categories { get; set; } = new List<string>();
 
         [JsonIgnore]
         public List<SmartstoreFile> Files { get; set; } = new List<SmartstoreFile>();

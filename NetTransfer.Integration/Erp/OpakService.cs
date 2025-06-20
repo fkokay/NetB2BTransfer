@@ -78,7 +78,7 @@ namespace NetTransfer.Integration.Erp
         {
             List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
 
-            var data = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeFiyatQuery(smartstoreParameter.ProductPriceLastTransfer), ref errorMessage);
+            var data = DataReader.ReadData<OpakMalzemeFiyat>(connectionString, OpakQuery.GetMalzemeFiyatQuery(smartstoreParameter.ProductPriceLastTransfer), ref errorMessage);
             if (data == null)
             {
                 return new List<BaseMalzemeFiyatModel>();
@@ -89,8 +89,8 @@ namespace NetTransfer.Integration.Erp
                 {
                     malzemeFiyatList.Add(new BaseMalzemeFiyatModel
                     {
-                        StokKodu = item.STOK_KODU,
-                        Fiyat = item.SATIS_FIAT1,
+                        StokKodu = item.KOD,
+                        Fiyat = item.SFIYAT1,
                         IndirimliFiyat = 0
                     });
                 }
@@ -156,260 +156,296 @@ namespace NetTransfer.Integration.Erp
                 case "Smartstore":
                     foreach (var item in orderList as List<SmartstoreOrder>)
                     {
-                        string cariKod = string.IsNullOrEmpty(item.OrderCustomer.CustomerNumber) ? "H01" : item.OrderCustomer.CustomerNumber;
-                        string odemeTuru = (item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico") ? "Kredi kartı" : "Nakit";
-                        string aciklama = "";
-                        if (!string.IsNullOrEmpty(item.CustomerOrderComment))
+                        try
                         {
-                            aciklama += item.CustomerOrderComment;
-                        }
-
-                        if (item.OrderItems.Where(m => m.AttributeDescription.Length > 0).Any())
-                        {
-                            bool stringAttribute = false;
-                            string stringAttributeSku = "";
-                            foreach (var orderItem in item.OrderItems)
+                            string cariKod = string.IsNullOrEmpty(item.OrderCustomer.CustomerNumber) ? "H01" : item.OrderCustomer.CustomerNumber;
+                            string odemeTuru = "";
+                            if ((item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico"))
                             {
-                                var data = JsonConvert.DeserializeObject<SmartstoreAttribute>(orderItem.RawAttributes);
-                                foreach (var attribute in data.Attributes)
+                                if (item.PaymentTransaction == null)
                                 {
-                                    foreach (var value in attribute.Value)
+                                    odemeTuru = $"Kredi Kartı:1";
+                                }
+                                else
+                                {
+                                    odemeTuru = $"Kredi Kartı:{item.PaymentTransaction!.Installment}";
+                                }
+                            }
+                            else
+                            {
+                                odemeTuru = "Nakit";
+                            }
+                            
+                            string aciklama = "";
+                            if (!string.IsNullOrEmpty(item.CustomerOrderComment))
+                            {
+                                aciklama += item.CustomerOrderComment;
+                            }
+
+                            if (item.OrderItems.Where(m => m.AttributeDescription.Length > 0).Any())
+                            {
+                                bool stringAttribute = false;
+                                string stringAttributeSku = "";
+                                foreach (var orderItem in item.OrderItems)
+                                {
+                                    if (!orderItem.RawAttributes.IsNullOrEmpty())
                                     {
-                                        int valueInt = 0;
-                                        if (!int.TryParse(value, out valueInt))
+                                        var data = JsonConvert.DeserializeObject<SmartstoreAttribute>(orderItem.RawAttributes);
+                                        foreach (var attribute in data.Attributes)
                                         {
-                                            stringAttribute = true;
-                                            stringAttributeSku = orderItem.Sku;
-                                        }
+                                            foreach (var value in attribute.Value)
+                                            {
+                                                int valueInt = 0;
+                                                if (!int.TryParse(value, out valueInt))
+                                                {
+                                                    stringAttribute = true;
+                                                    stringAttributeSku = orderItem.Sku;
+                                                }
+                                            }
+                                        } 
                                     }
                                 }
+                                if (stringAttribute)
+                                {
+                                    if (!aciklama.IsNullOrEmpty())
+                                        aciklama += "-";
+
+                                    aciklama += string.Join(",", item.OrderItems.Where(m => m.Sku == stringAttributeSku).Select(m => m.Sku + ":" + WebUtility.HtmlDecode(m.AttributeDescription)).ToArray());
+                                }
                             }
-                            if (stringAttribute)
+
+                            if (item.ShippingAddress.Address1 != item.BillingAddress.Address1)
                             {
                                 if (!aciklama.IsNullOrEmpty())
-                                {
                                     aciklama += "-";
-                                }
-                                aciklama += string.Join(",", item.OrderItems.Where(m => m.Sku == stringAttributeSku).Select(m => m.Sku + ":" + WebUtility.HtmlDecode(m.AttributeDescription)).ToArray());
-                            }
-                        }
 
-                        if (item.ShippingAddress.Address1 != item.BillingAddress.Address1)
-                        {
+                                aciklama += $"{item.ShippingAddress.Address1} {item.ShippingAddress.City!.Name}/{item.ShippingAddress.Town!.Name}";
+                            }
+
                             if (!aciklama.IsNullOrEmpty())
-                            {
                                 aciklama += "-";
-                            }
-                            aciklama += $"{item.ShippingAddress.Address1} {item.ShippingAddress.City!.Name}/{item.ShippingAddress.Town!.Name}";
-                        }
 
-                        if (!aciklama.IsNullOrEmpty())
-                        {
-                            aciklama += "-";
-                        }
+                            aciklama += odemeTuru;
 
-                        aciklama += odemeTuru;
+                            if (!aciklama.IsNullOrEmpty())
+                                aciklama += "-";
 
-                        OpakSiparis opakSiparis = new OpakSiparis();
-                        opakSiparis.ID = 0;
-                        opakSiparis.SUBEID = 1;
-                        opakSiparis.DEPOID = 1;
-                        opakSiparis.CARIKOD = cariKod;
-                        opakSiparis.CARIADI = "";
-                        opakSiparis.ALTHESAP = "001";
-                        opakSiparis.BELGENO = $"B2C{item.OrderNumber ?? item.Id.ToString()}";
-                        opakSiparis.TARIH = item.CreatedOnUtc.ToString("yyyy-MM-dd");
-                        opakSiparis.SAAT = item.CreatedOnUtc.ToString("HH:mm:ss");
-                        opakSiparis.ACIKLAMA1 = $"{item.CustomerOrderComment}-{string.Join(",", item.OrderItems.Select(m => m.Sku + ":" + m.AttributeDescription).ToArray())}-{odemeTuru}";
-                        opakSiparis.ACIKLAMA2 = "";
-                        opakSiparis.ACIKLAMA3 = "";
-                        opakSiparis.ACIKLAMA4 = "";
-                        opakSiparis.ACIKLAMA5 = "";
-                        opakSiparis.VADEGUNU = 0;
-                        opakSiparis.VADETARIHI = item.CreatedOnUtc.ToString("yyyy-MM-dd");
-                        opakSiparis.KDVDAHIL = "E";
-                        opakSiparis.KUR = 0;
-                        opakSiparis.ALTISKORAN = 0;
-                        opakSiparis.ALTISKTUTAR = 0;
-                        opakSiparis.AKTARILDIMI = "H";
-                        opakSiparis.UUID = item.OrderGuid;
-                        opakSiparis.ISLEMTIPI = 0;
-                        opakSiparis.PLASIYERKOD = "";
-                        opakSiparis.TESLIMTARIHI = item.CreatedOnUtc.ToString("yyyy-MM-dd");
+                            aciklama += item.ShippingMethod;
 
-                        string adsoyad = item.BillingAddress.FirstName + " " + item.BillingAddress.LastName;
-                        if (!string.IsNullOrEmpty(item.BillingAddress.Company))
-                        {
-                            adsoyad += $" ({item.BillingAddress.Company})";
-                        }
+                            OpakSiparis opakSiparis = new OpakSiparis();
+                            opakSiparis.ID = 0;
+                            opakSiparis.SUBEID = 1;
+                            opakSiparis.DEPOID = 1;
+                            opakSiparis.CARIKOD = cariKod;
+                            opakSiparis.CARIADI = "";
+                            opakSiparis.ALTHESAP = "001";
+                            opakSiparis.BELGENO = $"B2C{item.OrderNumber ?? item.Id.ToString()}";
+                            opakSiparis.TARIH = item.CreatedOnUtc.ToString("yyyy-MM-dd");
+                            opakSiparis.SAAT = item.CreatedOnUtc.ToString("HH:mm:ss");
+                            opakSiparis.ACIKLAMA1 = aciklama;
+                            opakSiparis.ACIKLAMA2 = "";
+                            opakSiparis.ACIKLAMA3 = "";
+                            opakSiparis.ACIKLAMA4 = "";
+                            opakSiparis.ACIKLAMA5 = "";
+                            opakSiparis.VADEGUNU = 0;
+                            opakSiparis.VADETARIHI = item.CreatedOnUtc.ToString("yyyy-MM-dd");
+                            opakSiparis.KDVDAHIL = "E";
+                            opakSiparis.KUR = 0;
+                            opakSiparis.ALTISKORAN = 0;
+                            opakSiparis.ALTISKTUTAR = 0;
+                            opakSiparis.AKTARILDIMI = "H";
+                            opakSiparis.UUID = item.OrderGuid;
+                            opakSiparis.ISLEMTIPI = 0;
+                            opakSiparis.PLASIYERKOD = "";
+                            opakSiparis.TESLIMTARIHI = item.CreatedOnUtc.ToString("yyyy-MM-dd");
 
-                        opakSiparis.ADSOYAD = adsoyad;
-                        opakSiparis.TEL = item.BillingAddress.PhoneNumber;
-                        opakSiparis.FAX = "";
-                        opakSiparis.CEPTEL = item.BillingAddress.PhoneNumber;
-                        opakSiparis.MAIL = item.BillingAddress.Email;
-                        opakSiparis.ADRES = item.BillingAddress.Address1;
-                        opakSiparis.ILCE = item.BillingAddress.Town!.Name;
-                        opakSiparis.IL = item.BillingAddress.City!.Name;
-                        opakSiparis.VERGIDAIRESI = item.BillingAddress.TaxOffice.IsNullOrEmpty() ? "" : item.BillingAddress.TaxOffice;
-                        opakSiparis.VERGINO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? item.BillingAddress.TaxNumber : "";
-                        opakSiparis.TCNO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber;
-                        opakSiparis.KARGOBEDELI = item.OrderShippingInclTax;
-
-                        foreach (var orderItem in item.OrderItems)
-                        {
-                            var siparisKalem = new OpakSiparisKalem();
-                            siparisKalem.ID = 0;
-                            siparisKalem.SIPID = 0;
-                            siparisKalem.USTUUID = item.OrderGuid;
-                            siparisKalem.KALEMUID = orderItem.OrderItemGuid;
-                            siparisKalem.STOKKOD = orderItem.Sku;
-                            siparisKalem.STOKADI = "";
-                            siparisKalem.KDVORANI = 20;
-                            siparisKalem.MIKTAR = orderItem.Quantity;
-                            siparisKalem.BRUTFIYAT = orderItem.UnitPriceExclTax;
-                            siparisKalem.ISK1 = 0;
-                            siparisKalem.ISK2 = 0;
-                            siparisKalem.ISK3 = 0;
-                            siparisKalem.ISK4 = 0;
-                            siparisKalem.ISK5 = 0;
-                            siparisKalem.ISK6 = 0;
-                            siparisKalem.NETFIYAT = orderItem.UnitPriceInclTax;
-                            siparisKalem.BIRIM = "ADET";
-                            siparisKalem.DOVIZADI = "TL";
-                            siparisKalem.TARIH = item.CreatedOnUtc;
-                            siparisKalem.KUR = 0;
-                            siparisKalem.ACIKLAMA1 = orderItem.AttributeDescription;
-
-                            opakSiparis.STOKLISTESI.Add(siparisKalem);
-                        }
-
-                        opakSiparis.KALEMSAYISI = opakSiparis.STOKLISTESI.Count;
-
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "Adı",
-                        //    DEGER = "",
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//Adı
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "Kimlik No",
-                        //    DEGER = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber,
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//Kimlik No
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "Vergi No",
-                        //    DEGER = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? item.BillingAddress.TaxNumber : "",
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//Vergi No
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "Soyadı",
-                        //    DEGER = "",
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//Soyadı
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "Vergi Dairesi",
-                        //    DEGER = item.BillingAddress.TaxOffice.IsNullOrEmpty() ? "" : item.BillingAddress.TaxOffice,
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//Vergi Dairesi
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "Adres",
-                        //    DEGER = item.BillingAddress.Address1,
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//Adres
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "İlçe",
-                        //    DEGER = item.BillingAddress.Town.Name,
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//İlçe
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "İl",
-                        //    DEGER = item.BillingAddress.City.Name,
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//İl
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "E-Mail",
-                        //    DEGER = item.BillingAddress.Email,
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//E-Mail
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "Web Sipariş No",
-                        //    DEGER = item.OrderNumber ?? item.Id.ToString(),
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//Web Sipariş No
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "Adı Soyadı",
-                        //    DEGER = item.BillingAddress.FirstName + " " + item.BillingAddress.LastName,
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//Adı Soyadı
-                        //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
-                        //{
-                        //    ID = 0,
-                        //    UUID = item.OrderGuid,
-                        //    ACIKLAMA = "Telefon",
-                        //    DEGER = item.BillingAddress.PhoneNumber,
-                        //    ZORUNLU = false,
-                        //    TIP = 0
-                        //});//Telefon
-
-                        if (item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico")
-                        {
-                            opakSiparis.SIPARISODEME.Add(new OpakSiparisOdeme()
+                            string adsoyad = item.BillingAddress.FirstName + " " + item.BillingAddress.LastName;
+                            if (!string.IsNullOrEmpty(item.BillingAddress.Company))
                             {
-                                ID = 0,
-                                ODEMETURU = "Nakit",
-                                BANKAKOD = "9",
-                                TUTAR = item.OrderTotal,
-                                TAKSIT = 0,
-                                AKTARILDIMI = "H",
-                                TARIH = item.PaidDateUtc.HasValue ? item.PaidDateUtc.Value : item.CreatedOnUtc
-                            });
-                        }
+                                adsoyad += $" ({item.BillingAddress.Company})";
+                            }
 
-                        opakOrderList.Add(opakSiparis);
+                            opakSiparis.ADSOYAD = adsoyad;
+                            opakSiparis.TEL = item.BillingAddress.PhoneNumber;
+                            opakSiparis.FAX = "";
+                            opakSiparis.CEPTEL = item.BillingAddress.PhoneNumber;
+                            opakSiparis.MAIL = item.BillingAddress.Email;
+                            opakSiparis.ADRES = item.BillingAddress.Address1;
+                            opakSiparis.ILCE = item.BillingAddress.Town!.Name;
+                            opakSiparis.IL = item.BillingAddress.City!.Name;
+                            opakSiparis.VERGIDAIRESI = item.BillingAddress.TaxOffice.IsNullOrEmpty() ? "" : item.BillingAddress.TaxOffice;
+                            opakSiparis.VERGINO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? item.BillingAddress.TaxNumber : "";
+                            opakSiparis.TCNO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber;
+                            opakSiparis.KARGOBEDELI = item.OrderShippingInclTax;
+
+                            foreach (var orderItem in item.OrderItems)
+                            {
+                                var brutFiyat = orderItem.UnitPriceExclTax;
+                                var netFiyat = orderItem.UnitPriceInclTax;
+
+                                if (item.PaymentTransaction != null)
+                                {
+                                    brutFiyat = item.PaymentTransaction.Installment > 1 ? orderItem.UnitPriceExclTax + (orderItem.UnitPriceExclTax / 100) * 7 : orderItem.UnitPriceExclTax;
+                                    netFiyat = item.PaymentTransaction.Installment > 1 ? orderItem.UnitPriceInclTax + (orderItem.UnitPriceInclTax / 100) * 7 : orderItem.UnitPriceInclTax;
+                                }
+
+                                var siparisKalem = new OpakSiparisKalem();
+                                siparisKalem.ID = 0;
+                                siparisKalem.SIPID = 0;
+                                siparisKalem.USTUUID = item.OrderGuid;
+                                siparisKalem.KALEMUID = orderItem.OrderItemGuid;
+                                siparisKalem.STOKKOD = orderItem.Sku;
+                                siparisKalem.STOKADI = "";
+                                siparisKalem.KDVORANI = 20;
+                                siparisKalem.MIKTAR = orderItem.Quantity;
+                                siparisKalem.BRUTFIYAT = brutFiyat;
+                                siparisKalem.ISK1 = 0;
+                                siparisKalem.ISK2 = 0;
+                                siparisKalem.ISK3 = 0;
+                                siparisKalem.ISK4 = 0;
+                                siparisKalem.ISK5 = 0;
+                                siparisKalem.ISK6 = 0;
+                                siparisKalem.NETFIYAT = netFiyat;
+                                siparisKalem.BIRIM = "ADET";
+                                siparisKalem.DOVIZADI = "TL";
+                                siparisKalem.TARIH = item.CreatedOnUtc;
+                                siparisKalem.KUR = 0;
+                                siparisKalem.ACIKLAMA1 = WebUtility.HtmlDecode(orderItem.AttributeDescription);
+
+                                opakSiparis.STOKLISTESI.Add(siparisKalem);
+                            }
+
+                            opakSiparis.KALEMSAYISI = opakSiparis.STOKLISTESI.Count;
+
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "Adı",
+                            //    DEGER = "",
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//Adı
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "Kimlik No",
+                            //    DEGER = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber,
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//Kimlik No
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "Vergi No",
+                            //    DEGER = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? item.BillingAddress.TaxNumber : "",
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//Vergi No
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "Soyadı",
+                            //    DEGER = "",
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//Soyadı
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "Vergi Dairesi",
+                            //    DEGER = item.BillingAddress.TaxOffice.IsNullOrEmpty() ? "" : item.BillingAddress.TaxOffice,
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//Vergi Dairesi
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "Adres",
+                            //    DEGER = item.BillingAddress.Address1,
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//Adres
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "İlçe",
+                            //    DEGER = item.BillingAddress.Town.Name,
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//İlçe
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "İl",
+                            //    DEGER = item.BillingAddress.City.Name,
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//İl
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "E-Mail",
+                            //    DEGER = item.BillingAddress.Email,
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//E-Mail
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "Web Sipariş No",
+                            //    DEGER = item.OrderNumber ?? item.Id.ToString(),
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//Web Sipariş No
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "Adı Soyadı",
+                            //    DEGER = item.BillingAddress.FirstName + " " + item.BillingAddress.LastName,
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//Adı Soyadı
+                            //opakSiparis.SIPARISEKPARAM.Add(new OpakSiparisParam()
+                            //{
+                            //    ID = 0,
+                            //    UUID = item.OrderGuid,
+                            //    ACIKLAMA = "Telefon",
+                            //    DEGER = item.BillingAddress.PhoneNumber,
+                            //    ZORUNLU = false,
+                            //    TIP = 0
+                            //});//Telefon
+
+                            if (item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico")
+                            {
+                                opakSiparis.SIPARISODEME.Add(new OpakSiparisOdeme()
+                                {
+                                    ID = 0,
+                                    ODEMETURU = "Nakit",
+                                    BANKAKOD = "9",
+                                    TUTAR = item.OrderTotal,
+                                    TAKSIT = item.PaymentTransaction == null ? 1 : item.PaymentTransaction.Installment,
+                                    AKTARILDIMI = "H",
+                                    TARIH = item.PaidDateUtc.HasValue ? item.PaidDateUtc.Value : item.CreatedOnUtc
+                                });
+                            }
+
+                            opakOrderList.Add(opakSiparis);
+                        }
+                        catch (Exception ex)
+                        {
+                            throw;
+                        }
                     }
 
                     break;
