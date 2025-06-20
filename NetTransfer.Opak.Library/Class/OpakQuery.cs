@@ -28,7 +28,7 @@ namespace NetTransfer.Opak.Library.Class
             }
             else
             {
-                return $"SELECT - FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+                return $"SELECT * FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
             }
          
         }

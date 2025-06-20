@@ -65,6 +65,7 @@ namespace NetTransfer.Integration
         {
             _logger.LogInformation("Cari transferi başladı.");
             string errorMessage = string.Empty;
+            DateTime startDatetime = DateTime.Now;
             try
             {
                 object? musteriList = null;
@@ -132,7 +133,7 @@ namespace NetTransfer.Integration
                         }
 
 
-                        await UpdateCustomerLastTransfer();
+                        await UpdateCustomerLastTransfer(startDatetime);
 
                         break;
                     default:
@@ -223,6 +224,7 @@ namespace NetTransfer.Integration
 
 
             string errorMessage = string.Empty;
+            DateTime startDatetime = DateTime.Now;
 
             try
             {
@@ -348,7 +350,14 @@ namespace NetTransfer.Integration
 
                             foreach (var item in transferList)
                             {
-                                _ = await _smartstoreTransfer.CreateProduct(item);
+                                try
+                                {
+                                    _ = await _smartstoreTransfer.CreateProduct(item);
+                                }
+                                catch (Exception ex)
+                                {
+                                    _logger.LogError(ex, $"Ürün güncellenemedi - Stok Kodu : {item.Sku} Ürün Adı : {item.Name}");
+                                }
                             }
                         }
                         #endregion
@@ -358,7 +367,7 @@ namespace NetTransfer.Integration
                         break;
                 }
 
-                await UpdateProductLastTransfer();
+                await UpdateProductLastTransfer(startDatetime);
 
                 _logger.LogInformation("Malzeme transferi bitti.");
             }
@@ -372,6 +381,7 @@ namespace NetTransfer.Integration
         {
             _logger.LogInformation("Malzeme Stok Transferi Başladı");
             string errorMessage = string.Empty;
+            DateTime startDatetime = DateTime.Now;
             try
             {
                 List<BaseMalzemeStokModel> malzemeStokList = new List<BaseMalzemeStokModel>();
@@ -434,7 +444,7 @@ namespace NetTransfer.Integration
                         _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _virtualStoreSetting.VirtualStore);
                         break;
                 }
-                await UpdateProductStockLastTransfer();
+                await UpdateProductStockLastTransfer(startDatetime);
                 _logger.LogInformation("Malzeme Stok Transferi Bitti");
             }
             catch (Exception ex)
@@ -448,6 +458,7 @@ namespace NetTransfer.Integration
             _logger.LogInformation("Malzeme Fiyat Transferi Başladı");
 
             string errorMessage = string.Empty;
+            DateTime startDatetime = DateTime.Now;
             try
             {
                 List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
@@ -511,7 +522,7 @@ namespace NetTransfer.Integration
                         break;
                 }
 
-                await UpdateProductPriceLastTransfer();
+                await UpdateProductPriceLastTransfer(startDatetime);
 
                 _logger.LogInformation("Malzeme Fiyat Transferi Bitti");
             }
@@ -793,7 +804,7 @@ namespace NetTransfer.Integration
             }
         }
 
-        private async Task UpdateCustomerLastTransfer()
+        private async Task UpdateCustomerLastTransfer(DateTime transferDatetime)
         {
             try
             {
@@ -802,7 +813,7 @@ namespace NetTransfer.Integration
                     case "B2B":
                         NetTransferContext _db = new NetTransferContext(_connectionString);
                         var parameter = _db.B2BParameter.First();
-                        parameter.CustomerLastTransfer = DateTime.Now;
+                        parameter.CustomerLastTransfer = transferDatetime;
                         _db.B2BParameter.Update(parameter);
                         await _context.SaveChangesAsync();
 
@@ -816,7 +827,7 @@ namespace NetTransfer.Integration
             }
         }
 
-        private async Task UpdateProductLastTransfer()
+        private async Task UpdateProductLastTransfer(DateTime transferDatetime)
         {
             try
             {
@@ -825,7 +836,7 @@ namespace NetTransfer.Integration
                 {
                     case "B2B":
                         var b2BParameter = _db.B2BParameter.First();
-                        b2BParameter.ProductLastTransfer = DateTime.Now;
+                        b2BParameter.ProductLastTransfer = transferDatetime;
                         _db.B2BParameter.Update(b2BParameter);
                         await _db.SaveChangesAsync();
 
@@ -833,7 +844,7 @@ namespace NetTransfer.Integration
                         break;
                     case "Smartstore":
                         var smartstoreParameter = _db.SmartstoreParameter.First();
-                        smartstoreParameter.ProductLastTransfer = DateTime.Now;
+                        smartstoreParameter.ProductLastTransfer = transferDatetime;
                         _db.SmartstoreParameter.Update(smartstoreParameter);
                         await _db.SaveChangesAsync();
 
@@ -849,7 +860,7 @@ namespace NetTransfer.Integration
             }
         }
 
-        private async Task UpdateProductPriceLastTransfer()
+        private async Task UpdateProductPriceLastTransfer(DateTime transferDatetime)
         {
             try
             {
@@ -858,7 +869,7 @@ namespace NetTransfer.Integration
                 {
                     case "B2B":
                         var b2BParameter = _db.B2BParameter.First();
-                        b2BParameter.ProductPriceLastTransfer = DateTime.Now;
+                        b2BParameter.ProductPriceLastTransfer = transferDatetime;
                         _db.B2BParameter.Update(b2BParameter);
                         await _db.SaveChangesAsync();
 
@@ -866,7 +877,7 @@ namespace NetTransfer.Integration
                         break;
                     case "Smartstore":
                         var smartstoreParameter = _db.SmartstoreParameter.First();
-                        smartstoreParameter.ProductPriceLastTransfer = DateTime.Now;
+                        smartstoreParameter.ProductPriceLastTransfer = transferDatetime;
                         _db.SmartstoreParameter.Update(smartstoreParameter);
                         await _db.SaveChangesAsync();
 
@@ -885,7 +896,7 @@ namespace NetTransfer.Integration
             }
         }
 
-        private async Task UpdateProductStockLastTransfer()
+        private async Task UpdateProductStockLastTransfer(DateTime transferDatetime)
         {
             try
             {
@@ -894,7 +905,7 @@ namespace NetTransfer.Integration
                 {
                     case "B2B":
                         var b2BParameter = _db.B2BParameter.First();
-                        b2BParameter.ProductStockLastTransfer = DateTime.Now;
+                        b2BParameter.ProductStockLastTransfer = transferDatetime;
                         _db.B2BParameter.Update(b2BParameter);
                         await _db.SaveChangesAsync();
 
@@ -902,7 +913,7 @@ namespace NetTransfer.Integration
                         break;
                     case "Smartstore":
                         var smartstoreParameter = _db.SmartstoreParameter.First();
-                        smartstoreParameter.ProductStockLastTransfer = DateTime.Now;
+                        smartstoreParameter.ProductStockLastTransfer = transferDatetime;
                         _db.SmartstoreParameter.Update(smartstoreParameter);
                         await _db.SaveChangesAsync();
 
