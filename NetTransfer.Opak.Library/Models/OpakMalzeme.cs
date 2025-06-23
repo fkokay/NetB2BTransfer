@@ -18,12 +18,12 @@ namespace NetTransfer.Opak.Library.Models
         public string AKTIF { get; set; }
         public string ANASAYFA { get; set; }
         public string ACIKLAMA { get; set; }
-        public double SATIS_FIAT1 { get; set; }
-        public double SATIS_FIAT2 { get; set; }
+        public double FIYAT { get; set; }
+        public double TAKSITLIFIYAT { get; set; }
         public int DESI { get; set; }
         public string KISAACIKLAMA { get; set; }
         public double MIKTAR { get; set; }
-        public int VARYANTLIURUN { get; set; }
+        public string VARYANTLIURUN { get; set; }
         public string STOKMIKTAR { get; set; }
         public int BIRIMAGIRLIK { get; set; }
         public DateTime GUNCELLEMETARIH { get; set; }

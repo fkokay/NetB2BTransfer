@@ -12,12 +12,24 @@ namespace NetTransfer.Opak.Library.Class
         {
             if (guncellemeTarihi.HasValue)
             {
-                return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}' {filter}";
+                return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE ENSONGUNCELLEME > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}' {filter}";
             }
             else
             {
                 return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE 1=1 {filter}";
             }
+        }
+        public static string GetPasifMalzemeQuery(DateTime? guncellemeTarihi)
+        {
+            if (guncellemeTarihi.HasValue)
+            {
+                return $"SELECT * FROM VOW_PASIF_STOKLAR_ozgurtek WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+            }
+            else
+            {
+                return $"SELECT * FROM VOW_PASIF_STOKLAR_ozgurtek";
+            }
+     
         }
 
         public static string GetMalzemeStokQuery(DateTime? guncellemeTarihi)
@@ -30,7 +42,7 @@ namespace NetTransfer.Opak.Library.Class
             {
                 return $"SELECT * FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
             }
-         
+
         }
 
         public static string GetMalzemeResimQuery(string stok_kodu)
@@ -48,6 +60,7 @@ namespace NetTransfer.Opak.Library.Class
             return @$"SELECT * FROM VOW_STOKDETAYNATIVE_ozgurtek WHERE STOKKOD='{stok_kodu}' ORDER BY SIRA";
         }
 
+
         public static string GetMalzemeFiyatQuery(DateTime? guncellemeTarihi)
         {
             if (guncellemeTarihi == null)
@@ -56,7 +69,19 @@ namespace NetTransfer.Opak.Library.Class
             }
             else
             {
-                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE ENSONGUNCELLEME > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+            }
+
+        }
+        public static string GetVaryantFiyatQuery(DateTime? guncellemeTarihi)
+        {
+            if (guncellemeTarihi == null)
+            {
+                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE STOKTYPE='V'";
+            }
+            else
+            {
+                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE STOKTYPE='V' AND ENSONGUNCELLEME > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
             }
 
         }
@@ -71,7 +96,7 @@ namespace NetTransfer.Opak.Library.Class
             {
                 return $"SELECT * FROM VOW_SIPARISKARGOFIRMAVEBARKOD_ozgurtek";
             }
-          
+
         }
     }
 }

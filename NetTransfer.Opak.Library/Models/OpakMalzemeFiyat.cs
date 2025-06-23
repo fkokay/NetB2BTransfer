@@ -8,14 +8,14 @@ namespace NetTransfer.Opak.Library.Models
 {
     public class OpakMalzemeFiyat
     {
-        public string KOD { get; set; }
+        public string STOKKOD { get; set; }
+        public string ANASTOKKOD { get; set; }
+        public string STOKTYPE { get; set; }
         public double KDV { get; set; }
-        public double SFIYAT1 { get; set; }
-        public double SFIYAT2 { get; set; }
-        public double SFIYAT3 { get; set; }
-        public double SFIYAT4 { get; set; }
-        public int VARYANTLIURUN { get; set; }
-        public double VARYANTFIYAT { get; set; }
+        public double FIYAT { get; set; }
+        public double TAKSITLIFIYAT { get; set; }
+        public string VARYANTLIURUN { get; set; }
         public DateTime GUNCELLEMETARIH { get; set; }
+        public DateTime DOVIZGUNCELLEMETARIHI { get; set; }
     }
 }

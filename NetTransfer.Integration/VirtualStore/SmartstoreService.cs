@@ -77,6 +77,7 @@ namespace NetTransfer.Integration.VirtualStore
                 updateProduct.Price = product.Price;
                 updateProduct.ShowOnHomePage = product.ShowOnHomePage;
                 updateProduct.Weight = product.Weight;
+                updateProduct.Published = product.Published;
                 updateProduct.UpdatedOnUtc = DateTime.UtcNow;
 
                 await _smartStoreClient.UpdateProduct(updateProduct, result.Id);
@@ -497,6 +498,39 @@ namespace NetTransfer.Integration.VirtualStore
                 }
             }
         }
+
+        public async Task UpdateProductVariantCombinationPrice(List<BaseMalzemeFiyatModel> malzemeFiyatList)
+        {
+            foreach (var item in malzemeFiyatList)
+            {
+                var productResult = await _smartStoreClient.GetProductVariantAttributeCombinationSku(item.StokKodu);
+                if (productResult != null)
+                {
+                    if (productResult.value.Any())
+                    {
+                        var product = productResult.value.First();
+
+                        var priceResult = await _smartStoreClient.UpdateProductVariantAttributeCombinationPrice(product.Id, item.Fiyat);
+                        if (priceResult)
+                        {
+                            _logger.LogInformation($"Ürün varyant fiyatı güncellendi - Stok Kodu : {item.StokKodu} - Fiyat : {item.Fiyat}");
+                        }
+                        else
+                        {
+                            _logger.LogError($"Ürün varyant fiyatı güncellenemedi - Stok Kodu : {item.StokKodu} - Fiyat : {item.Fiyat}");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError($"Ürün varyant bulunamadı - Stok Kodu : {item.StokKodu}");
+                    }
+                }
+                else
+                {
+                    _logger.LogError($"Ürün varyant bulunamadı - Stok Kodu : {item.StokKodu}");
+                }
+            }
+        }
         public async Task UpdateProductStock(List<BaseMalzemeStokModel> malzemeFiyatList)
         {
             foreach (var item in malzemeFiyatList)
@@ -508,12 +542,52 @@ namespace NetTransfer.Integration.VirtualStore
                     {
                         var product = productResult.value.First();
 
-                        var priceResult = await _smartStoreClient.UpdateProductStock(product.Id, Convert.ToInt32(item.StokMiktari));
+                        var stokResult = await _smartStoreClient.UpdateProductStock(product.Id, Convert.ToInt32(item.StokMiktari));
+                        if (stokResult)
+                        {
+                            _logger.LogInformation($"Ürün stok güncellendi - Stok Kodu : {item.StokKodu} - Stok : {item.StokMiktari}");
+                        }
+                        else
+                        {
+                            _logger.LogError($"Ürün stok güncellenemedi - Stok Kodu : {item.StokKodu} - Stok : {item.StokMiktari}");
+                        }
                     }
                     else
                     {
                         _logger.LogError($"Ürün bulunamadı - Stok Kodu : {item.StokKodu}");
                     }
+                }
+            }
+        }
+        public async Task UpdateProductVariantCombinationStok(List<BaseMalzemeStokModel> malzemeStokList)
+        {
+            foreach (var item in malzemeStokList)
+            {
+                var productResult = await _smartStoreClient.GetProductVariantAttributeCombinationSku(item.StokKodu);
+                if (productResult != null)
+                {
+                    if (productResult.value.Any())
+                    {
+                        var product = productResult.value.First();
+
+                        var stokResult = await _smartStoreClient.UpdateProductVariantAttributeCombinationStok(product.Id, item.StokMiktari);
+                        if (stokResult)
+                        {
+                            _logger.LogInformation($"Ürün varyant stok güncellendi - Stok Kodu : {item.StokKodu} - Stok : {item.StokMiktari}");
+                        }
+                        else
+                        {
+                            _logger.LogError($"Ürün varyant stok güncellenemedi - Stok Kodu : {item.StokKodu} - Stok : {item.StokMiktari}");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogError($"Ürün stok bulunamadı - Stok Kodu : {item.StokKodu}");
+                    }
+                }
+                else
+                {
+                    _logger.LogError($"Ürün stok bulunamadı - Stok Kodu : {item.StokKodu}");
                 }
             }
         }
@@ -1024,7 +1098,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.IsTaxExempt = false;
                 product.IsEsd = false;
                 product.TaxCategoryId = 1;
-                product.ManageInventoryMethodId = item.STOKMIKTAR == "E" ? (item.VARYANTLIURUN > 0 ? 2 : 1) : 0;
+                product.ManageInventoryMethodId = item.STOKMIKTAR == "E" ? (item.VARYANTLIURUN =="E" ? 2 : 1) : 0;
                 product.StockQuantity = Convert.ToInt32(item.MIKTAR);
                 product.DisplayStockAvailability = false;
                 product.DisplayStockQuantity = false;
@@ -1043,7 +1117,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.DisableWishlistButton = false;
                 product.AvailableForPreOrder = false;
                 product.CallForPrice = false;
-                product.Price = item.SATIS_FIAT1;
+                product.Price = item.FIYAT;
                 product.ComparePrice = 0;
                 product.ComparePriceLabelId = null;
                 product.SpecialPrice = null;

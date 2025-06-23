@@ -79,7 +79,7 @@ namespace NetTransfer.Integration.Erp
                     malzemeStokList.Add(new BaseMalzemeStokModel
                     {
                         StokKodu = item.STOK_KODU,
-                        StokMiktari = item.STOK_MIKTARI,
+                        StokMiktari = Convert.ToInt32(item.STOK_MIKTARI),
                     });
                 }
             }

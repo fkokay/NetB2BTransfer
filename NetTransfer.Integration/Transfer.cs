@@ -218,8 +218,16 @@ namespace NetTransfer.Integration
             }
         }
 
+        private bool IsMalzemeTransfer = false;
         public async Task MalzemeTransfer()
         {
+            if (IsMalzemeTransfer)
+            {
+                _logger.LogInformation("Malzeme transferi zaten çalışıyor.");
+                return;
+            }
+
+            IsMalzemeTransfer = true;
             _logger.LogInformation("Malzeme transferi başlıyor.");
 
 
@@ -375,10 +383,22 @@ namespace NetTransfer.Integration
             {
                 _logger.LogError(ex, "Malzeme transferi sırasında hata oluştu.");
             }
+            finally
+            {
+                IsMalzemeTransfer = false;
+            }
         }
 
+        private bool IsMalzemeStokTransfer = false;
         public async Task MalzemeStokTransfer()
         {
+            if (IsMalzemeStokTransfer)
+            {
+                _logger.LogInformation("Malzeme Stok Transferi zaten çalışıyor.");
+                return;
+            }
+
+            IsMalzemeTransfer = true;
             _logger.LogInformation("Malzeme Stok Transferi Başladı");
             string errorMessage = string.Empty;
             DateTime startDatetime = DateTime.Now;
@@ -438,7 +458,8 @@ namespace NetTransfer.Integration
                         }
                         break;
                     case "Smartstore":
-                        await _smartstoreTransfer.UpdateProductStock(malzemeStokList);
+                        await _smartstoreTransfer.UpdateProductStock(malzemeStokList.Where(m => m.StokType == "S").ToList());
+                        await _smartstoreTransfer.UpdateProductVariantCombinationStok(malzemeStokList.Where(m => m.StokType == "V").ToList());
                         break;
                     default:
                         _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _virtualStoreSetting.VirtualStore);
@@ -451,10 +472,22 @@ namespace NetTransfer.Integration
             {
                 _logger.LogError(ex, "Malzeme Stok Transferi sırasında hata oluştu.");
             }
+            finally
+            {
+                IsMalzemeStokTransfer = false;
+            }
         }
 
+        private bool IsMalzemeFiyatTransfer = false;
         public async Task MalzemeFiyatTransfer()
         {
+            if (IsMalzemeFiyatTransfer)
+            {
+                _logger.LogInformation("Malzeme Fiyat Transferi zaten çalışıyor.");
+                return;
+            }
+
+            IsMalzemeFiyatTransfer = true;
             _logger.LogInformation("Malzeme Fiyat Transferi Başladı");
 
             string errorMessage = string.Empty;
@@ -515,7 +548,8 @@ namespace NetTransfer.Integration
                         }
                         break;
                     case "Smartstore":
-                        await _smartstoreTransfer.UpdateProductPrice(malzemeFiyatList);
+                        await _smartstoreTransfer.UpdateProductPrice(malzemeFiyatList.Where(m => m.StokType == "S").ToList());
+                        await _smartstoreTransfer.UpdateProductVariantCombinationPrice(malzemeFiyatList.Where(m => m.StokType == "V").ToList());
                         break;
                     default:
                         _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _virtualStoreSetting.VirtualStore);
@@ -530,10 +564,22 @@ namespace NetTransfer.Integration
             {
                 _logger.LogError(ex, "Malzeme fiyat aktarım hatası");
             }
+            finally
+            {
+                IsMalzemeFiyatTransfer = false;
+            }
         }
 
+        private bool IsSiparisTransfer = false;
         public async Task SiparisTransfer()
         {
+            if (IsSiparisTransfer)
+            {
+                _logger.LogInformation("Sipariş transferi zaten çalışıyor.");
+                return;
+            }
+
+            IsSiparisTransfer = true;
             _logger.LogInformation("Sipariş transferi başlıyor.");
             Thread.Sleep(100);
 
@@ -729,6 +775,10 @@ namespace NetTransfer.Integration
             {
                 _logger.LogError(ex, "");
             }
+            finally
+            {
+                IsSiparisTransfer = false;
+            }
         }
 
         public async Task SanalPosTransfer()
@@ -736,8 +786,16 @@ namespace NetTransfer.Integration
 
         }
 
+        private bool IsSevkiyatTransfer = false;
         public async Task SevkiyatTransfer()
         {
+            if (IsSevkiyatTransfer)
+            {
+                _logger.LogInformation("Sevkiyat transferi zaten çalışıyor.");
+                return;
+            }
+
+            IsSevkiyatTransfer = true;
             _logger.LogInformation("Sevkiyat Transferi Başladı");
             string errorMessage = string.Empty;
             try
@@ -801,6 +859,10 @@ namespace NetTransfer.Integration
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Sevkiyat Transferi sırasında hata oluştu.");
+            }
+            finally
+            {
+                IsSevkiyatTransfer = false;
             }
         }
 

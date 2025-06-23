@@ -185,6 +185,68 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
+        public async Task<bool> UpdateProductVariantAttributeCombinationPrice(int productVariantAttributeCombinationId, double price)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_b2BSetting.Url}/productvariantattributecombinations({productVariantAttributeCombinationId})"))
+                {
+                    // Gerekli başlıklar
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    // JSON içeriği
+                    var jsonContent = new
+                    {
+                        Price = price
+                    };
+                    var json = JsonConvert.SerializeObject(jsonContent);
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // API'ye isteği gönder
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+        public async Task<bool> UpdateProductVariantAttributeCombinationStok(int productVariantAttributeCombinationId, int stockQuantity)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_b2BSetting.Url}/productvariantattributecombinations({productVariantAttributeCombinationId})"))
+                {
+                    // Gerekli başlıklar
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    // JSON içeriği
+                    var jsonContent = new
+                    {
+                        StockQuantity = stockQuantity
+                    };
+                    var json = JsonConvert.SerializeObject(jsonContent);
+                    request.Content = new StringContent(json, Encoding.UTF8, "application/json");
+
+                    // API'ye isteği gönder
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
         public async Task<bool> UpdateProductPriceOrSpecialPrice(int productId, double price, double specialPrice)
         {
             using (var httpClient = new HttpClient())
@@ -950,6 +1012,30 @@ namespace NetTransfer.Smartstore.Library
             }
         }
 
+        public async Task<ResponseSmartList<SmartstoreProductVariantAttributeCombination>?> GetProductVariantAttributeCombinationSku(string sku)
+        {
+            using (var httpClient = new HttpClient())
+            {
+
+
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/productvariantattributecombinations?count=true&filter=Sku eq '{sku}'"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProductVariantAttributeCombination>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
         public async Task<ResponseSmartList<SmartstoreProductVariantAttributeCombination>?> GetProductVariantAttributeCombination(int productId, int hashCode)
         {
             using (var httpClient = new HttpClient())

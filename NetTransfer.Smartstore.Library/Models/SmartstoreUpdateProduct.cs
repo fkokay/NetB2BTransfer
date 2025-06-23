@@ -23,6 +23,8 @@ namespace NetTransfer.Smartstore.Library.Models
         public bool ShowOnHomePage { get; set; }
         [JsonProperty("Weight")]
         public double Weight { get; set; }
+        [JsonProperty("Published")]
+        public bool Published { get; set; }
         [JsonProperty("UpdatedOnUtc")]
         public DateTimeOffset UpdatedOnUtc { get; set; }
 

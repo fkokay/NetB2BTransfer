@@ -34,7 +34,7 @@ namespace NetTransfer.Integration.Erp
                 if (item.AKTIF == "E")
                 {
                     item.MalzemeResimList = DataReader.ReadData<OpakMalzemeResim>(connectionString, OpakQuery.GetMalzemeResimQuery(item.STOK_KODU), ref errorMessage);
-                    if (item.VARYANTLIURUN > 0)
+                    if (item.VARYANTLIURUN == "E")
                     {
                         item.MalzemeVaryantList = DataReader.ReadData<OpakVaryant>(connectionString, OpakQuery.GetMalzemeVaryantQuery(item.STOK_KODU), ref errorMessage);
                         foreach (var varyant in item.MalzemeVaryantList)
@@ -44,6 +44,22 @@ namespace NetTransfer.Integration.Erp
                         }
                     }
                 }
+            };
+            var pasifMalzemeList = GetPasifMalzemeList(ref errorMessage);
+            if (pasifMalzemeList != null)
+            {
+                malzemeList.AddRange(pasifMalzemeList);
+            }
+
+            return malzemeList;
+        }
+
+        public List<OpakMalzeme>? GetPasifMalzemeList(ref string errorMessage)
+        {
+            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetPasifMalzemeQuery(smartstoreParameter.ProductLastTransfer), ref errorMessage);
+            if (malzemeList == null)
+            {
+                return null;
             }
 
             return malzemeList;
@@ -65,9 +81,10 @@ namespace NetTransfer.Integration.Erp
                 {
                     malzemeStokList.Add(new BaseMalzemeStokModel
                     {
-                        StokKodu = item.KOD,
+                        StokType = item.STOKTYPE,
+                        StokKodu = item.STOKKOD,
                         DepoAdi = item.DEPOADI,
-                        StokMiktari = item.BAKIYE,
+                        StokMiktari = Convert.ToInt32(item.BAKIYE),
                     });
                 }
             }
@@ -86,12 +103,45 @@ namespace NetTransfer.Integration.Erp
             }
             else
             {
+                var varyantData = DataReader.ReadData<OpakMalzemeFiyat>(connectionString, OpakQuery.GetVaryantFiyatQuery(null), ref errorMessage);
+                
                 foreach (var item in data)
                 {
+                    double fiyat = 0;
+                    if (item.STOKTYPE == "S")
+                    {
+                        if (item.VARYANTLIURUN == "E")
+                        {
+                            fiyat = varyantData.Where(m => m.STOKTYPE == "V" && m.ANASTOKKOD == item.STOKKOD).OrderBy(m => m.FIYAT).Select(m => m.FIYAT).FirstOrDefault(0);
+                        }
+                        else
+                        {
+                            fiyat = item.FIYAT;
+                        }
+                    }
+                    else
+                    {
+                        fiyat = item.FIYAT;
+
+
+                        if (!malzemeFiyatList.Where(m=>m.StokKodu == item.ANASTOKKOD).Any())
+                        {
+                            malzemeFiyatList.Add(new BaseMalzemeFiyatModel
+                            {
+                                StokType = "S",
+                                StokKodu = item.ANASTOKKOD,
+                                Fiyat = varyantData.Where(m => m.STOKTYPE == "V" && m.ANASTOKKOD == item.STOKKOD).OrderBy(m => m.FIYAT).Select(m => m.FIYAT).FirstOrDefault(0),
+                                IndirimliFiyat = 0
+                            });
+                        }
+                    }
+
+
                     malzemeFiyatList.Add(new BaseMalzemeFiyatModel
                     {
-                        StokKodu = item.KOD,
-                        Fiyat = item.VARYANTLIURUN < 1 ?item.SFIYAT4 : item.VARYANTFIYAT,
+                        StokType = item.STOKTYPE,
+                        StokKodu = item.STOKKOD,
+                        Fiyat = fiyat,
                         IndirimliFiyat = 0
                     });
                 }
@@ -176,7 +226,7 @@ namespace NetTransfer.Integration.Erp
                             {
                                 odemeTuru = "Nakit";
                             }
-                            
+
                             string aciklama = "";
                             if (!string.IsNullOrEmpty(item.CustomerOrderComment))
                             {
@@ -203,7 +253,7 @@ namespace NetTransfer.Integration.Erp
                                                     stringAttributeSku = orderItem.Sku;
                                                 }
                                             }
-                                        } 
+                                        }
                                     }
                                 }
                                 if (stringAttribute)
