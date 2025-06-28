@@ -1,8 +1,14 @@
 ﻿using DevExpress.DataAccess.UI.Native.DataFederation;
+using DevExpress.Utils.About;
 using DevExpress.XtraBars;
 using DevExpress.XtraEditors;
+using NetTransfer.Core.Data;
+using NetTransfer.Core.Entities;
 using NetTransfer.Models;
+using NetTransfer.Opak.Library.Class;
+using NetTransfer.Opak.Library.Models;
 using NetTransfer.UserControls;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,6 +16,7 @@ using System.Data;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using System.Windows.Forms;
@@ -168,8 +175,53 @@ namespace NetTransfer.Forms
             container.Controls.Clear();
             ExcelUserControl excelUserControl = new ExcelUserControl();
             excelUserControl.Dock = DockStyle.Fill;
-
             container.Controls.Add(excelUserControl);
         }
+
+        string connStr = "Data Source=212.18.121.24;Initial Catalog=SmartstoreDemo;Integrated Security=False;Persist Security Info=False;User ID=sa;Password=976976Fk*;Trust Server Certificate=True;";
+        private async void btnSendMail_Click(object sender, EventArgs e)
+        {
+            //string errorMessage = "";
+            //var mailList = DataReader.ReadData<QueuedEmail>(connStr, "SELECT * FROM [QueuedEmail] WHERE Id > 20049", ref errorMessage);
+
+
+            //foreach (var item in mailList)
+            //{
+            //    using (var httpClient = new HttpClient())
+            //    {
+            //        using (var request = new HttpRequestMessage(new HttpMethod("POST"), $"https://notify.sendinboxmail.com/manage/send.php"))
+            //        {
+            //            var parameters = new Dictionary<string, string> {
+            //                { "apikey", "F3EJ-FZ02-IYPH" },
+            //                { "email", item.To},
+            //                { "news_id", "221" },
+            //                { "sender_id", "199" },
+            //                { "subject", Base64Encode(item.Subject) },
+            //                { "spc1", item.Body },
+
+            //            };
+            //            var encodedContent = new FormUrlEncodedContent(parameters);
+
+            //            request.Content = encodedContent;
+
+            //            // API'ye isteği gönder
+            //            var response = await httpClient.SendAsync(request);
+            //            //var result = await response.Content.ReadAsStringAsync();
+            //            //if (response.IsSuccessStatusCode)
+            //            //{
+
+            //            //}
+            //        }
+            //    }
+            //}
+        }
+
+        public static string Base64Encode(string plainText)
+        {
+            var plainTextBytes = System.Text.Encoding.UTF8.GetBytes(plainText);
+            return System.Convert.ToBase64String(plainTextBytes);
+        }
     }
+
+
 }

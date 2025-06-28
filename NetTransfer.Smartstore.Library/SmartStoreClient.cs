@@ -333,6 +333,28 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
+        public async Task<bool> DeleteProductManufacturer(int id)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("DELETE"), $"{_b2BSetting.Url}/productmanufacturers({id})"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
         public async Task<SmartstoreProductCategory?> ProductCategoryTrasnfer(SmartstoreProductCategory productCategory)
         {
             var json = JsonConvert.SerializeObject(productCategory);
@@ -510,6 +532,30 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
+        public async Task<ResponseSmartList<SmartstoreProductManufacturer>?> GetProductManufacturer(int productId)
+        {
+
+
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/productmanufacturers?count=true&filter=ProductId eq {productId}"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProductManufacturer>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
         public async Task<ResponseSmartList<SmartstoreProductCategory>?> GetProductCategory(int productId, int categoryId)
         {
 
@@ -554,6 +600,51 @@ namespace NetTransfer.Smartstore.Library
                     else
                     {
                         return null;
+                    }
+                }
+            }
+        }
+        public async Task<ResponseSmartList<SmartstoreProductMediaFile>?> GetProductMediaFile(int productId)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/productmediafiles?count=true&filter=ProductId eq {productId}"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProductMediaFile>>(result);
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+        }
+
+        public async Task<bool> DeleteProductMediaFile(int id)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("DELETE"), $"{_b2BSetting.Url}/productmediafiles({id})"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+                    if (response.IsSuccessStatusCode)
+                    {
+                        var result = await response.Content.ReadAsStringAsync();
+                        return true;
+                    }
+                    else
+                    {
+                        return false;
                     }
                 }
             }

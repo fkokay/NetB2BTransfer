@@ -27,6 +27,8 @@ namespace NetTransfer.Opak.Library.Models
         public string STOKMIKTAR { get; set; }
         public int BIRIMAGIRLIK { get; set; }
         public DateTime GUNCELLEMETARIH { get; set; }
+        public DateTime? VARYANT_GUNCELLEME_TARIHI { get; set; }
+        public DateTime ENSONGUNCELLEME { get; set; }
 
         public List<OpakVaryant> MalzemeVaryantList = new List<OpakVaryant>();
         public List<OpakMalzemeResim> MalzemeResimList = new List<OpakMalzemeResim>();

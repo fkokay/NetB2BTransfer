@@ -175,7 +175,7 @@ namespace NetTransferService
                 timerSevkiyatTransfer.Dispose();
 
             _logger.LogWarning("Net Transfer Durduruldu");
-            return base.StopAsync(cancellationToken);
+            return Task.CompletedTask;
         }
 
         private void TimerSiparisTransfer_Elapsed(object? sender, System.Timers.ElapsedEventArgs e)

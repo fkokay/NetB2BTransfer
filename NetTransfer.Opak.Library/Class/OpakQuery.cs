@@ -27,7 +27,7 @@ namespace NetTransfer.Opak.Library.Class
             }
             else
             {
-                return $"SELECT * FROM VOW_PASIF_STOKLAR_ozgurtek";
+                return $"SELECT TOP 1 * FROM VOW_PASIF_STOKLAR_ozgurtek";
             }
      
         }

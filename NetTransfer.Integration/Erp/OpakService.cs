@@ -130,7 +130,7 @@ namespace NetTransfer.Integration.Erp
                             {
                                 StokType = "S",
                                 StokKodu = item.ANASTOKKOD,
-                                Fiyat = varyantData.Where(m => m.STOKTYPE == "V" && m.ANASTOKKOD == item.STOKKOD).OrderBy(m => m.FIYAT).Select(m => m.FIYAT).FirstOrDefault(0),
+                                Fiyat = varyantData.Where(m => m.STOKTYPE == "V" && m.ANASTOKKOD == item.ANASTOKKOD).OrderBy(m => m.FIYAT).Select(m => m.FIYAT).FirstOrDefault(0),
                                 IndirimliFiyat = 0
                             });
                         }

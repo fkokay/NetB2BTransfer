@@ -11,6 +11,7 @@ using NetTransfer.B2B.Library;
 using System.Data;
 using NetTransfer.Data;
 using NetTransfer.Opak.Library.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace NetTransfer.Integration
 {
@@ -234,6 +235,8 @@ namespace NetTransfer.Integration
             string errorMessage = string.Empty;
             DateTime startDatetime = DateTime.Now;
 
+
+
             try
             {
                 object? malzemeList = null;
@@ -256,6 +259,13 @@ namespace NetTransfer.Integration
                         break;
                     case "Opak":
                         _logger.LogWarning("Opak ERP kullanılıyor. Malzemeler veritabanından çekiliyor.");
+                        if (_smartstoreParameter.ProductLastTransfer.HasValue)
+                        {
+                            _smartstoreParameter.ProductLastTransfer.Value.AddMinutes(-10);
+                            _logger.LogWarning($"Malzeme Son Güncelleme Tarihi : {_smartstoreParameter.ProductLastTransfer.Value.ToString()}");
+                        }
+
+
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeList = opakService.GetMalzemeList(ref errorMessage);
 
@@ -327,6 +337,8 @@ namespace NetTransfer.Integration
                             {
                                 _logger.LogWarning("Aktarılacak ürün bulunamadı.");
                             }
+
+                            return;
                         }
                         else
                         {
@@ -398,7 +410,7 @@ namespace NetTransfer.Integration
                 return;
             }
 
-            IsMalzemeTransfer = true;
+            IsMalzemeStokTransfer = true;
             _logger.LogInformation("Malzeme Stok Transferi Başladı");
             string errorMessage = string.Empty;
             DateTime startDatetime = DateTime.Now;
@@ -422,6 +434,12 @@ namespace NetTransfer.Integration
                             _logger.LogError("Malzeme Stok Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Opak":
+                        if (_smartstoreParameter.ProductStockLastTransfer.HasValue)
+                        {
+                            _smartstoreParameter.ProductStockLastTransfer.Value.AddMinutes(-10);
+                            _logger.LogWarning($"Malzeme Stok Son Güncelleme Tarihi : {_smartstoreParameter.ProductStockLastTransfer.Value.ToString()}");
+                        }
+
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeStokList = opakService.GetMalzemeStokList(ref errorMessage);
 
@@ -506,6 +524,12 @@ namespace NetTransfer.Integration
                         malzemeFiyatList = service.GetMalzemeFiyatList(ref errorMessage);
                         break;
                     case "Opak":
+                        if (_smartstoreParameter.ProductPriceLastTransfer.HasValue)
+                        {
+                            _smartstoreParameter.ProductPriceLastTransfer.Value.AddMinutes(-10);
+                            _logger.LogWarning($"Malzeme Fiyat Son Güncelleme Tarihi : {_smartstoreParameter.ProductPriceLastTransfer.Value.ToString()}");
+                        }
+
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeFiyatList = opakService.GetMalzemeFiyatList(ref errorMessage);
                         break;

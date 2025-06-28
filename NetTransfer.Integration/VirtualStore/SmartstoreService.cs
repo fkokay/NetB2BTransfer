@@ -77,6 +77,7 @@ namespace NetTransfer.Integration.VirtualStore
                 updateProduct.Price = product.Price;
                 updateProduct.ShowOnHomePage = product.ShowOnHomePage;
                 updateProduct.Weight = product.Weight;
+                updateProduct.ManageInventoryMethodId = product.ManageInventoryMethodId;
                 updateProduct.Published = product.Published;
                 updateProduct.UpdatedOnUtc = DateTime.UtcNow;
 
@@ -106,6 +107,18 @@ namespace NetTransfer.Integration.VirtualStore
 
             if (manufacturer != null)
             {
+                var productManufacturersResult = await _smartStoreClient.GetProductManufacturer(result.Id);
+                if (productManufacturersResult != null)
+                {
+                    foreach (var item in productManufacturersResult.value)
+                    {
+                        if (item.ManufacturerId != manufacturer.Id)
+                        {
+                            _ = await _smartStoreClient.DeleteProductManufacturer(item.Id);
+                        }
+                    }
+                }
+
                 SmartstoreProductManufacturer smartstoreProductManufacturer = new SmartstoreProductManufacturer();
                 smartstoreProductManufacturer.ProductId = result.Id;
                 smartstoreProductManufacturer.ManufacturerId = manufacturer.Id;
@@ -113,6 +126,10 @@ namespace NetTransfer.Integration.VirtualStore
                 smartstoreProductManufacturer.DisplayOrder = 0;
 
                 _ = await CreateProductManufacturer(smartstoreProductManufacturer);
+            }
+            else
+            {
+                _ = await DeleteProductManufacturer(result.Id);
             }
             #endregion
 
@@ -189,19 +206,29 @@ namespace NetTransfer.Integration.VirtualStore
             #region Image
             if (product.Files != null)
             {
+                _ = await DeleteProductMediaFile(result.Id);
+
                 foreach (var file in product.Files)
                 {
                     SmartstoreFileItemInfo? fileItemInfo = await CreateMediaFile(file);
+
+                    int i = 0;
                     if (fileItemInfo != null)
                     {
                         SmartstoreProductMediaFile smartstoreProductMediaFile = new SmartstoreProductMediaFile();
                         smartstoreProductMediaFile.ProductId = result.Id;
                         smartstoreProductMediaFile.MediaFileId = fileItemInfo.Id;
-                        smartstoreProductMediaFile.DisplayOrder = 0;
+                        smartstoreProductMediaFile.DisplayOrder = i;
 
                         _ = await CreateProductMediaFile(smartstoreProductMediaFile);
+
+                        i++;
                     }
                 }
+            }
+            else
+            {
+                _ = await DeleteProductMediaFile(result.Id);
             }
             #endregion
 
@@ -625,8 +652,23 @@ namespace NetTransfer.Integration.VirtualStore
             }
 
             return null;
+        }
 
+        public async Task<bool> DeleteProductManufacturer(int productId)
+        {
+            var productManufacturerResult = await _smartStoreClient.GetProductManufacturer(productId);
+            if (productManufacturerResult != null)
+            {
+                if (productManufacturerResult.value.Any())
+                {
+                    foreach (var item in productManufacturerResult.value)
+                    {
+                        await _smartStoreClient.DeleteProductManufacturer(item.Id);
+                    }
+                }
+            }
 
+            return true;
         }
         public async Task<SmartstoreCategory?> CreateCategory(SmartstoreCategory smartstoreCategory)
         {
@@ -763,6 +805,23 @@ namespace NetTransfer.Integration.VirtualStore
 
 
             return null;
+        }
+
+        public async Task<bool> DeleteProductMediaFile(int productId)
+        {
+            var result = await _smartStoreClient.GetProductMediaFile(productId);
+            if (result != null)
+            {
+                if (result.value.Any())
+                {
+                    foreach (var item in result.value)
+                    {
+                        await _smartStoreClient.DeleteProductMediaFile(item.Id);
+                    }
+                }
+            }
+
+            return true;
         }
 
         #region MappingProduct
@@ -1098,7 +1157,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.IsTaxExempt = false;
                 product.IsEsd = false;
                 product.TaxCategoryId = 1;
-                product.ManageInventoryMethodId = item.STOKMIKTAR == "E" ? (item.VARYANTLIURUN =="E" ? 2 : 1) : 0;
+                product.ManageInventoryMethodId = item.STOKMIKTAR == "E" ? (item.VARYANTLIURUN == "E" ? 2 : 1) : 0;
                 product.StockQuantity = Convert.ToInt32(item.MIKTAR);
                 product.DisplayStockAvailability = false;
                 product.DisplayStockQuantity = false;
