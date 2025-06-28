@@ -195,9 +195,9 @@ namespace NetTransfer.Integration.VirtualStore
                 data.ProductId = result.Id;
                 data.CategoryId = category1.Id;
                 data.IsFeaturedProduct = false;
-                data.DisplayOrder = 0;
+                data.DisplayOrder = productCategory2 == null ? 0 : 1;
                 data.IsSystemMapping = false;
-                data.Id = productCategory2 == null ? 0 : 1;
+                data.Id = 0;
 
                 productCategory1 = await CreateProductCategory(data);
             }
@@ -783,9 +783,11 @@ namespace NetTransfer.Integration.VirtualStore
 
                 return null;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                throw;
+                _logger.LogError(ex, "GetSmartstoreOrder method failed.");
+
+                return null;
             }
         }
         public async Task<SmartstoreShipment?> AddShipment(SmartstoreAddShipment smartstoreShipment, int orderId, string carrier)
