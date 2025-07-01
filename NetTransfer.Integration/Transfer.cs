@@ -219,26 +219,13 @@ namespace NetTransfer.Integration
             }
         }
 
-        private bool IsMalzemeTransfer = false;
         public async Task MalzemeTransfer()
         {
-            if (IsMalzemeTransfer)
-            {
-                _logger.LogInformation("Malzeme transferi zaten çalışıyor.");
-                return;
-            }
-
-            IsMalzemeTransfer = true;
-            _logger.LogInformation("Malzeme transferi başlıyor.");
-
-
             string errorMessage = string.Empty;
-            DateTime startDatetime = DateTime.Now;
-
-
-
             try
             {
+                DateTime startDatetime = DateTime.Now;
+
                 object? malzemeList = null;
 
                 switch (_erpSetting.Erp)
@@ -261,7 +248,6 @@ namespace NetTransfer.Integration
                         _logger.LogWarning("Opak ERP kullanılıyor. Malzemeler veritabanından çekiliyor.");
                         if (_smartstoreParameter.ProductLastTransfer.HasValue)
                         {
-                            _smartstoreParameter.ProductLastTransfer.Value.AddMinutes(-10);
                             _logger.LogWarning($"Malzeme Son Güncelleme Tarihi : {_smartstoreParameter.ProductLastTransfer.Value.ToString()}");
                         }
 
@@ -388,34 +374,20 @@ namespace NetTransfer.Integration
                 }
 
                 await UpdateProductLastTransfer(startDatetime);
-
-                _logger.LogInformation("Malzeme transferi bitti.");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Malzeme transferi sırasında hata oluştu.");
             }
-            finally
-            {
-                IsMalzemeTransfer = false;
-            }
         }
 
-        private bool IsMalzemeStokTransfer = false;
         public async Task MalzemeStokTransfer()
         {
-            if (IsMalzemeStokTransfer)
-            {
-                _logger.LogInformation("Malzeme Stok Transferi zaten çalışıyor.");
-                return;
-            }
-
-            IsMalzemeStokTransfer = true;
-            _logger.LogInformation("Malzeme Stok Transferi Başladı");
             string errorMessage = string.Empty;
-            DateTime startDatetime = DateTime.Now;
             try
             {
+                DateTime startDatetime = DateTime.Now;
+
                 List<BaseMalzemeStokModel> malzemeStokList = new List<BaseMalzemeStokModel>();
                 switch (_erpSetting.Erp)
                 {
@@ -436,7 +408,6 @@ namespace NetTransfer.Integration
                     case "Opak":
                         if (_smartstoreParameter.ProductStockLastTransfer.HasValue)
                         {
-                            _smartstoreParameter.ProductStockLastTransfer.Value.AddMinutes(-10);
                             _logger.LogWarning($"Malzeme Stok Son Güncelleme Tarihi : {_smartstoreParameter.ProductStockLastTransfer.Value.ToString()}");
                         }
 
@@ -484,34 +455,21 @@ namespace NetTransfer.Integration
                         break;
                 }
                 await UpdateProductStockLastTransfer(startDatetime);
-                _logger.LogInformation("Malzeme Stok Transferi Bitti");
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Malzeme Stok Transferi sırasında hata oluştu.");
             }
-            finally
-            {
-                IsMalzemeStokTransfer = false;
-            }
         }
 
-        private bool IsMalzemeFiyatTransfer = false;
         public async Task MalzemeFiyatTransfer()
         {
-            if (IsMalzemeFiyatTransfer)
-            {
-                _logger.LogInformation("Malzeme Fiyat Transferi zaten çalışıyor.");
-                return;
-            }
-
-            IsMalzemeFiyatTransfer = true;
-            _logger.LogInformation("Malzeme Fiyat Transferi Başladı");
-
             string errorMessage = string.Empty;
-            DateTime startDatetime = DateTime.Now;
             try
             {
+
+                DateTime startDatetime = DateTime.Now;
+
                 List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
                 switch (_erpSetting.Erp)
                 {
@@ -526,10 +484,8 @@ namespace NetTransfer.Integration
                     case "Opak":
                         if (_smartstoreParameter.ProductPriceLastTransfer.HasValue)
                         {
-                            _smartstoreParameter.ProductPriceLastTransfer.Value.AddMinutes(-10);
                             _logger.LogWarning($"Malzeme Fiyat Son Güncelleme Tarihi : {_smartstoreParameter.ProductPriceLastTransfer.Value.ToString()}");
                         }
-
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeFiyatList = opakService.GetMalzemeFiyatList(ref errorMessage);
                         break;
@@ -537,10 +493,6 @@ namespace NetTransfer.Integration
                         _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);
                         break;
                 }
-
-                _logger.LogWarning("Malzeme fiyat listesi miktarı : " + malzemeFiyatList.Count);
-
-
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
@@ -572,6 +524,15 @@ namespace NetTransfer.Integration
                         }
                         break;
                     case "Smartstore":
+                        if (malzemeFiyatList.Count == 0)
+                        {
+                            _logger.LogWarning("Aktarılacak malzeme fiyatı bulunamadı.");
+                            return;
+                        }
+
+
+                        _logger.LogWarning("Malzeme fiyat liste miktarı : " + malzemeFiyatList.Count);
+
                         await _smartstoreTransfer.UpdateProductPrice(malzemeFiyatList.Where(m => m.StokType == "S").ToList());
                         await _smartstoreTransfer.UpdateProductVariantCombinationPrice(malzemeFiyatList.Where(m => m.StokType == "V").ToList());
                         break;
@@ -588,25 +549,10 @@ namespace NetTransfer.Integration
             {
                 _logger.LogError(ex, "Malzeme fiyat aktarım hatası");
             }
-            finally
-            {
-                IsMalzemeFiyatTransfer = false;
-            }
         }
 
-        private bool IsSiparisTransfer = false;
         public async Task SiparisTransfer()
         {
-            if (IsSiparisTransfer)
-            {
-                _logger.LogInformation("Sipariş transferi zaten çalışıyor.");
-                return;
-            }
-
-            IsSiparisTransfer = true;
-            _logger.LogInformation("Sipariş transferi başlıyor.");
-            Thread.Sleep(100);
-
             string errorMessage = string.Empty;
             try
             {
@@ -624,7 +570,6 @@ namespace NetTransfer.Integration
                 if (orderList == null)
                 {
                     _logger.LogError("Siparişler yüklenirken bir hata oluştu");
-                    Thread.Sleep(100);
                 }
 
 
@@ -641,12 +586,10 @@ namespace NetTransfer.Integration
                         if (opakList == null)
                         {
                             _logger.LogError("Opak sipariş mapping hatası");
-                            Thread.Sleep(100);
                             return;
                         }
 
                         _logger.LogWarning("Aktarılacak sipariş sayısı: " + opakList.Count);
-                        Thread.Sleep(100);
 
                         foreach (var item in opakList)
                         {
@@ -793,15 +736,10 @@ namespace NetTransfer.Integration
                 //}
 
                 _logger.LogInformation("Sipariş transferi bitti.");
-                Thread.Sleep(100);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "");
-            }
-            finally
-            {
-                IsSiparisTransfer = false;
             }
         }
 
@@ -810,17 +748,8 @@ namespace NetTransfer.Integration
 
         }
 
-        private bool IsSevkiyatTransfer = false;
         public async Task SevkiyatTransfer()
         {
-            if (IsSevkiyatTransfer)
-            {
-                _logger.LogInformation("Sevkiyat transferi zaten çalışıyor.");
-                return;
-            }
-
-            IsSevkiyatTransfer = true;
-            _logger.LogInformation("Sevkiyat Transferi Başladı");
             string errorMessage = string.Empty;
             try
             {
@@ -883,10 +812,6 @@ namespace NetTransfer.Integration
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Sevkiyat Transferi sırasında hata oluştu.");
-            }
-            finally
-            {
-                IsSevkiyatTransfer = false;
             }
         }
 

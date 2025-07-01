@@ -15,10 +15,10 @@ namespace NetTransfer.Smartstore.Library.Models
         public string ShortDescription { get; set; }
         [JsonProperty("FullDescription")]
         public string FullDescription { get; set; }
-        [JsonProperty("StockQuantity")]
-        public int StockQuantity { get; set; }
-        [JsonProperty("Price")]
-        public double Price { get; set; }
+        //[JsonProperty("StockQuantity")]
+        //public int StockQuantity { get; set; }
+        //[JsonProperty("Price")]
+        //public double Price { get; set; }
         [JsonProperty("ShowOnHomePage")]
         public bool ShowOnHomePage { get; set; }
         [JsonProperty("Weight")]

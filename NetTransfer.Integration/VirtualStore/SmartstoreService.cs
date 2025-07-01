@@ -73,8 +73,8 @@ namespace NetTransfer.Integration.VirtualStore
                 updateProduct.Name = product.Name;
                 updateProduct.ShortDescription = product.ShortDescription;
                 updateProduct.FullDescription = product.FullDescription;
-                updateProduct.StockQuantity = product.StockQuantity;
-                updateProduct.Price = product.Price;
+                //updateProduct.StockQuantity = product.StockQuantity;
+                //updateProduct.Price = product.Price;
                 updateProduct.ShowOnHomePage = product.ShowOnHomePage;
                 updateProduct.Weight = product.Weight;
                 updateProduct.ManageInventoryMethodId = product.ManageInventoryMethodId;
