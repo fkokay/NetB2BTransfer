@@ -1254,7 +1254,7 @@ namespace NetTransfer.Smartstore.Library
                 }
             }
         }
-        public async Task<ResponseSmartList<SmartstoreOrder>?> GetOrders(int orderStatusId)
+        public async Task<ResponseSmartList<SmartstoreOrder>?> GetOrders(string orderStatusId)
         {
             using (var httpClient = new HttpClient())
             {

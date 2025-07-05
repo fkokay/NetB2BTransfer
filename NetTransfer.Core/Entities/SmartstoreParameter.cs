@@ -12,7 +12,7 @@ namespace NetTransfer.Core.Entities
     {
         public int ProductTransferMinute { get; set; } = 0;
         public string? ProductFilter { get; set; }
-        public DateTime? ProductLastTransfer { get; set; }
+        public bool ProductSync { get; set; } = true;
 
         public int ProductStockTransferMinute { get; set; } = 0;
         public string? ProductStockFilter { get; set; }
@@ -20,10 +20,10 @@ namespace NetTransfer.Core.Entities
 
         public int ProductPriceTransferMinute { get; set; } = 0;
         public string? ProductPriceFilter { get; set; }
-        public DateTime? ProductPriceLastTransfer { get; set; }
+        public bool ProductPriceSync{ get; set; } = true;
 
         public int OrderTransferMinute { get; set; } = 0;
-        public int OrderStatusId { get; set; } = 10;
+        public string OrderStatusId { get; set; } = "10,20";
         public int OrderShipmentMinute { get; set; } = 0;
         public DateTime? OrderShipmentLastTransfer { get; set; }
     }

@@ -710,7 +710,7 @@ namespace NetTransfer.Integration.VirtualStore
 
 
         }
-        public async Task<List<SmartstoreOrder>?> GetSmartstoreOrder(int orderStatusId = 10)
+        public async Task<List<SmartstoreOrder>?> GetSmartstoreOrder(string orderStatusId)
         {
             try
             {

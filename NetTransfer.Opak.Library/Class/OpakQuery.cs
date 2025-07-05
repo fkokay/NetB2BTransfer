@@ -69,16 +69,9 @@ namespace NetTransfer.Opak.Library.Class
             return query;
         }
 
-        public static string GetVaryantFiyatQuery(DateTime? guncellemeTarihi)
+        public static string GetVaryantFiyatQuery()
         {
-            if (guncellemeTarihi == null)
-            {
-                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE STOKTYPE='V'";
-            }
-            else
-            {
-                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE STOKTYPE='V' AND ENSONGUNCELLEME > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
-            }
+            return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE STOKTYPE='V'";
 
         }
 

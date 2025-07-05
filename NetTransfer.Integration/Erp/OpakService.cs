@@ -24,7 +24,7 @@ namespace NetTransfer.Integration.Erp
 
         public List<OpakMalzeme>? GetMalzemeList(ref string errorMessage)
         {
-            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeQuery(), ref errorMessage);
+            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeQuery(smartstoreParameter.ProductSync), ref errorMessage);
             if (malzemeList == null)
             {
                 return null;
@@ -57,7 +57,7 @@ namespace NetTransfer.Integration.Erp
 
         public List<OpakMalzeme>? GetPasifMalzemeList(ref string errorMessage)
         {
-            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetPasifMalzemeQuery(), ref errorMessage);
+            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetPasifMalzemeQuery(smartstoreParameter.ProductSync), ref errorMessage);
             if (malzemeList == null)
             {
                 return null;
@@ -97,14 +97,14 @@ namespace NetTransfer.Integration.Erp
         {
             List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
 
-            var data = DataReader.ReadData<OpakMalzemeFiyat>(connectionString, OpakQuery.GetMalzemeFiyatQuery(), ref errorMessage);
+            var data = DataReader.ReadData<OpakMalzemeFiyat>(connectionString, OpakQuery.GetMalzemeFiyatQuery(smartstoreParameter.ProductPriceSync), ref errorMessage);
             if (data == null)
             {
                 return new List<BaseMalzemeFiyatModel>();
             }
             else
             {
-                var varyantData = DataReader.ReadData<OpakMalzemeFiyat>(connectionString, OpakQuery.GetVaryantFiyatQuery(null), ref errorMessage);
+                var varyantData = DataReader.ReadData<OpakMalzemeFiyat>(connectionString, OpakQuery.GetVaryantFiyatQuery(), ref errorMessage);
 
                 foreach (var item in data)
                 {
@@ -524,6 +524,7 @@ namespace NetTransfer.Integration.Erp
         {
             var result = DataReader.ExecuteNonQuery(connectionString, OpakQuery.SetSyncStatus(stok_kodu, tip, durum), ref errorMessage);
             return result > 0;
+
         }
 
 

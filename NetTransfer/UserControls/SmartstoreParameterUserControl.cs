@@ -30,7 +30,7 @@ namespace NetTransfer.UserControls
             {
                 txtProductTransferMinute.Value = smartStoreParameter.ProductTransferMinute;
                 txtProductFilter.Text = smartStoreParameter.ProductFilter;
-                txtProductLastTransfer.Text = smartStoreParameter.ProductLastTransfer?.ToString("dd.MM.yyyy HH:mm:ss");
+                toggleSwitchProduct.IsOn = smartStoreParameter.ProductSync;
 
                 txtProductStockTransferMinute.Value = smartStoreParameter.ProductStockTransferMinute;
                 txtProductStockFilter.Text = smartStoreParameter.ProductStockFilter;
@@ -38,7 +38,7 @@ namespace NetTransfer.UserControls
 
                 txtProductPriceTransferMinute.Value = smartStoreParameter.ProductPriceTransferMinute;
                 txtProductPriceFilter.Text = smartStoreParameter.ProductPriceFilter;
-                txtProductPriceLastTransfer.Text = smartStoreParameter.ProductPriceLastTransfer?.ToString("dd.MM.yyyy HH:mm:ss");
+               toggleSwitchProductPrice.IsOn = smartStoreParameter.ProductPriceSync;
 
                 txtOrderTransferMinute.Value = smartStoreParameter.OrderTransferMinute;
                 txtOrderStatusId.Text = smartStoreParameter.OrderStatusId.ToString();
@@ -52,12 +52,14 @@ namespace NetTransfer.UserControls
             {
                 smartStoreParameter.ProductTransferMinute = (int)txtProductTransferMinute.Value;
                 smartStoreParameter.ProductFilter = txtProductFilter.Text;
+                smartStoreParameter.ProductSync = toggleSwitchProduct.IsOn;
                 smartStoreParameter.ProductStockTransferMinute = (int)txtProductStockTransferMinute.Value;
                 smartStoreParameter.ProductStockFilter = txtProductStockFilter.Text;
                 smartStoreParameter.ProductPriceTransferMinute = (int)txtProductPriceTransferMinute.Value;
                 smartStoreParameter.ProductPriceFilter = txtProductPriceFilter.Text;
+                smartStoreParameter.ProductPriceSync = toggleSwitchProductPrice.IsOn;
                 smartStoreParameter.OrderTransferMinute = (int)txtOrderTransferMinute.Value;
-                smartStoreParameter.OrderStatusId = Convert.ToInt32(txtOrderStatusId.Text);
+                smartStoreParameter.OrderStatusId = txtOrderStatusId.Text;
             }
             else
             {
@@ -65,12 +67,14 @@ namespace NetTransfer.UserControls
                 {
                     ProductTransferMinute = (int)txtProductTransferMinute.Value,
                     ProductFilter = txtProductFilter.Text,
+                    ProductSync = toggleSwitchProduct.IsOn,
                     ProductStockTransferMinute = (int)txtProductStockTransferMinute.Value,
                     ProductStockFilter = txtProductStockFilter.Text,
                     ProductPriceTransferMinute = (int)txtProductPriceTransferMinute.Value,
                     ProductPriceFilter = txtProductPriceFilter.Text,
+                    ProductPriceSync = toggleSwitchProductPrice.IsOn,
                     OrderTransferMinute = (int)txtOrderTransferMinute.Value,
-                    OrderStatusId = Convert.ToInt32(txtOrderStatusId.Text),
+                    OrderStatusId = txtOrderStatusId.Text,
                 };
                 _context.SmartstoreParameter.Add(smartStoreParameter);
             }

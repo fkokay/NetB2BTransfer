@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             groupControlCustomer = new DevExpress.XtraEditors.GroupControl();
-            txtProductLastTransfer = new DevExpress.XtraEditors.TextEdit();
+            toggleSwitchProduct = new DevExpress.XtraEditors.ToggleSwitch();
             txtProductTransferMinute = new DevExpress.XtraEditors.SpinEdit();
             labelControl11 = new DevExpress.XtraEditors.LabelControl();
             txtProductFilter = new DevExpress.XtraEditors.TextEdit();
@@ -43,7 +43,7 @@
             labelControl2 = new DevExpress.XtraEditors.LabelControl();
             labelControl3 = new DevExpress.XtraEditors.LabelControl();
             groupControl2 = new DevExpress.XtraEditors.GroupControl();
-            txtProductPriceLastTransfer = new DevExpress.XtraEditors.TextEdit();
+            toggleSwitchProductPrice = new DevExpress.XtraEditors.ToggleSwitch();
             txtProductPriceTransferMinute = new DevExpress.XtraEditors.SpinEdit();
             labelControl4 = new DevExpress.XtraEditors.LabelControl();
             txtProductPriceFilter = new DevExpress.XtraEditors.TextEdit();
@@ -56,7 +56,7 @@
             labelControl15 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)groupControlCustomer).BeginInit();
             groupControlCustomer.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)txtProductLastTransfer.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)toggleSwitchProduct.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductTransferMinute.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductFilter.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)groupControl1).BeginInit();
@@ -66,7 +66,7 @@
             ((System.ComponentModel.ISupportInitialize)txtProductStockFilter.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)groupControl2).BeginInit();
             groupControl2.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)txtProductPriceLastTransfer.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)toggleSwitchProductPrice.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductPriceTransferMinute.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductPriceFilter.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)groupControl4).BeginInit();
@@ -77,7 +77,7 @@
             // 
             // groupControlCustomer
             // 
-            groupControlCustomer.Controls.Add(txtProductLastTransfer);
+            groupControlCustomer.Controls.Add(toggleSwitchProduct);
             groupControlCustomer.Controls.Add(txtProductTransferMinute);
             groupControlCustomer.Controls.Add(labelControl11);
             groupControlCustomer.Controls.Add(txtProductFilter);
@@ -90,13 +90,14 @@
             groupControlCustomer.TabIndex = 2;
             groupControlCustomer.Text = "Malzeme Aktarım Ayarları";
             // 
-            // txtProductLastTransfer
+            // toggleSwitchProduct
             // 
-            txtProductLastTransfer.Location = new System.Drawing.Point(223, 103);
-            txtProductLastTransfer.Name = "txtProductLastTransfer";
-            txtProductLastTransfer.Properties.ReadOnly = true;
-            txtProductLastTransfer.Size = new System.Drawing.Size(455, 22);
-            txtProductLastTransfer.TabIndex = 9;
+            toggleSwitchProduct.Location = new System.Drawing.Point(223, 102);
+            toggleSwitchProduct.Name = "toggleSwitchProduct";
+            toggleSwitchProduct.Properties.OffText = "Hayır";
+            toggleSwitchProduct.Properties.OnText = "Evet";
+            toggleSwitchProduct.Size = new System.Drawing.Size(119, 24);
+            toggleSwitchProduct.TabIndex = 9;
             // 
             // txtProductTransferMinute
             // 
@@ -111,9 +112,9 @@
             // 
             labelControl11.Location = new System.Drawing.Point(16, 106);
             labelControl11.Name = "labelControl11";
-            labelControl11.Size = new System.Drawing.Size(107, 16);
+            labelControl11.Size = new System.Drawing.Size(27, 16);
             labelControl11.TabIndex = 6;
-            labelControl11.Text = "Son Aktarım Tarihi";
+            labelControl11.Text = "Sync";
             // 
             // txtProductFilter
             // 
@@ -203,7 +204,7 @@
             // 
             // groupControl2
             // 
-            groupControl2.Controls.Add(txtProductPriceLastTransfer);
+            groupControl2.Controls.Add(toggleSwitchProductPrice);
             groupControl2.Controls.Add(txtProductPriceTransferMinute);
             groupControl2.Controls.Add(labelControl4);
             groupControl2.Controls.Add(txtProductPriceFilter);
@@ -216,13 +217,14 @@
             groupControl2.TabIndex = 4;
             groupControl2.Text = "Malzeme Fiyat Aktarım Ayarları";
             // 
-            // txtProductPriceLastTransfer
+            // toggleSwitchProductPrice
             // 
-            txtProductPriceLastTransfer.Location = new System.Drawing.Point(223, 97);
-            txtProductPriceLastTransfer.Name = "txtProductPriceLastTransfer";
-            txtProductPriceLastTransfer.Properties.ReadOnly = true;
-            txtProductPriceLastTransfer.Size = new System.Drawing.Size(455, 22);
-            txtProductPriceLastTransfer.TabIndex = 15;
+            toggleSwitchProductPrice.Location = new System.Drawing.Point(223, 96);
+            toggleSwitchProductPrice.Name = "toggleSwitchProductPrice";
+            toggleSwitchProductPrice.Properties.OffText = "Hayır";
+            toggleSwitchProductPrice.Properties.OnText = "Evet";
+            toggleSwitchProductPrice.Size = new System.Drawing.Size(119, 24);
+            toggleSwitchProductPrice.TabIndex = 15;
             // 
             // txtProductPriceTransferMinute
             // 
@@ -237,9 +239,9 @@
             // 
             labelControl4.Location = new System.Drawing.Point(16, 100);
             labelControl4.Name = "labelControl4";
-            labelControl4.Size = new System.Drawing.Size(107, 16);
+            labelControl4.Size = new System.Drawing.Size(27, 16);
             labelControl4.TabIndex = 13;
-            labelControl4.Text = "Son Aktarım Tarihi";
+            labelControl4.Text = "Sync";
             // 
             // txtProductPriceFilter
             // 
@@ -324,7 +326,7 @@
             ((System.ComponentModel.ISupportInitialize)groupControlCustomer).EndInit();
             groupControlCustomer.ResumeLayout(false);
             groupControlCustomer.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)txtProductLastTransfer.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)toggleSwitchProduct.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductTransferMinute.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductFilter.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)groupControl1).EndInit();
@@ -336,7 +338,7 @@
             ((System.ComponentModel.ISupportInitialize)groupControl2).EndInit();
             groupControl2.ResumeLayout(false);
             groupControl2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)txtProductPriceLastTransfer.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)toggleSwitchProductPrice.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductPriceTransferMinute.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductPriceFilter.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)groupControl4).EndInit();
@@ -350,7 +352,6 @@
         #endregion
 
         private DevExpress.XtraEditors.GroupControl groupControlCustomer;
-        private DevExpress.XtraEditors.TextEdit txtProductLastTransfer;
         private DevExpress.XtraEditors.SpinEdit txtProductTransferMinute;
         private DevExpress.XtraEditors.LabelControl labelControl11;
         private DevExpress.XtraEditors.TextEdit txtProductFilter;
@@ -364,7 +365,6 @@
         private DevExpress.XtraEditors.TextEdit txtProductStockFilter;
         private DevExpress.XtraEditors.LabelControl labelControl2;
         private DevExpress.XtraEditors.LabelControl labelControl3;
-        private DevExpress.XtraEditors.TextEdit txtProductPriceLastTransfer;
         private DevExpress.XtraEditors.SpinEdit txtProductPriceTransferMinute;
         private DevExpress.XtraEditors.LabelControl labelControl4;
         private DevExpress.XtraEditors.TextEdit txtProductPriceFilter;
@@ -375,5 +375,7 @@
         private DevExpress.XtraEditors.LabelControl labelControl7;
         private DevExpress.XtraEditors.SpinEdit txtOrderTransferMinute;
         private DevExpress.XtraEditors.LabelControl labelControl15;
+        private DevExpress.XtraEditors.ToggleSwitch toggleSwitchProduct;
+        private DevExpress.XtraEditors.ToggleSwitch toggleSwitchProductPrice;
     }
 }

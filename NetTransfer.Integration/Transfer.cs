@@ -244,13 +244,20 @@ namespace NetTransfer.Integration
                         break;
                     case "Opak":
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
-                        if (opakService.IsSync(0, 0, ref errorMessage))
+                        if (_smartstoreParameter.ProductSync)
                         {
-                            malzemeList = opakService.GetMalzemeList(ref errorMessage);
+                            if (opakService.IsSync(0, 0, ref errorMessage))
+                            {
+                                malzemeList = opakService.GetMalzemeList(ref errorMessage);
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Aktarılacak malzeme bulunamadı.");
+                            }
                         }
                         else
                         {
-                            _logger.LogWarning("Aktarılacak malzeme bulunamadı.");
+                            malzemeList = opakService.GetMalzemeList(ref errorMessage);
                         }
 
                         if (!string.IsNullOrEmpty(errorMessage))
@@ -530,15 +537,25 @@ namespace NetTransfer.Integration
                         break;
                     case "Opak":
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
-                        if (opakService.IsSync(1, 0, ref errorMessage))
+                        if (_smartstoreParameter.ProductPriceSync)
                         {
-                            malzemeFiyatList = opakService.GetMalzemeFiyatList(ref errorMessage);
+                            if (opakService.IsSync(1, 0, ref errorMessage))
+                            {
+                                malzemeFiyatList = opakService.GetMalzemeFiyatList(ref errorMessage);
+                            }
+                            else
+                            {
+                                _logger.LogWarning("Aktarılacak malzeme fiyatı bulunamadı.");
+                                return;
+                            }
                         }
                         else
                         {
-                            _logger.LogWarning("Aktarılacak malzeme fiyatı bulunamadı.");
-                            return;
+                            malzemeFiyatList = opakService.GetMalzemeFiyatList(ref errorMessage);
                         }
+
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
 
                         break;
                     default:
@@ -919,75 +936,6 @@ namespace NetTransfer.Integration
             catch (Exception ex)
             {
                 _logger.LogError(ex, "UpdateCustomerLastTransfer Error");
-            }
-        }
-
-        private async Task UpdateProductLastTransfer(DateTime transferDatetime)
-        {
-            try
-            {
-                NetTransferContext _db = new NetTransferContext(_connectionString);
-                switch (_virtualStoreSetting.VirtualStore)
-                {
-                    case "B2B":
-                        var b2BParameter = _db.B2BParameter.First();
-                        b2BParameter.ProductLastTransfer = transferDatetime;
-                        _db.B2BParameter.Update(b2BParameter);
-                        await _db.SaveChangesAsync();
-
-                        _b2bParameter.ProductLastTransfer = b2BParameter.ProductLastTransfer;
-                        break;
-                    case "Smartstore":
-                        var smartstoreParameter = _db.SmartstoreParameter.First();
-                        smartstoreParameter.ProductLastTransfer = transferDatetime;
-                        _db.SmartstoreParameter.Update(smartstoreParameter);
-                        await _db.SaveChangesAsync();
-
-                        _smartstoreParameter.ProductLastTransfer = smartstoreParameter.ProductLastTransfer;
-
-                        break;
-                }
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "UpdateProductLastTransfer Error");
-            }
-        }
-
-        private async Task UpdateProductPriceLastTransfer(DateTime transferDatetime)
-        {
-            try
-            {
-                NetTransferContext _db = new NetTransferContext(_connectionString);
-                switch (_virtualStoreSetting.VirtualStore)
-                {
-                    case "B2B":
-                        var b2BParameter = _db.B2BParameter.First();
-                        b2BParameter.ProductPriceLastTransfer = transferDatetime;
-                        _db.B2BParameter.Update(b2BParameter);
-                        await _db.SaveChangesAsync();
-
-                        _b2bParameter.ProductPriceLastTransfer = b2BParameter.ProductPriceLastTransfer;
-                        break;
-                    case "Smartstore":
-                        var smartstoreParameter = _db.SmartstoreParameter.First();
-                        smartstoreParameter.ProductPriceLastTransfer = transferDatetime;
-                        _db.SmartstoreParameter.Update(smartstoreParameter);
-                        await _db.SaveChangesAsync();
-
-                        _smartstoreParameter.ProductPriceLastTransfer = smartstoreParameter.ProductPriceLastTransfer;
-
-                        break;
-                    default:
-                        break;
-
-                }
-
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "UpdateProductPriceLastTransfer Error");
             }
         }
 
