@@ -39,5 +39,31 @@ namespace NetTransfer.Core.Data
             }
         }
 
+        public static int GetExecuteScalarToInt(string connectionString, string query, ref string errorMessage)
+        {
+            using (var connect = new SqlConnection(connectionString))
+            {
+                using (var cmd = new SqlCommand(query, connect) { CommandTimeout = 9999999 })
+                {
+                    connect.Open();
+                    object value = cmd.ExecuteScalar();
+                    return int.TryParse(value?.ToString(), out int result) ? result : 0;
+                }
+            }
+        }
+
+        public static int ExecuteNonQuery(string connectionString, string query, ref string errorMessage)
+        {
+            using (var connect = new SqlConnection(connectionString))
+            {
+                using (var cmd = new SqlCommand(query, connect) { CommandTimeout = 9999999 })
+                {
+                    connect.Open();
+                    object value = cmd.ExecuteNonQuery();
+                    return int.TryParse(value?.ToString(), out int result) ? result : 0;
+                }
+            }
+        }
+
     }
 }

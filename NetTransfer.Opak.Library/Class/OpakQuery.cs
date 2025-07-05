@@ -8,28 +8,26 @@ namespace NetTransfer.Opak.Library.Class
 {
     public static class OpakQuery
     {
-        public static string GetMalzemeQuery(string? filter, DateTime? guncellemeTarihi)
+        public static string GetMalzemeQuery(bool sync = true, string filter = "")
         {
-            if (guncellemeTarihi.HasValue)
+            string query = $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE 1=1";
+            if (sync)
             {
-                return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE ENSONGUNCELLEME > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}' {filter}";
+                query += " AND STOK_KODU IN (SELECT STOK_KODU FROM [TBL_B2C_STOKSYNC] WHERE DURUM=0 AND TIP=0)";
+
             }
-            else
-            {
-                return $"SELECT * FROM VOW_STOKLAR_ozgurtek WHERE 1=1 {filter}";
-            }
+            return query + filter;
         }
-        public static string GetPasifMalzemeQuery(DateTime? guncellemeTarihi)
+
+        public static string GetPasifMalzemeQuery(bool sync = true)
         {
-            if (guncellemeTarihi.HasValue)
+            string query = $"SELECT * FROM VOW_PASIF_STOKLAR_ozgurtek WHERE 1=1";
+            if (sync)
             {
-                return $"SELECT * FROM VOW_PASIF_STOKLAR_ozgurtek WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
+                query += " AND STOK_KODU IN (SELECT STOK_KODU FROM [TBL_B2C_STOKSYNC] WHERE DURUM=0 AND TIP=0)";
             }
-            else
-            {
-                return $"SELECT TOP 1 * FROM VOW_PASIF_STOKLAR_ozgurtek";
-            }
-     
+
+            return query;
         }
 
         public static string GetMalzemeStokQuery(DateTime? guncellemeTarihi)
@@ -60,19 +58,17 @@ namespace NetTransfer.Opak.Library.Class
             return @$"SELECT * FROM VOW_STOKDETAYNATIVE_ozgurtek WHERE STOKKOD='{stok_kodu}' ORDER BY SIRA";
         }
 
-
-        public static string GetMalzemeFiyatQuery(DateTime? guncellemeTarihi)
+        public static string GetMalzemeFiyatQuery(bool sync = true)
         {
-            if (guncellemeTarihi == null)
+            string query = $"SELECT * FROM VOW_STOKFIYATENTEGRASYON_ozgurtek WHERE 1=1";
+            if (sync)
             {
-                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek]";
+                query += " AND STOKKOD IN (SELECT STOK_KODU FROM [TBL_B2C_STOKSYNC] WHERE DURUM=0 AND TIP=1)";
             }
-            else
-            {
-                return $"SELECT * FROM [VOW_STOKFIYATENTEGRASYON_ozgurtek] WHERE ENSONGUNCELLEME > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
-            }
-
+            
+            return query;
         }
+
         public static string GetVaryantFiyatQuery(DateTime? guncellemeTarihi)
         {
             if (guncellemeTarihi == null)
@@ -97,6 +93,20 @@ namespace NetTransfer.Opak.Library.Class
                 return $"SELECT * FROM VOW_SIPARISKARGOFIRMAVEBARKOD_ozgurtek";
             }
 
+        }
+
+        public static string GetSyncQuery(int tip, int durum = 0)
+        {
+            return $"SELECT * FROM [TBL_B2C_STOKSYNC] WHERE DURUM = {durum} AND TIP={tip}";
+        }
+        public static string GetSyncCountQuery(int tip, int durum = 0)
+        {
+            return $"SELECT ISNULL(COUNT(ID),0) FROM [TBL_B2C_STOKSYNC] WHERE DURUM = {durum} AND TIP={tip}";
+        }
+
+        public static string SetSyncStatus(string stok_kodu, int tip, int durum)
+        {
+            return $"UPDATE [TBL_B2C_STOKSYNC] SET DURUM={durum},DURUM_TARIHI=GETDATE() WHERE STOK_KODU='{stok_kodu}' AND TIP={tip}";
         }
     }
 }

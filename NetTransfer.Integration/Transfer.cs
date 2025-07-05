@@ -224,8 +224,6 @@ namespace NetTransfer.Integration
             string errorMessage = string.Empty;
             try
             {
-                DateTime startDatetime = DateTime.Now;
-
                 object? malzemeList = null;
 
                 switch (_erpSetting.Erp)
@@ -245,15 +243,15 @@ namespace NetTransfer.Integration
                             _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Opak":
-                        _logger.LogWarning("Opak ERP kullanılıyor. Malzemeler veritabanından çekiliyor.");
-                        if (_smartstoreParameter.ProductLastTransfer.HasValue)
-                        {
-                            _logger.LogWarning($"Malzeme Son Güncelleme Tarihi : {_smartstoreParameter.ProductLastTransfer.Value.ToString()}");
-                        }
-
-
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
-                        malzemeList = opakService.GetMalzemeList(ref errorMessage);
+                        if (opakService.IsSync(0, 0, ref errorMessage))
+                        {
+                            malzemeList = opakService.GetMalzemeList(ref errorMessage);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Aktarılacak malzeme bulunamadı.");
+                        }
 
                         if (!string.IsNullOrEmpty(errorMessage))
                             _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
@@ -306,64 +304,118 @@ namespace NetTransfer.Integration
                         }
                         break;
                     case "Smartstore":
-                        #region Tüm Ürünleri Aktar
+                        #region Pasif Ürünler
                         List<SmartstoreProduct>? smartStoreList = _smartstoreTransfer.MappingProduct(_erpSetting.Erp, malzemeList);
                         if (smartStoreList == null)
                         {
                             throw new Exception("Smartstore Product mapping error");
                         }
 
-                        if (smartStoreList.Count == 0)
+                        var passiveProductList = smartStoreList.Where(m => m.Published == false).Select(m => m.Sku).ToList();
+                        _logger.LogWarning("Aktarılacak pasif ürün sayısı : " + passiveProductList.Count);
+
+                        int pageCountPassive = PaginationBuilder.GetPageCount(passiveProductList, 50);
+                        for (int i = 1; i <= pageCountPassive; i++)
                         {
-                            if (_smartstoreParameter.ProductLastTransfer == null)
+                            var skus = PaginationBuilder.GetPage(passiveProductList, i, 50).ToList();
+                            var products = await _smartStoreClient.GetProducts(skus);
+                            if (products != null)
                             {
-                                _logger.LogWarning("Aktarılacak ürün bulunamadı. Lütfen ERP sisteminizde ürünlerinizi kontrol ediniz.");
+                                if (products.status)
+                                {
+                                    _logger.LogInformation($"Pasif ürünler sayısı: {products.value.Count}");
+                                    foreach (var item in products.value)
+                                    {
+                                        var result = await _smartStoreClient.UpdateProductPublished(item.Id);
+                                        if (result)
+                                        {
+                                            _logger.LogInformation($"Ürün güncellendi - UpdateProductPassive : {item.Id} - {item.Sku}");
+                                            if (_erpSetting.Erp == "Opak")
+                                            {
+                                                OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                                                opakService.UpdateSync(item.Sku, 0, 1, ref errorMessage);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            _logger.LogError($"Ürün güncellenmedi - UpdateProductPassive : {item.Id} - {item.Sku}");
+                                            if (_erpSetting.Erp == "Opak")
+                                            {
+                                                OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                                                opakService.UpdateSync(item.Sku, 0, 2, ref errorMessage);
+                                            }
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    _logger.LogError("Smartstore'dan ürünler alınamadı: " + products.error.message);
+                                }
+
                             }
                             else
                             {
-                                _logger.LogWarning("Aktarılacak ürün bulunamadı.");
+                                _logger.LogError("Smartstore'dan ürünler alınamadı.");
                             }
-
-                            return;
                         }
-                        else
+                        #endregion
+
+
+                        #region Aktif Ürünler
+                        var activeProductList = smartStoreList.Where(m => m.Published).ToList();
+                        _logger.LogWarning("Aktarılacak aktif ürün sayısı : " + activeProductList.Count);
+
+                        var activeProductSkuList = activeProductList.Where(m => m.Published).Select(m => m.Sku).ToList();
+
+                        int pageCountActive = PaginationBuilder.GetPageCount(activeProductSkuList, 50);
+                        for (int i = 1; i <= pageCountActive; i++)
                         {
-
-
-                            _logger.LogWarning("Pasif ürünler aktarılıyor");
-                            var list = smartStoreList.Where(m => m.Published == false).Select(m => m.Sku).ToList();
-                            _logger.LogWarning("Pasif ürün sayısı: " + list.Count);
-                            await _smartstoreTransfer.ProductUpdateWithNotPublished(list);
-                            _logger.LogWarning("Pasif ürünler aktarıldı.");
-
-                            var transferList = smartStoreList.Where(m => m.Published).ToList();
-                            _logger.LogWarning("Aktarılacak ürün sayısı: " + transferList.Count);
-
-                            var transferListSkus = transferList.Select(m => m.Sku).ToList();
-                            int transferListSkusPageCount = PaginationBuilder.GetPageCount(transferListSkus, 50);
-                            for (int i = 1; i <= transferListSkusPageCount; i++)
+                            var skus = PaginationBuilder.GetPage(activeProductSkuList, i, 50).ToList();
+                            var products = await _smartStoreClient.GetProducts(skus);
+                            if (products != null)
                             {
-                                var skus = PaginationBuilder.GetPage(transferListSkus, i, 50).ToList();
-                                var products = await _smartStoreClient.GetProducts(skus);
-                                if (products != null)
+                                foreach (var item in products.value)
                                 {
-                                    foreach (var item in products.value)
+                                    var data = activeProductList.Where(m => m.Sku == item.Sku).FirstOrDefault();
+                                    if (data == null)
                                     {
-                                        transferList.Where(m => m.Sku == item.Sku).FirstOrDefault()!.Id = item.Id;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        data.Id = item.Id;
                                     }
                                 }
                             }
+                        }
 
-                            foreach (var item in transferList)
+                        foreach (var item in activeProductList)
+                        {
+                            try
                             {
-                                try
+                                var product = await _smartstoreTransfer.CreateProduct(item);
+                                if (product == null)
                                 {
-                                    _ = await _smartstoreTransfer.CreateProduct(item);
+                                    _logger.LogError($"Ürün güncellenmedi - UpdateProductPublished : {item.Id} - {item.Sku}");
+                                    if (_erpSetting.Erp == "Opak")
+                                    {
+                                        OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                                        opakService.UpdateSync(item.Sku, 0, 2, ref errorMessage);
+                                    }
                                 }
-                                catch (Exception ex)
+                                else
                                 {
-                                    _logger.LogError(ex, $"Ürün güncellenemedi - Stok Kodu : {item.Sku} Ürün Adı : {item.Name}");
+                                    _logger.LogInformation($"Ürün güncellendi - UpdateProductPublished : {item.Id} - {item.Sku}");
+                                    if (_erpSetting.Erp == "Opak")
+                                    {
+                                        OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                                        opakService.UpdateSync(item.Sku, 0, 1, ref errorMessage);
+                                    }
                                 }
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogError(ex, $"Ürün güncellenemedi - Stok Kodu : {item.Sku} Ürün Adı : {item.Name}");
                             }
                         }
                         #endregion
@@ -372,8 +424,6 @@ namespace NetTransfer.Integration
                         _logger.LogError("Geçersiz sanal mağaza ayarı: {virtualStore}", _virtualStoreSetting.VirtualStore);
                         break;
                 }
-
-                await UpdateProductLastTransfer(startDatetime);
             }
             catch (Exception ex)
             {
@@ -467,9 +517,6 @@ namespace NetTransfer.Integration
             string errorMessage = string.Empty;
             try
             {
-
-                DateTime startDatetime = DateTime.Now;
-
                 List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
                 switch (_erpSetting.Erp)
                 {
@@ -482,12 +529,17 @@ namespace NetTransfer.Integration
                         malzemeFiyatList = service.GetMalzemeFiyatList(ref errorMessage);
                         break;
                     case "Opak":
-                        if (_smartstoreParameter.ProductPriceLastTransfer.HasValue)
-                        {
-                            _logger.LogWarning($"Malzeme Fiyat Son Güncelleme Tarihi : {_smartstoreParameter.ProductPriceLastTransfer.Value.ToString()}");
-                        }
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
-                        malzemeFiyatList = opakService.GetMalzemeFiyatList(ref errorMessage);
+                        if (opakService.IsSync(1, 0, ref errorMessage))
+                        {
+                            malzemeFiyatList = opakService.GetMalzemeFiyatList(ref errorMessage);
+                        }
+                        else
+                        {
+                            _logger.LogWarning("Aktarılacak malzeme fiyatı bulunamadı.");
+                            return;
+                        }
+
                         break;
                     default:
                         _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);
@@ -524,26 +576,58 @@ namespace NetTransfer.Integration
                         }
                         break;
                     case "Smartstore":
-                        if (malzemeFiyatList.Count == 0)
-                        {
-                            _logger.LogWarning("Aktarılacak malzeme fiyatı bulunamadı.");
-                            return;
-                        }
-
-
                         _logger.LogWarning("Malzeme fiyat liste miktarı : " + malzemeFiyatList.Count);
 
-                        await _smartstoreTransfer.UpdateProductPrice(malzemeFiyatList.Where(m => m.StokType == "S").ToList());
-                        await _smartstoreTransfer.UpdateProductVariantCombinationPrice(malzemeFiyatList.Where(m => m.StokType == "V").ToList());
+                        foreach (var item in malzemeFiyatList.Where(m => m.StokType == "S").ToList())
+                        {
+                            var priceResult = await _smartstoreTransfer.UpdateProductPrice(item);
+                            if (priceResult)
+                            {
+                                _logger.LogInformation($"Ürün fiyatı güncellendi - Stok Kodu: {item.StokKodu}, Fiyat: {item.Fiyat}");
+                                if (_erpSetting.Erp == "Opak")
+                                {
+                                    OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                                    opakService.UpdateSync(item.StokKodu, 1, 1, ref errorMessage);
+                                }
+                            }
+                            else
+                            {
+                                _logger.LogError($"Ürün fiyatı güncellenemedi - Stok Kodu: {item.StokKodu}, Fiyat: {item.Fiyat}");
+                                if (_erpSetting.Erp == "Opak")
+                                {
+                                    OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                                    opakService.UpdateSync(item.StokKodu, 1, 2, ref errorMessage);
+                                }
+                            }
+                        }
+
+                        foreach (var item in malzemeFiyatList.Where(m => m.StokType == "V").ToList())
+                        {
+                            var priceResult = await _smartstoreTransfer.UpdateProductVariantCombinationPrice(item);
+                            if (priceResult)
+                            {
+                                _logger.LogInformation($"Ürün fiyatı güncellendi - Stok Kodu: {item.StokKodu}, Fiyat: {item.Fiyat}");
+                                if (_erpSetting.Erp == "Opak")
+                                {
+                                    OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                                    opakService.UpdateSync(item.StokKodu, 1, 1, ref errorMessage);
+                                }
+                            }
+                            else
+                            {
+                                if (_erpSetting.Erp == "Opak")
+                                {
+                                    OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                                    opakService.UpdateSync(item.StokKodu, 1, 2, ref errorMessage);
+                                }
+                                _logger.LogError($"Ürün fiyatı güncellenemedi - Stok Kodu: {item.StokKodu}, Fiyat: {item.Fiyat}");
+                            }
+                        }
                         break;
                     default:
                         _logger.LogError("Geçersiz sanal mağaza ayarı: {store}", _virtualStoreSetting.VirtualStore);
                         break;
                 }
-
-                await UpdateProductPriceLastTransfer(startDatetime);
-
-                _logger.LogInformation("Malzeme Fiyat Transferi Bitti");
             }
             catch (Exception ex)
             {

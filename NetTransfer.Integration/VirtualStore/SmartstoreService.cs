@@ -497,66 +497,38 @@ namespace NetTransfer.Integration.VirtualStore
 
             return null;
         }
-        public async Task UpdateProductPrice(List<BaseMalzemeFiyatModel> malzemeFiyatList)
+        public async Task<bool> UpdateProductPrice(BaseMalzemeFiyatModel malzemeFiyat)
         {
-            foreach (var item in malzemeFiyatList)
+            var productResult = await _smartStoreClient.GetProductSelectId(malzemeFiyat.StokKodu);
+            if (productResult != null)
             {
-                var productResult = await _smartStoreClient.GetProduct(item.StokKodu);
-                if (productResult != null)
+                var product = productResult.value.FirstOrDefault();
+                if (product != null)
                 {
-                    if (productResult.value.Any())
-                    {
-                        var product = productResult.value.First();
+                    var priceResult = await _smartStoreClient.UpdateProductPrice(product.Id, malzemeFiyat.Fiyat);
 
-                        var priceResult = await _smartStoreClient.UpdateProductPrice(product.Id, item.Fiyat);
-                        if (priceResult)
-                        {
-                            _logger.LogInformation($"Ürün fiyatı güncellendi - Stok Kodu : {item.StokKodu} - Fiyat : {item.Fiyat}");
-                        }
-                        else
-                        {
-                            _logger.LogError($"Ürün fiyatı güncellenemedi - Stok Kodu : {item.StokKodu} - Fiyat : {item.Fiyat}");
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogError($"Ürün bulunamadı - Stok Kodu : {item.StokKodu}");
-                    }
+                    return priceResult;
                 }
             }
+
+            return false;
         }
 
-        public async Task UpdateProductVariantCombinationPrice(List<BaseMalzemeFiyatModel> malzemeFiyatList)
+        public async Task<bool> UpdateProductVariantCombinationPrice(BaseMalzemeFiyatModel malzemeFiyat)
         {
-            foreach (var item in malzemeFiyatList)
+            var productVariantResult = await _smartStoreClient.GetProductVariantAttributeCombinationSku(malzemeFiyat.StokKodu);
+            if (productVariantResult != null)
             {
-                var productResult = await _smartStoreClient.GetProductVariantAttributeCombinationSku(item.StokKodu);
-                if (productResult != null)
-                {
-                    if (productResult.value.Any())
-                    {
-                        var product = productResult.value.First();
+                var productVariant = productVariantResult.value.FirstOrDefault();
 
-                        var priceResult = await _smartStoreClient.UpdateProductVariantAttributeCombinationPrice(product.Id, item.Fiyat);
-                        if (priceResult)
-                        {
-                            _logger.LogInformation($"Ürün varyant fiyatı güncellendi - Stok Kodu : {item.StokKodu} - Fiyat : {item.Fiyat}");
-                        }
-                        else
-                        {
-                            _logger.LogError($"Ürün varyant fiyatı güncellenemedi - Stok Kodu : {item.StokKodu} - Fiyat : {item.Fiyat}");
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogError($"Ürün varyant bulunamadı - Stok Kodu : {item.StokKodu}");
-                    }
-                }
-                else
+                if (productVariant != null)
                 {
-                    _logger.LogError($"Ürün varyant bulunamadı - Stok Kodu : {item.StokKodu}");
+                    var priceResult = await _smartStoreClient.UpdateProductVariantAttributeCombinationPrice(productVariant.Id, malzemeFiyat.Fiyat);
+                    return priceResult;
                 }
             }
+
+            return false;
         }
         public async Task UpdateProductStock(List<BaseMalzemeStokModel> malzemeFiyatList)
         {

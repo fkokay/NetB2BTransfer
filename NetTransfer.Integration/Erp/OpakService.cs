@@ -24,7 +24,7 @@ namespace NetTransfer.Integration.Erp
 
         public List<OpakMalzeme>? GetMalzemeList(ref string errorMessage)
         {
-            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeQuery(smartstoreParameter.ProductFilter, smartstoreParameter.ProductLastTransfer), ref errorMessage);
+            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetMalzemeQuery(), ref errorMessage);
             if (malzemeList == null)
             {
                 return null;
@@ -44,7 +44,8 @@ namespace NetTransfer.Integration.Erp
                         }
                     }
                 }
-            };
+            }
+            ;
             var pasifMalzemeList = GetPasifMalzemeList(ref errorMessage);
             if (pasifMalzemeList != null)
             {
@@ -56,7 +57,7 @@ namespace NetTransfer.Integration.Erp
 
         public List<OpakMalzeme>? GetPasifMalzemeList(ref string errorMessage)
         {
-            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetPasifMalzemeQuery(smartstoreParameter.ProductLastTransfer), ref errorMessage);
+            var malzemeList = DataReader.ReadData<OpakMalzeme>(connectionString, OpakQuery.GetPasifMalzemeQuery(), ref errorMessage);
             if (malzemeList == null)
             {
                 return null;
@@ -96,7 +97,7 @@ namespace NetTransfer.Integration.Erp
         {
             List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
 
-            var data = DataReader.ReadData<OpakMalzemeFiyat>(connectionString, OpakQuery.GetMalzemeFiyatQuery(smartstoreParameter.ProductPriceLastTransfer), ref errorMessage);
+            var data = DataReader.ReadData<OpakMalzemeFiyat>(connectionString, OpakQuery.GetMalzemeFiyatQuery(), ref errorMessage);
             if (data == null)
             {
                 return new List<BaseMalzemeFiyatModel>();
@@ -104,7 +105,7 @@ namespace NetTransfer.Integration.Erp
             else
             {
                 var varyantData = DataReader.ReadData<OpakMalzemeFiyat>(connectionString, OpakQuery.GetVaryantFiyatQuery(null), ref errorMessage);
-                
+
                 foreach (var item in data)
                 {
                     double fiyat = 0;
@@ -124,7 +125,7 @@ namespace NetTransfer.Integration.Erp
                         fiyat = item.FIYAT;
 
 
-                        if (!malzemeFiyatList.Where(m=>m.StokKodu == item.ANASTOKKOD).Any())
+                        if (!malzemeFiyatList.Where(m => m.StokKodu == item.ANASTOKKOD).Any())
                         {
                             malzemeFiyatList.Add(new BaseMalzemeFiyatModel
                             {
@@ -149,6 +150,7 @@ namespace NetTransfer.Integration.Erp
 
             return malzemeFiyatList;
         }
+
         public List<OpakSevkiyat> GetSevkiyatList(ref string errorMessage)
         {
             List<OpakSevkiyat> sevkiyatList = new List<OpakSevkiyat>();
@@ -327,7 +329,14 @@ namespace NetTransfer.Integration.Erp
                             opakSiparis.VERGIDAIRESI = item.BillingAddress.TaxOffice.IsNullOrEmpty() ? "" : item.BillingAddress.TaxOffice;
                             opakSiparis.VERGINO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? item.BillingAddress.TaxNumber : "";
                             opakSiparis.TCNO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber;
-                            opakSiparis.KARGOBEDELI = item.OrderShippingInclTax;
+                            if (item.PaymentTransaction != null && item.PaymentTransaction.Installment > 1)
+                            {
+                                opakSiparis.KARGOBEDELI = item.OrderShippingExclTax + (item.OrderShippingExclTax / 100) * 7;
+                            }
+                            else
+                            {
+                                opakSiparis.KARGOBEDELI = item.OrderShippingExclTax;
+                            }
 
                             foreach (var orderItem in item.OrderItems)
                             {
@@ -504,5 +513,19 @@ namespace NetTransfer.Integration.Erp
 
             return opakOrderList;
         }
+
+        public bool IsSync(int tip, int durum, ref string errorMessage)
+        {
+            var value = DataReader.GetExecuteScalarToInt(connectionString, OpakQuery.GetSyncCountQuery(tip, durum), ref errorMessage);
+            return value > 0;
+        }
+
+        public bool UpdateSync(string stok_kodu, int tip, int durum, ref string errorMessage)
+        {
+            var result = DataReader.ExecuteNonQuery(connectionString, OpakQuery.SetSyncStatus(stok_kodu, tip, durum), ref errorMessage);
+            return result > 0;
+        }
+
+
     }
 }

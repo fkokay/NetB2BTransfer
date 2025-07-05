@@ -13,6 +13,7 @@ using System.Net;
 using System.Threading;
 using System.Net.Http.Json;
 using static Azure.Core.HttpHeader;
+using Microsoft.IdentityModel.Logging;
 namespace NetTransfer.Smartstore.Library
 {
     public class SmartStoreClient(VirtualStoreSetting _b2BSetting)
@@ -22,6 +23,28 @@ namespace NetTransfer.Smartstore.Library
             using (var httpClient = new HttpClient())
             {
                 using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/products?count=true&filter=Sku eq '{sku}'"))
+                {
+                    request.Headers.TryAddWithoutValidation("accept", "application/json");
+                    request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
+
+                    var response = await httpClient.SendAsync(request);
+
+                    var json = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<ResponseSmartList<SmartstoreProduct>>(json);
+                    if (result != null)
+                    {
+                        result.status = response.IsSuccessStatusCode;
+                    }
+
+                    return result;
+                }
+            }
+        }
+        public async Task<ResponseSmartList<SmartstoreProduct>?> GetProductSelectId(string sku)
+        {
+            using (var httpClient = new HttpClient())
+            {
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/products?count=false&top=1&select=Id&filter=Sku eq '{sku}'"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
@@ -103,7 +126,7 @@ namespace NetTransfer.Smartstore.Library
                     var jsonContent = new
                     {
                         Published = false,
-                        UpdatedOnUtc = DateTime.Now
+                        UpdatedOnUtc = DateTime.UtcNow
                     };
                     var json = JsonConvert.SerializeObject(jsonContent);
                     request.Content = new StringContent(json, Encoding.UTF8, "application/json");
@@ -159,23 +182,22 @@ namespace NetTransfer.Smartstore.Library
             {
                 using (var request = new HttpRequestMessage(new HttpMethod("PATCH"), $"{_b2BSetting.Url}/products({productId})"))
                 {
-                    // Gerekli başlıklar
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
 
-                    // JSON içeriği
                     var jsonContent = new
                     {
                         Price = price,
-                        UpdatedOnUtc = DateTime.Now
+                        UpdatedOnUtc = DateTime.UtcNow
                     };
+
                     var json = JsonConvert.SerializeObject(jsonContent);
                     request.Content = new StringContent(json, Encoding.UTF8, "application/json");
 
-                    // API'ye isteği gönder
                     var response = await httpClient.SendAsync(request);
                     if (response.IsSuccessStatusCode)
                     {
+                        //Logger Eklenecek
                         return true;
                     }
                     else
