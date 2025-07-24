@@ -70,7 +70,7 @@ namespace NetTransfer.Integration.Erp
         {
             List<BaseMalzemeStokModel> malzemeStokList = new List<BaseMalzemeStokModel>();
 
-            var data = DataReader.ReadData<OpakMalzemeStok>(connectionString, OpakQuery.GetMalzemeStokQuery(smartstoreParameter.ProductStockLastTransfer), ref errorMessage);
+            var data = DataReader.ReadData<OpakMalzemeStok>(connectionString, OpakQuery.GetMalzemeStokQuery(smartstoreParameter.ProductStockSync), ref errorMessage);
 
             if (data == null)
             {

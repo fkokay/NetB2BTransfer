@@ -463,11 +463,6 @@ namespace NetTransfer.Integration
                             _logger.LogError("Malzeme Stok Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Opak":
-                        if (_smartstoreParameter.ProductStockLastTransfer.HasValue)
-                        {
-                            _logger.LogWarning($"Malzeme Stok Son Güncelleme Tarihi : {_smartstoreParameter.ProductStockLastTransfer.Value.ToString()}");
-                        }
-
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
                         malzemeStokList = opakService.GetMalzemeStokList(ref errorMessage);
 
@@ -955,13 +950,6 @@ namespace NetTransfer.Integration
                         _b2bParameter.ProductStockLastTransfer = b2BParameter.ProductStockLastTransfer;
                         break;
                     case "Smartstore":
-                        var smartstoreParameter = _db.SmartstoreParameter.First();
-                        smartstoreParameter.ProductStockLastTransfer = transferDatetime;
-                        _db.SmartstoreParameter.Update(smartstoreParameter);
-                        await _db.SaveChangesAsync();
-
-                        _smartstoreParameter.ProductStockLastTransfer = smartstoreParameter.ProductStockLastTransfer;
-
                         break;
                     default:
                         break;

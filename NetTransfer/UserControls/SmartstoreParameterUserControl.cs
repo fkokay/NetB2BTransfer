@@ -34,11 +34,11 @@ namespace NetTransfer.UserControls
 
                 txtProductStockTransferMinute.Value = smartStoreParameter.ProductStockTransferMinute;
                 txtProductStockFilter.Text = smartStoreParameter.ProductStockFilter;
-                txtProductStockLastTransfer.Text = smartStoreParameter.ProductStockLastTransfer?.ToString("dd.MM.yyyy HH:mm:ss");
+                toggleSwitchProductStock.IsOn = smartStoreParameter.ProductStockSync;
 
                 txtProductPriceTransferMinute.Value = smartStoreParameter.ProductPriceTransferMinute;
                 txtProductPriceFilter.Text = smartStoreParameter.ProductPriceFilter;
-               toggleSwitchProductPrice.IsOn = smartStoreParameter.ProductPriceSync;
+                toggleSwitchProductPrice.IsOn = smartStoreParameter.ProductPriceSync;
 
                 txtOrderTransferMinute.Value = smartStoreParameter.OrderTransferMinute;
                 txtOrderStatusId.Text = smartStoreParameter.OrderStatusId.ToString();
@@ -55,6 +55,7 @@ namespace NetTransfer.UserControls
                 smartStoreParameter.ProductSync = toggleSwitchProduct.IsOn;
                 smartStoreParameter.ProductStockTransferMinute = (int)txtProductStockTransferMinute.Value;
                 smartStoreParameter.ProductStockFilter = txtProductStockFilter.Text;
+                smartStoreParameter.ProductStockSync = toggleSwitchProductStock.IsOn;
                 smartStoreParameter.ProductPriceTransferMinute = (int)txtProductPriceTransferMinute.Value;
                 smartStoreParameter.ProductPriceFilter = txtProductPriceFilter.Text;
                 smartStoreParameter.ProductPriceSync = toggleSwitchProductPrice.IsOn;
@@ -70,6 +71,7 @@ namespace NetTransfer.UserControls
                     ProductSync = toggleSwitchProduct.IsOn,
                     ProductStockTransferMinute = (int)txtProductStockTransferMinute.Value,
                     ProductStockFilter = txtProductStockFilter.Text,
+                    ProductStockSync = toggleSwitchProductStock.IsOn,
                     ProductPriceTransferMinute = (int)txtProductPriceTransferMinute.Value,
                     ProductPriceFilter = txtProductPriceFilter.Text,
                     ProductPriceSync = toggleSwitchProductPrice.IsOn,

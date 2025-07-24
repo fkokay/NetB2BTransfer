@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using NetTransfer.Core.Entities;
 using NetTransfer.Core.Utils;
 using NetTransfer.Integration.Models;
@@ -89,6 +90,8 @@ namespace NetTransfer.Integration.VirtualStore
                 if (product.Published)
                 {
                     result = await _smartStoreClient.ProductTransfer(product);
+
+                    _logger.LogError("ProductTransfer Is Null");
                 }
             }
 
@@ -1094,7 +1097,14 @@ namespace NetTransfer.Integration.VirtualStore
                 product.ProductTemplateId = 1;
                 product.ShowOnHomePage = item.ANASAYFA == "E";
                 product.HomePageDisplayOrder = 0;
-                product.MetaKeywords = item.KISAACIKLAMA;
+                if (!item.KISAACIKLAMA.IsNullOrEmpty())
+                {
+                    product.MetaKeywords = item.KISAACIKLAMA.Length > 400 ? item.KISAACIKLAMA.Substring(400) : item.KISAACIKLAMA;
+                }
+                else
+                {
+                    product.MetaKeywords = "";
+                }
                 product.MetaTitle = item.STOK_ADI;
                 product.MetaDescription = item.STOK_ADI;
                 product.AllowCustomerReviews = true;

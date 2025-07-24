@@ -16,7 +16,7 @@ namespace NetTransfer.Core.Entities
 
         public int ProductStockTransferMinute { get; set; } = 0;
         public string? ProductStockFilter { get; set; }
-        public DateTime? ProductStockLastTransfer { get; set; }
+        public bool ProductStockSync { get; set; } = true;
 
         public int ProductPriceTransferMinute { get; set; } = 0;
         public string? ProductPriceFilter { get; set; }

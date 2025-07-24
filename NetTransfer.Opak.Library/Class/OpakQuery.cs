@@ -30,16 +30,16 @@ namespace NetTransfer.Opak.Library.Class
             return query;
         }
 
-        public static string GetMalzemeStokQuery(DateTime? guncellemeTarihi)
+        public static string GetMalzemeStokQuery(bool sync = true)
         {
-            if (guncellemeTarihi == null)
+            string query = $"SELECT * FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek]";
+            if (sync)
             {
-                return $"SELECT * FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek]";
+                query += " AND STOKKOD IN (SELECT STOK_KODU FROM [TBL_B2C_STOKSYNC] WHERE DURUM=0 AND (TIP=0 OR TIP=1))";
+
             }
-            else
-            {
-                return $"SELECT * FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek] WHERE GUNCELLEMETARIH > '{guncellemeTarihi.Value:yyyy-MM-dd HH:mm:ss}'";
-            }
+
+            return query;
 
         }
 

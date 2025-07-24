@@ -307,7 +307,6 @@ namespace NetTransfer.UserControls
                     return;
                 }
 
-                _smartstoreParameter.ProductStockLastTransfer = null;
                 _smartstoreParameter.OrderShipmentLastTransfer = null;
                 _context.SmartstoreParameter.Update(_smartstoreParameter);
                 _context.SaveChanges();

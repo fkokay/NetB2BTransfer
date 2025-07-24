@@ -107,7 +107,16 @@ namespace NetTransfer.Smartstore.Library
                     }
                     else
                     {
-                        return null;
+                        var result = await response.Content.ReadAsStringAsync();
+                        if (result == null)
+                        {
+                            throw new Exception($"Error transferring product: {response.ReasonPhrase}");
+                        }
+                        else
+                        {
+                            throw new Exception(result);
+                        }
+                      
                     }
                 }
             }
@@ -1258,7 +1267,7 @@ namespace NetTransfer.Smartstore.Library
         {
             using (var httpClient = new HttpClient())
             {
-                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders?count=true&filter=orderStatusId eq 10 or orderStatusId eq 20"))
+                using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/orders?count=true&filter=(OrderStatusId eq 10 or OrderStatusId eq 20) and (PaymentStatusId eq 10 or PaymentStatusId eq 30)"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");
                     request.Headers.TryAddWithoutValidation("Authorization", $"Basic {Convert.ToBase64String(Encoding.UTF8.GetBytes($"{_b2BSetting.User}:{_b2BSetting.Password}"))}");
