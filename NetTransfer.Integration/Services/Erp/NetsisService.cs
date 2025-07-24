@@ -14,7 +14,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Integration.Erp
+namespace NetTransfer.Integration.Services.Erp
 {
     public class NetsisService(ErpSetting erpSetting)
     {
@@ -31,7 +31,7 @@ namespace NetTransfer.Integration.Erp
 
             foreach (var item in malzemeList)
             {
-                item.EVRAK_LIST = DataReader.ReadData<EvrakModel>(connectionString, NetsisQuery.GetEvrakQuery(item.STOK_KODU), ref errorMessage);
+                item.EvrakList = DataReader.ReadData<EvrakModel>(connectionString, NetsisQuery.GetEvrakQuery(item.urun_kodu), ref errorMessage);
             }
 
             return malzemeList;

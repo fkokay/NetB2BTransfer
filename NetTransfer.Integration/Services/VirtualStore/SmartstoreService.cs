@@ -22,7 +22,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Linq;
 
-namespace NetTransfer.Integration.VirtualStore
+namespace NetTransfer.Integration.Services.VirtualStore
 {
     public class SmartstoreService
     {
@@ -949,7 +949,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.ParentGroupedProductId = 0;
                 product.Visibility = "Full";
                 product.Condition = "New";
-                product.Name = NetsisUtils.CevirNetsis(item.STOK_ADI);
+                product.Name = NetsisUtils.CevirNetsis(item.baslik);
                 product.ShortDescription = "";
                 product.FullDescription = "";
                 product.AdminComment = "";
@@ -957,7 +957,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.ShowOnHomePage = false;
                 product.HomePageDisplayOrder = 0;
                 product.MetaKeywords = "";
-                product.MetaTitle = NetsisUtils.CevirNetsis(item.STOK_ADI);
+                product.MetaTitle = NetsisUtils.CevirNetsis(item.baslik);
                 product.MetaDescription = "";
                 product.AllowCustomerReviews = true;
                 product.ApprovedRatingSum = 0;
@@ -966,7 +966,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.NotApprovedTotalReviews = 0;
                 product.SubjectToAcl = false;
                 product.LimitedToStores = false;
-                product.Sku = NetsisUtils.CevirNetsis(item.STOK_KODU);
+                product.Sku = NetsisUtils.CevirNetsis(item.urun_kodu);
                 product.ManufacturerPartNumber = "";
                 product.Gtin = "";
                 product.IsGiftCard = false;
@@ -1012,7 +1012,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.DisableWishlistButton = false;
                 product.AvailableForPreOrder = false;
                 product.CallForPrice = false;
-                product.Price = item.SATIS_FIAT1;
+                product.Price = item.liste_fiyati;
                 product.ComparePrice = 0;
                 product.ComparePriceLabelId = null;
                 product.SpecialPrice = null;
@@ -1054,15 +1054,15 @@ namespace NetTransfer.Integration.VirtualStore
                 product.HasDiscountsApplied = false;
                 product.Id = 0;
                 product.GroupedProductConfiguration = null;
-                product.ManufacturerCode = item.KOD_5;
-                product.ManufacturerName = item.KOD_5_ISIM;
-                product.Category1 = item.KOD_3_ISIM;
-                product.Category2 = item.KOD_4_ISIM;
+                product.ManufacturerCode = item.marka_kod;
+                product.ManufacturerName = item.marka_adi;
+                product.Category1 = "";
+                product.Category2 = "";
 
-                if (item.EVRAK_LIST != null)
+                if (item.EvrakList != null)
                 {
                     product.Files = new List<SmartstoreFile>();
-                    foreach (var evrak in item.EVRAK_LIST)
+                    foreach (var evrak in item.EvrakList)
                     {
                         if (evrak.BILGI == null || evrak.BILGI.Length == 0)
                             continue;
@@ -1141,7 +1141,7 @@ namespace NetTransfer.Integration.VirtualStore
                 product.IsTaxExempt = false;
                 product.IsEsd = false;
                 product.TaxCategoryId = 1;
-                product.ManageInventoryMethodId = item.STOKMIKTAR == "E" ? (item.VARYANTLIURUN == "E" ? 2 : 1) : 0;
+                product.ManageInventoryMethodId = item.STOKMIKTAR == "E" ? item.VARYANTLIURUN == "E" ? 2 : 1 : 0;
                 product.StockQuantity = Convert.ToInt32(item.MIKTAR);
                 product.DisplayStockAvailability = false;
                 product.DisplayStockQuantity = false;
@@ -1537,7 +1537,7 @@ namespace NetTransfer.Integration.VirtualStore
         {
             if (hash != 0)
             {
-                _combinedHash64 = ((_combinedHash64 << 5) + _combinedHash64) ^ hash;
+                _combinedHash64 = (_combinedHash64 << 5) + _combinedHash64 ^ hash;
             }
         }
     }

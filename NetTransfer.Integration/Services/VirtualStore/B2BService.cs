@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Integration.VirtualStore
+namespace NetTransfer.Integration.Services.VirtualStore
 {
     public class B2BService(B2BClient _b2bClient)
     {
@@ -120,7 +120,7 @@ namespace NetTransfer.Integration.VirtualStore
                 urun.kdv_durumu = "kdv_haric";
                 urun.kdv_orani = item.VAT;
                 urun.liste_fiyati = item.PRICE;
-                urun.durum = item.ACTIVE == 0 ? (item.EXTACCESSFLAGS == 6 || item.EXTACCESSFLAGS == 7 ? 1 : 0) : 0;
+                urun.durum = item.ACTIVE == 0 ? item.EXTACCESSFLAGS == 6 || item.EXTACCESSFLAGS == 7 ? 1 : 0 : 0;
                 urun.yeni_urun = "0";
                 urun.yeni_urun_tarih = Convert.ToDateTime("2024-01-01");
                 urun.minimum_satin_alma_miktari = 1;

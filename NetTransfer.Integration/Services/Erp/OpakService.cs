@@ -16,7 +16,7 @@ using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Integration.Erp
+namespace NetTransfer.Integration.Services.Erp
 {
     public class OpakService(ErpSetting erpSetting, SmartstoreParameter smartstoreParameter)
     {
@@ -213,7 +213,7 @@ namespace NetTransfer.Integration.Erp
                         {
                             string cariKod = string.IsNullOrEmpty(item.OrderCustomer.CustomerNumber) ? "H01" : item.OrderCustomer.CustomerNumber;
                             string odemeTuru = "";
-                            if ((item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico"))
+                            if (item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico")
                             {
                                 if (item.PaymentTransaction == null)
                                 {
@@ -331,7 +331,7 @@ namespace NetTransfer.Integration.Erp
                             opakSiparis.TCNO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber;
                             if (item.PaymentTransaction != null && item.PaymentTransaction.Installment > 1)
                             {
-                                opakSiparis.KARGOBEDELI = item.OrderShippingExclTax + (item.OrderShippingExclTax / 100) * 7;
+                                opakSiparis.KARGOBEDELI = item.OrderShippingExclTax + item.OrderShippingExclTax / 100 * 7;
                             }
                             else
                             {
@@ -345,8 +345,8 @@ namespace NetTransfer.Integration.Erp
 
                                 if (item.PaymentTransaction != null)
                                 {
-                                    brutFiyat = item.PaymentTransaction.Installment > 1 ? orderItem.UnitPriceExclTax + (orderItem.UnitPriceExclTax / 100) * 7 : orderItem.UnitPriceExclTax;
-                                    netFiyat = item.PaymentTransaction.Installment > 1 ? orderItem.UnitPriceInclTax + (orderItem.UnitPriceInclTax / 100) * 7 : orderItem.UnitPriceInclTax;
+                                    brutFiyat = item.PaymentTransaction.Installment > 1 ? orderItem.UnitPriceExclTax + orderItem.UnitPriceExclTax / 100 * 7 : orderItem.UnitPriceExclTax;
+                                    netFiyat = item.PaymentTransaction.Installment > 1 ? orderItem.UnitPriceInclTax + orderItem.UnitPriceInclTax / 100 * 7 : orderItem.UnitPriceInclTax;
                                 }
 
                                 var siparisKalem = new OpakSiparisKalem();

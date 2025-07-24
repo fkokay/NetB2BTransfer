@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.Core.Data;
 using NetTransfer.Core.Entities;
@@ -14,37 +15,56 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Integration.Erp
+namespace NetTransfer.Integration.Services.Erp
 {
     public class LogoService(ErpSetting erpSetting, B2BParameter b2BParameter)
     {
         private readonly string connectionString = $"Data Source={erpSetting.SqlServer};Initial Catalog={erpSetting.SqlDatabase};Integrated Security=False;Persist Security Info=False;User ID={erpSetting.SqlUser};Password={erpSetting.SqlPassword};Trust Server Certificate=True;";
 
-        public List<LogoMusteriModel> GetArps(ref string errorMessage)
+        public ResultModel<List<LogoMusteriModel>> GetArps()
         {
-            LogoQueryParam param = new LogoQueryParam
+            ResultModel<List<LogoMusteriModel>> result = new ResultModel<List<LogoMusteriModel>>();
+            string errorMessage = string.Empty;
+            try
             {
-                DbName = erpSetting.SqlDatabase!,
-                firmnr = erpSetting.FirmNo!.ToString(),
-                periodnr = erpSetting.PeriodNo!.ToString(),
-                filter = b2BParameter.CustomerFilter!,
-                limit = "-1",
-                offset = "0",
-                orderbyfieldname = "CLCARD.CODE",
-                ascdesc = "ASC",
-            };
+                LogoQueryParam param = new LogoQueryParam
+                {
+                    DbName = erpSetting.SqlDatabase!,
+                    firmnr = erpSetting.FirmNo!.ToString(),
+                    periodnr = erpSetting.PeriodNo!.ToString(),
+                    filter = b2BParameter.CustomerFilter!,
+                    limit = "-1",
+                    offset = "0",
+                    orderbyfieldname = "CLCARD.CODE",
+                    ascdesc = "ASC",
+                };
 
-            if (b2BParameter.CustomerLastTransfer != null)
+                if (b2BParameter.CustomerLastTransfer != null)
+                {
+                    param.filter += " AND ((CLCARD.CAPIBLOCK_CREADEDDATE >= '" + b2BParameter.CustomerLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NULL) OR (CLCARD.CAPIBLOCK_MODIFIEDDATE >= '" + b2BParameter.CustomerLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NOT NULL)) ";
+                }
+
+                var arpList = DataReader.ReadData<LogoMusteriModel>(connectionString, LogoQuery.GetArpQuery(param), ref errorMessage);
+                if (errorMessage.IsNullOrEmpty())
+                {
+                    result.Success = true;
+                    result.Data = arpList;
+                }
+                else
+                {
+                    result.Success = false;
+                    result.Data = null;
+                    result.ErrorMessage = errorMessage;
+                }
+            }
+            catch (Exception ex)
             {
-                param.filter += " AND ((CLCARD.CAPIBLOCK_CREADEDDATE >= '" + b2BParameter.CustomerLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NULL) OR (CLCARD.CAPIBLOCK_MODIFIEDDATE >= '" + b2BParameter.CustomerLastTransfer.Value.ToString("yyyy-MM-dd HH:mm") + "' AND CLCARD.CAPIBLOCK_MODIFIEDDATE IS NOT NULL)) ";
+                result.Success = false;
+                result.Data = null;
+                result.ErrorMessage = ex.Message;
             }
 
-            var arpList = DataReader.ReadData<LogoMusteriModel>(connectionString, LogoQuery.GetArpQuery(param), ref errorMessage);
-
-            if (!string.IsNullOrEmpty(errorMessage))
-                throw new Exception(errorMessage);
-
-            return arpList;
+            return result;
         }
         public List<LogoMusteriModel> GetArpBalances(ref string errorMessage)
         {

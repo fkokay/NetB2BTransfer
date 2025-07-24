@@ -3,8 +3,6 @@ using NetTransfer.Core.Entities;
 using NetTransfer.Core.Utils;
 using NetTransfer.Smartstore.Library.Models;
 using NetTransfer.Smartstore.Library;
-using NetTransfer.Integration.VirtualStore;
-using NetTransfer.Integration.Erp;
 using NetTransfer.Integration.Models;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.B2B.Library;
@@ -12,6 +10,8 @@ using System.Data;
 using NetTransfer.Data;
 using NetTransfer.Opak.Library.Models;
 using Microsoft.EntityFrameworkCore;
+using NetTransfer.Integration.Services.Erp;
+using NetTransfer.Integration.Services.VirtualStore;
 
 namespace NetTransfer.Integration
 {
@@ -74,7 +74,7 @@ namespace NetTransfer.Integration
                 {
                     case "Logo":
                         LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
-                        musteriList = logoService.GetArps(ref errorMessage);
+                        musteriList = logoService.GetArps();
 
                         if (!string.IsNullOrEmpty(errorMessage))
                             throw new Exception(errorMessage);

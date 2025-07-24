@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 using NetTransfer.Core.Entities;
 using NetTransfer.Core.Utils;
 using NetTransfer.Data;
-using NetTransfer.Integration.VirtualStore;
+using NetTransfer.Integration.Services.VirtualStore;
 using NetTransfer.Smartstore.Library;
 using NetTransfer.Smartstore.Library.Models;
 using System;
