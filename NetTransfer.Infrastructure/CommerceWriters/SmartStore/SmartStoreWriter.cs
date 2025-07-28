@@ -1,0 +1,18 @@
+﻿using NetTransfer.Core.Interfaces;
+using NetTransfer.Core.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace NetTransfer.Infrastructure.CommerceWriters.SmartStore
+{
+    public class SmartStoreWriter : ICommerceProductWriter
+    {
+        public void UpsertProduct(ProductDto product)
+        {
+            throw new NotImplementedException();
+        }
+    }
+}

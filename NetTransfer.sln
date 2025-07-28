@@ -35,6 +35,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTransfer.Smartstore.Libr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTransfer.Integration", "NetTransfer.Integration\NetTransfer.Integration.csproj", "{BC0F6EBE-098F-4D8D-8946-797ED63DA034}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetTransfer.Infrastructure", "NetTransfer.Infrastructure\NetTransfer.Infrastructure.csproj", "{0D3DCCC4-5A2D-43A9-98EE-468D8F66966A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -81,6 +83,10 @@ Global
 		{BC0F6EBE-098F-4D8D-8946-797ED63DA034}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BC0F6EBE-098F-4D8D-8946-797ED63DA034}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BC0F6EBE-098F-4D8D-8946-797ED63DA034}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D3DCCC4-5A2D-43A9-98EE-468D8F66966A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D3DCCC4-5A2D-43A9-98EE-468D8F66966A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D3DCCC4-5A2D-43A9-98EE-468D8F66966A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D3DCCC4-5A2D-43A9-98EE-468D8F66966A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,6 +105,7 @@ Global
 		{0F587DCA-41AE-41EB-A3E5-58A4730BF784} = {1DB4C4B1-6E8E-479E-9780-DC9D51153EE4}
 		{B58F6C24-B302-41FB-9692-6AFC815967CD} = {0F587DCA-41AE-41EB-A3E5-58A4730BF784}
 		{BC0F6EBE-098F-4D8D-8946-797ED63DA034} = {1DB4C4B1-6E8E-479E-9780-DC9D51153EE4}
+		{0D3DCCC4-5A2D-43A9-98EE-468D8F66966A} = {1DB4C4B1-6E8E-479E-9780-DC9D51153EE4}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3530C184-4AA6-49D5-A7BE-47528F200E64}
