@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NetTransfer.Core.Data
 {
-    public class DataReader
+    public static class DataReader
     {
         public static List<T> ReadData<T>(string connectionString, string queryString, ref string errorMessage)
         {

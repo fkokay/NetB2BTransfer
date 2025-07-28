@@ -25,12 +25,12 @@ namespace NetTransfer.Netsis.Library.Models
         public string kdv_durumu { get; set; }
         public double kdv_orani { get; set; }
         public double liste_fiyati { get; set; }
-        public bool durum { get; set; }
-        public bool yeni_urun { get; set; }
+        public int durum { get; set; }
+        public string yeni_urun { get; set; }
         public DateTime yeni_urun_tarih { get; set; }
         public int minimum_satin_alma_miktari { get; set; }
         public int sepete_eklenme_miktari { get; set; }
-        public bool varyant_durumu { get; set; }
+        public string varyant_durumu { get; set; }
         public string asorti_durumu { get; set; }
         public string model_no { get; set; }
         public string varyant_1_kod { get; set; }

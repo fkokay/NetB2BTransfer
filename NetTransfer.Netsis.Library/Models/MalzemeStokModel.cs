@@ -8,7 +8,9 @@ namespace NetTransfer.Netsis.Library.Models
 {
     public class MalzemeStokModel
     {
-        public string STOK_KODU { get; set; }
-        public double STOK_MIKTARI { get; set; }
+        public string urun_kodu { get; set; }
+        public int depo_kodu { get; set; }
+        public string depo_baslik { get; set; }
+        public int miktar { get; set; }
     }
 }

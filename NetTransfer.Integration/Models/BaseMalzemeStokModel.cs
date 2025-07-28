@@ -10,6 +10,7 @@ namespace NetTransfer.Integration.Models
     {
         public string StokType { get; set; }
         public string StokKodu { get; set; }
+        public int DepoKodu { get; set; }
         public string DepoAdi { get; set; }
         public int StokMiktari { get; set; }
     }

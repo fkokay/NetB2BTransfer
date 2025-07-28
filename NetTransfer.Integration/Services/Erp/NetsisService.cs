@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using Microsoft.IdentityModel.Tokens;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.Core.Data;
 using NetTransfer.Core.Entities;
@@ -6,11 +7,14 @@ using NetTransfer.Core.Utils;
 using NetTransfer.Integration.Models;
 using NetTransfer.Netsis.Library.Class;
 using NetTransfer.Netsis.Library.Models;
+using NetTransfer.Opak.Library.Models;
 using NetTransfer.Smartstore.Library.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,6 +23,30 @@ namespace NetTransfer.Integration.Services.Erp
     public class NetsisService(ErpSetting erpSetting)
     {
         private readonly string connectionString = $"Data Source={erpSetting.SqlServer};Initial Catalog={erpSetting.SqlDatabase};Integrated Security=False;Persist Security Info=False;User ID={erpSetting.SqlUser};Password={erpSetting.SqlPassword};Trust Server Certificate=True;";
+
+        public List<CariModel>? GetCariList(ref string errorMessage)
+        {
+
+            var cariList = DataReader.ReadData<CariModel>(connectionString, NetsisQuery.GetCariQuery(), ref errorMessage);
+            if (cariList == null)
+            {
+                return null;
+            }
+
+            return cariList;
+        }
+
+        public List<CariBakiyeModel>? GetCariBakiyeList(ref string errorMessage)
+        {
+
+            var cariBakiyeList = DataReader.ReadData<CariBakiyeModel>(connectionString, NetsisQuery.GetCariBakiyeQuery(), ref errorMessage);
+            if (cariBakiyeList == null)
+            {
+                return null;
+            }
+
+            return cariBakiyeList;
+        }
 
         public List<MalzemeModel>? GetMalzemeList(ref string errorMessage)
         {
@@ -37,36 +65,22 @@ namespace NetTransfer.Integration.Services.Erp
             return malzemeList;
         }
 
-        public List<BaseMalzemeFiyatModel> GetMalzemeFiyatList(ref string errorMessage)
+        public List<MalzemeFiyatModel> GetMalzemeFiyatList(ref string errorMessage)
         {
-            List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
-
-            var data = DataReader.ReadData<MalzemeFiyatModel>(connectionString,NetsisQuery.GetMalzemeFiyatQuery(), ref errorMessage);
-            if (data == null)
+            var data = DataReader.ReadData<MalzemeFiyatModel>(connectionString, NetsisQuery.GetMalzemeFiyatQuery(), ref errorMessage);
+            if (!string.IsNullOrEmpty(errorMessage))
             {
-                return new List<BaseMalzemeFiyatModel>();
-            }
-            else
-            {
-                foreach (var item in data)
-                {
-                    malzemeFiyatList.Add(new BaseMalzemeFiyatModel
-                    {
-                        StokKodu = item.STOK_KODU,
-                        Fiyat = item.LISTE_FIYATI,
-                        IndirimliFiyat = item.INDIRIMLI_FIYATI
-                    });
-                }
+                throw new Exception(errorMessage);
             }
 
-            return malzemeFiyatList;
+            return data;
         }
 
         public List<BaseMalzemeStokModel> GetMalzemeStokList(ref string errorMessage)
         {
             List<BaseMalzemeStokModel> malzemeStokList = new List<BaseMalzemeStokModel>();
 
-            var data = DataReader.ReadData<MalzemeStokModel>(connectionString,NetsisQuery.GetMalzemeStokQuery(), ref errorMessage);
+            var data = DataReader.ReadData<MalzemeStokModel>(connectionString, NetsisQuery.GetMalzemeStokQuery(), ref errorMessage);
 
             if (data == null)
             {
@@ -78,8 +92,11 @@ namespace NetTransfer.Integration.Services.Erp
                 {
                     malzemeStokList.Add(new BaseMalzemeStokModel
                     {
-                        StokKodu = item.STOK_KODU,
-                        StokMiktari = Convert.ToInt32(item.STOK_MIKTARI),
+                        DepoKodu = item.depo_kodu,
+                        DepoAdi = item.depo_baslik,
+                        StokKodu = item.urun_kodu,
+                        StokMiktari = item.miktar,
+                        StokType = ""
                     });
                 }
             }
@@ -87,5 +104,35 @@ namespace NetTransfer.Integration.Services.Erp
             return malzemeStokList;
         }
 
+        public void SiparisKaydet(B2BSiparis siparis)
+        {
+            string errorMessage = "";
+
+            using (SqlConnection conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+                SqlTransaction trans = conn.BeginTransaction();
+                try
+                {
+                    if (DataReader.GetExecuteScalarToInt(connectionString, $"SELECT COUNT(*) FROM TBLFATUEK  WITH (READPAST) WHERE  FKOD='6'  AND  ACIK16='{siparis.siparis_id}'", ref errorMessage) == 0)
+                    {
+
+                        trans.Commit();
+                    }
+                    else
+                    {
+                        trans.Rollback();
+                    }
+                }
+                catch (Exception)
+                {
+                    trans.Rollback();
+                }
+                finally
+                {
+                    conn.Close();
+                }
+            }
+        }
     }
 }

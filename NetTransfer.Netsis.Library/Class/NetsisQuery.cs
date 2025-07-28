@@ -8,6 +8,14 @@ namespace NetTransfer.Netsis.Library.Class
 {
     public static class NetsisQuery
     {
+        public static string GetCariQuery()
+        {
+            return @"SELECT * FROM OZGUR_B2B_CARIKARTLARI";
+        }
+        public static string GetCariBakiyeQuery()
+        {
+            return @"SELECT * FROM OZGUR_B2B_CARIBAKIYELERI";
+        }
         public static string GetMalzemeQuery()
         {
             return @"SELECT * FROM OZGUR_B2B_STOKKARTLARI";
@@ -15,7 +23,7 @@ namespace NetTransfer.Netsis.Library.Class
 
         public static string GetMalzemeStokQuery()
         {
-            return @"SELECT STOK_KODU,(TOP_GIRIS_MIK-TOP_CIKIS_MIK) AS STOK_MIKTARI FROM TBLSTOKPH WHERE DEPO_KODU='0'";
+            return @"SELECT * FROM OZGUR_B2B_DEPOBAKIYELER";
         }
 
         public static string GetMalzemeFiyatQuery()

@@ -8,14 +8,29 @@ namespace NetTransfer.Netsis.Library.Models
 {
     public class CariModel
     {
-        public string CARI_KOD { get; set; } // CARİ KODU
-        public string CARI_ISIM { get; set; } // CARİ UNVANI
-        public string CARI_TIP { get; set; } = "S"; // CARİ TİP 
-        public string VERGI_DAIRESI { get; set; } // CARİ VERGİ DAİRESİ
-        public string VERGI_NUMARASI { get; set; } // CARİ VERGİ NO
-        public string TCKIMLIK_NO { get; set; } // CARİ TC KİMLİK NO
-        public string EMAIL { get; set; } // CARİ EMAIL
-        public string CARI_ADRES { get; set; } //CARİ ADRES
-        public string CARI_TEL { get; set; } // CARİ TELEFON NO  
+        public string musteri_ozellik { get; set; }
+        public string unvan { get; set; }
+        public string cari_kod { get; set; }
+        public string adi { get; set; }
+        public string soyadi { get; set; }
+        public string telefon { get; set; }
+        public string adres { get; set; }
+        public string il{ get; set; }
+        public string ilce { get; set; }
+        public string vergi_dairesi { get; set; }
+        public string vergi_no { get; set; }    
+        public string tc_no { get; set; }
+        public string plasiyer { get; set; }
+        public string depo_kodu { get; set; }
+        public string erp_kodu { get; set; }
+        public string odeme_sekilleri { get; set; }
+        public string musteri_kosul_kodu { get; set; }
+        public string grup_kodu { get; set; }
+        public string fiyat_listesi_kodu { get; set; }
+        public string email { get; set; }
+        public string kullanici_adi { get; set; }
+        public string sifre { get; set; }
+        public string email_durum_bildirimi { get; set; }
+        public int musteri_durumu { get; set; }
     }
 }

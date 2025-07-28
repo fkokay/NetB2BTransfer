@@ -12,6 +12,7 @@ using NetTransfer.Opak.Library.Models;
 using Microsoft.EntityFrameworkCore;
 using NetTransfer.Integration.Services.Erp;
 using NetTransfer.Integration.Services.VirtualStore;
+using NetTransfer.Netsis.Library.Models;
 
 namespace NetTransfer.Integration
 {
@@ -80,6 +81,8 @@ namespace NetTransfer.Integration
                             throw new Exception(errorMessage);
                         break;
                     case "Netsis":
+                        NetsisService netsisService = new NetsisService(_erpSetting);
+                        musteriList = netsisService.GetCariList(ref errorMessage);
                         break;
                     case "Opak":
                         break;
@@ -169,6 +172,8 @@ namespace NetTransfer.Integration
                             throw new Exception(errorMessage);
                         break;
                     case "Netsis":
+                        NetsisService netsisService = new NetsisService(_erpSetting);
+                        musteriList = netsisService.GetCariBakiyeList(ref errorMessage);
                         break;
                     case "Opak":
                         break;
@@ -188,6 +193,8 @@ namespace NetTransfer.Integration
                             throw new Exception("Müşteri bakiye mapping error");
                         }
 
+                        _logger.LogInformation("Kayıt sayısı : " + b2bList.Count);
+
                         if (!_b2BClient.IsAccessToken())
                         {
                             var resultAccessToken = await _b2BClient.GetAccessTokenAsync();
@@ -200,10 +207,20 @@ namespace NetTransfer.Integration
                         var result = await _b2BClient.MusteriBakiyeTransferAsync(b2bList);
                         if (result != null)
                         {
+                            _logger.LogInformation($"Müşteri bakiye aktarım detay : {result.Detay}");
+
                             if (result.Code != 200)
                             {
                                 throw new Exception(result.Message);
                             }
+                            else
+                            {
+                                _logger.LogInformation("Aktarıldı");
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Geldi");
                         }
                         break;
                     default:
@@ -519,7 +536,7 @@ namespace NetTransfer.Integration
             string errorMessage = string.Empty;
             try
             {
-                List<BaseMalzemeFiyatModel> malzemeFiyatList = new List<BaseMalzemeFiyatModel>();
+                object malzemeFiyatList = null;
                 switch (_erpSetting.Erp)
                 {
                     case "Logo":
@@ -569,28 +586,52 @@ namespace NetTransfer.Integration
                             }
                         }
 
-                        _logger.LogWarning("Malzeme fiyat liste miktarı : " + malzemeFiyatList.Count);
-
-                        int count = PaginationBuilder.GetPageCount(malzemeFiyatList, 100);
-                        for (int i = 1; i <= count; i++)
+                        if (malzemeFiyatList is List<BaseMalzemeFiyatModel>)
                         {
-                            var list = PaginationBuilder.GetPage(malzemeFiyatList, i, 100).ToList();
-                            var result = await _b2BTransfer.UpdateProductPrice(list);
-                            if (result == null)
+                            var b2bBaseList = malzemeFiyatList as List<BaseMalzemeFiyatModel>;
+
+                            _logger.LogWarning("Malzeme fiyat liste miktarı : " + b2bBaseList.Count);
+
+                            int count = PaginationBuilder.GetPageCount(b2bBaseList, 100);
+                            for (int i = 1; i <= count; i++)
                             {
-                                _logger.LogError("Malzeme fiyat aktarımı sırasında bilinmeyen bir hata oluştu");
-                            }
-                            else
-                            {
-                                _logger.LogWarning(result.Message);
-                                _logger.LogWarning("Malzeme fiyat aktarım detay : " + result.Detay);
+                                var data = PaginationBuilder.GetPage(b2bBaseList, i, 100).ToList();
+                                var result = await _b2BTransfer.UpdateProductPrice(data);
+                                if (result == null)
+                                {
+                                    _logger.LogError("Malzeme fiyat aktarımı sırasında bilinmeyen bir hata oluştu");
+                                }
+                                else
+                                {
+                                    _logger.LogWarning(result.Message);
+                                    _logger.LogWarning("Malzeme fiyat aktarım detay : " + result.Detay);
+                                }
                             }
                         }
+                        else if (malzemeFiyatList is List<MalzemeFiyatModel>)
+                        {
+                            var b2bNetsisList = malzemeFiyatList as List<MalzemeFiyatModel>;
+
+                            _logger.LogWarning("Malzeme fiyat liste miktarı : " + b2bNetsisList.Count);
+
+                            int count = PaginationBuilder.GetPageCount(b2bNetsisList, 100);
+                            for (int i = 1; i <= count; i++)
+                            {
+                                var data = PaginationBuilder.GetPage(b2bNetsisList, i, 100).ToList();
+                                await _b2BTransfer.UpdateProductPrice(data);
+
+                            }
+                        }
+
+
                         break;
                     case "Smartstore":
-                        _logger.LogWarning("Malzeme fiyat liste miktarı : " + malzemeFiyatList.Count);
 
-                        foreach (var item in malzemeFiyatList.Where(m => m.StokType == "S").ToList())
+                        var list = malzemeFiyatList as List<BaseMalzemeFiyatModel>;
+
+                        _logger.LogWarning("Malzeme fiyat liste miktarı : " + list.Count);
+
+                        foreach (var item in list.Where(m => m.StokType == "S").ToList())
                         {
                             var priceResult = await _smartstoreTransfer.UpdateProductPrice(item);
                             if (priceResult)
@@ -613,7 +654,7 @@ namespace NetTransfer.Integration
                             }
                         }
 
-                        foreach (var item in malzemeFiyatList.Where(m => m.StokType == "V").ToList())
+                        foreach (var item in list.Where(m => m.StokType == "V").ToList())
                         {
                             var priceResult = await _smartstoreTransfer.UpdateProductVariantCombinationPrice(item);
                             if (priceResult)
@@ -657,6 +698,16 @@ namespace NetTransfer.Integration
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
+                        if (!_b2BClient.IsAccessToken())
+                        {
+                            var resultAccessToken = await _b2BClient.GetAccessTokenAsync();
+                            if (resultAccessToken != null)
+                            {
+                                _b2BClient.SetAccessToken(resultAccessToken.token);
+                            }
+                        }
+
+                        orderList = await _b2BClient.Siparisler(2);
                         break;
                     case "Smartstore":
                         orderList = await _smartstoreTransfer.GetSmartstoreOrder(orderStatusId: _smartstoreParameter.OrderStatusId);
@@ -674,6 +725,9 @@ namespace NetTransfer.Integration
                     case "Logo":
                         break;
                     case "Netsis":
+                        NetsisService netsisService = new NetsisService(_erpSetting);
+                 
+
                         break;
                     case "Opak":
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
