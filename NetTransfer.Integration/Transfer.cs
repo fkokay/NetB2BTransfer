@@ -26,6 +26,8 @@ namespace NetTransfer.Integration
         private readonly VirtualStoreSetting _virtualStoreSetting;
         private readonly SmartstoreService _smartstoreTransfer;
         private readonly B2BService _b2BTransfer;
+        private readonly NetsisSetting _netsisSetting;
+        private readonly ErpDovizTip _erpDovizTip;
 
         private NetTransferContext _context;
         private B2BParameter _b2bParameter;
@@ -43,6 +45,12 @@ namespace NetTransfer.Integration
             _b2bParameter = b2BParameter;
 
             InitializeContext();
+
+            if (erpSetting.Erp == "Netsis")
+            {
+                _netsisSetting = _context.NetsisSetting.FirstOrDefault();
+                _erpDovizTip = _context.ErpDovizTip.FirstOrDefault();
+            }
         }
 
         public Transfer(ILogger logger, string connectionString, ErpSetting erpSetting, VirtualStoreSetting virtualStoreSetting, SmartstoreParameter smartstoreParameter)
@@ -56,7 +64,14 @@ namespace NetTransfer.Integration
             _smartstoreParameter = smartstoreParameter;
 
             InitializeContext();
+
+            if (erpSetting.Erp == "Netsis")
+            {
+                _netsisSetting = _context.NetsisSetting.FirstOrDefault();
+                _erpDovizTip = _context.ErpDovizTip.FirstOrDefault();
+            }
         }
+
 
         private void InitializeContext()
         {
@@ -81,7 +96,7 @@ namespace NetTransfer.Integration
                             throw new Exception(errorMessage);
                         break;
                     case "Netsis":
-                        NetsisService netsisService = new NetsisService(_erpSetting);
+                        NetsisService netsisService = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
                         musteriList = netsisService.GetCariList(ref errorMessage);
                         break;
                     case "Opak":
@@ -172,7 +187,7 @@ namespace NetTransfer.Integration
                             throw new Exception(errorMessage);
                         break;
                     case "Netsis":
-                        NetsisService netsisService = new NetsisService(_erpSetting);
+                        NetsisService netsisService = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
                         musteriList = netsisService.GetCariBakiyeList(ref errorMessage);
                         break;
                     case "Opak":
@@ -253,7 +268,7 @@ namespace NetTransfer.Integration
                             _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Netsis":
-                        NetsisService netsisService = new NetsisService(_erpSetting);
+                        NetsisService netsisService = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
                         malzemeList = netsisService.GetMalzemeList(ref errorMessage);
 
                         if (!string.IsNullOrEmpty(errorMessage))
@@ -473,7 +488,7 @@ namespace NetTransfer.Integration
                             _logger.LogError("Malzeme Stok Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     case "Netsis":
-                        NetsisService service = new NetsisService(_erpSetting);
+                        NetsisService service = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
                         malzemeStokList = service.GetMalzemeStokList(ref errorMessage);
 
                         if (!string.IsNullOrEmpty(errorMessage))
@@ -544,7 +559,7 @@ namespace NetTransfer.Integration
                         malzemeFiyatList = logoService.GetMalzemeFiyatList(ref errorMessage);
                         break;
                     case "Netsis":
-                        NetsisService service = new NetsisService(_erpSetting);
+                        NetsisService service = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
                         malzemeFiyatList = service.GetMalzemeFiyatList(ref errorMessage);
                         break;
                     case "Opak":
@@ -707,7 +722,7 @@ namespace NetTransfer.Integration
                             }
                         }
 
-                        orderList = await _b2BClient.Siparisler(2);
+                        orderList = await _b2BClient.Siparisler(Convert.ToInt32(_netsisSetting.SiparisAktarimDurumKodu));
                         break;
                     case "Smartstore":
                         orderList = await _smartstoreTransfer.GetSmartstoreOrder(orderStatusId: _smartstoreParameter.OrderStatusId);
@@ -725,9 +740,39 @@ namespace NetTransfer.Integration
                     case "Logo":
                         break;
                     case "Netsis":
-                        NetsisService netsisService = new NetsisService(_erpSetting);
-                 
+                        NetsisService netsisService = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
 
+                        _logger.LogInformation("Aktarılacak sipariş sayısı :" + (orderList as B2BResponseList<B2BSiparis>).List.Count);
+                        foreach (var item in (orderList as B2BResponseList<B2BSiparis>).List)
+                        {
+                            var siparisDetayResult = await _b2BClient.SiparisDetay(item.siparis_id);
+
+                            var result = netsisService.SiparisKaydet(item, siparisDetayResult, ref errorMessage);
+                            if (string.IsNullOrEmpty(result))
+                            {
+                                _logger.LogError($"{errorMessage}. Sipariş No: {item.siparis_id}");
+                            }
+                            else
+                            {
+                                var siparisDurumGunceleResult = await _b2BClient.SiparisDurumGunncelle(item.siparis_id, result);
+                                if (siparisDurumGunceleResult == null)
+                                {
+                                    _logger.LogError("Sipariş durumu güncellenemedi. Sipariş ID: {siparisId}", item.siparis_id);
+                                }
+                                else
+                                {
+                                    if (siparisDurumGunceleResult.Code == 200)
+                                    {
+                                        _logger.LogWarning("Sipariş durumu güncellendi. Sipariş ID: {siparisId} Sipariş NO : {siparisNo}", item.siparis_id, result);
+                                    }
+                                    else
+                                    {
+                                        _logger.LogError(siparisDurumGunceleResult.Message);
+                                    }
+                                }
+                            }
+                            
+                        }
                         break;
                     case "Opak":
                         OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);

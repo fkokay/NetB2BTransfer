@@ -1,16 +1,17 @@
-﻿using Quartz.Impl;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using NetTransfer.Core.Entities;
+using NetTransfer.Data;
+using NetTransfer.Integration;
+using NetTransferService.Jobs;
 using Quartz;
+using Quartz.Impl;
+using Quartz.Spi;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NetTransferService.Jobs;
-using Quartz.Spi;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
-using NetTransfer.Core.Entities;
-using NetTransfer.Integration;
 
 namespace NetTransferService
 {
@@ -18,12 +19,14 @@ namespace NetTransferService
     {
         private readonly ISchedulerFactory _schedulerFactory;
         private readonly IJobFactory _jobFactory;
+        private readonly NetTransferContext _context;
         private readonly ILogger<Worker> _logger;
 
-        public WorkerJob(ISchedulerFactory schedulerFactory, IJobFactory jobFactory, ILogger<Worker> logger)
+        public WorkerJob(ISchedulerFactory schedulerFactory, IJobFactory jobFactory, NetTransferContext context, ILogger<Worker> logger)
         {
             _schedulerFactory = schedulerFactory;
             _jobFactory = jobFactory;
+            _context = context;
             _logger = logger;
         }
 

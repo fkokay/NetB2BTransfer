@@ -48,6 +48,24 @@ namespace NetTransfer.B2B.Library.Models
         public string odeme_no { get; set; }
         public string bg_renk_kodu { get; set; }
         public string yazi_renk_kodu { get; set; }
+        public string siparis_aciklama { get; set; }
+        public string aciklama_1 { get; set; }
+        public string aciklama_2 { get; set; }
+        public string aciklama_3 { get; set; }
+        public string aciklama_4 { get; set; }
+        public string aciklama_5 { get; set; }
+        public string aciklama_6 { get; set; }
+        public string aciklama_7 { get; set; }
+        public string aciklama_8 { get; set; }
+        public string aciklama_9 { get; set; }
+        public string aciklama_10 { get; set; }
+        public string aciklama_11 { get; set; }
+        public string aciklama_12 { get; set; }
+        public string aciklama_13 { get; set; }
+        public string aciklama_14 { get; set; }
+        public string aciklama_15 { get; set; }
+        public string aciklama_16 { get; set; }
+        public string plasiyer { get; set; }
     }
 
     public class B2BSSiparisToplam
@@ -82,11 +100,13 @@ namespace NetTransfer.B2B.Library.Models
         public double tutar { get; set; }
         public double net_tutar { get; set; }
         public double kdv_dahil_tutar { get; set; }
+        public double kur { get; set; }
         public string urun_adi { get; set; }
         public string resim { get; set; }
         public string siparis_kalem_bg_renk { get; set; }
         public string siparis_kalem_yazi_renk_kodu { get; set; }
         public double kalan_miktar { get; set; }
+        public string doviz_kodu { get; set; }
     }
 
     public class B2BSiparisDurum

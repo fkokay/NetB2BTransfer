@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NetTransfer.Netsis.Library.Class
 {
-    public class NetsisUtils
+    public static class NetsisUtils
     {
         public static string Cevir(string value)
         {
