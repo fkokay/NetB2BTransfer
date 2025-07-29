@@ -1,4 +1,5 @@
 ﻿using Microsoft.Data.SqlClient;
+using NetTransfer.Core.Interfaces;
 using NetTransfer.Core.Models;
 using NetTransfer.Infrastructure.ErpReaders.Base;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NetTransfer.Infrastructure.ErpReaders.Logo
 {
-    public class LogoProductReader : ErpProductReaderBase
+    public class LogoProductReader : IErpProductReader
     {
         private readonly string _connectionString;
 
@@ -18,26 +19,31 @@ namespace NetTransfer.Infrastructure.ErpReaders.Logo
             _connectionString = connectionString;
         }
 
-        public override async Task<List<ProductDto>> GetProductsAsync()
+        public async Task<List<ProductDto>> GetProductsAsync()
         {
-            var products = new List<ProductDto>();
-            using var conn = new SqlConnection(_connectionString);
-            await conn.OpenAsync();
+            var result = new List<ProductDto>();
 
-            var cmd = new SqlCommand("SELECT CODE, NAME, PRICE, STOCK FROM PRODUCTS", conn);
-            using var reader = await cmd.ExecuteReaderAsync();
-            while (reader.Read())
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+
+            string query = @"SELECT CODE, NAME, BARCODE, PRICE, STOCK FROM LG_001_ITEMS";
+
+            using var command = new SqlCommand(query, connection);
+            using var reader = await command.ExecuteReaderAsync();
+
+            while (await reader.ReadAsync())
             {
-                products.Add(new ProductDto
+                result.Add(new ProductDto
                 {
-                    Code = reader["CODE"].ToString(),
-                    Name = reader["NAME"].ToString(),
-                    Price = SafeDecimal(reader["PRICE"]),
-                    Stock = SafeInt(reader["STOCK"])
+                    Code = reader["CODE"] + "",
+                    Name = reader["NAME"] + "",
+                    Barcode = reader["BARCODE"] + "",
+                    Price = Convert.ToDecimal(reader["PRICE"]),
+                    Stock = Convert.ToInt32(reader["STOCK"])
                 });
             }
 
-            return products;
+            return result;
         }
     }
 }

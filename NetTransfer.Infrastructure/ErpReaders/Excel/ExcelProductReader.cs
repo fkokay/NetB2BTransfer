@@ -17,7 +17,7 @@ namespace NetTransfer.Infrastructure.ErpReaders.Excel
             _filePath = filePath;
         }
 
-        public List<ProductDto> GetProducts()
+        public Task<List<ProductDto>> GetProductsAsync()
         {
             var list = new List<ProductDto>();
 
@@ -36,7 +36,7 @@ namespace NetTransfer.Infrastructure.ErpReaders.Excel
                 });
             }
 
-            return list;
+            return Task.FromResult(list);
         }
     }
 }

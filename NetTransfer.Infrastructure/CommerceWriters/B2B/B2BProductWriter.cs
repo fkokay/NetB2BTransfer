@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 
 namespace NetTransfer.Infrastructure.CommerceWriters.B2B
 {
-    public class B2BWriter : ICommerceProductWriter
+    public class B2BProductWriter : ICommerceProductWriter
     {
-        public void UpsertProduct(ProductDto product)
+        public Task<bool> SendProductsAsync(List<ProductDto> products)
         {
             throw new NotImplementedException();
         }

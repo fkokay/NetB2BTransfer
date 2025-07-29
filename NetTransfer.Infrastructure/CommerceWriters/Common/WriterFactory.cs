@@ -23,8 +23,8 @@ namespace NetTransfer.Infrastructure.CommerceWriters.Common
         {
             return platform switch
             {
-                "SmartStore" => _serviceProvider.GetRequiredService<SmartStoreWriter>(),
-                "B2B" => _serviceProvider.GetRequiredService<B2BWriter>(),
+                "SmartStore" => _serviceProvider.GetRequiredService<SmartStoreProductWriter>(),
+                "B2B" => _serviceProvider.GetRequiredService<B2BProductWriter>(),
                 _ => throw new NotImplementedException($"Platform '{platform}' not supported.")
             };
         }
