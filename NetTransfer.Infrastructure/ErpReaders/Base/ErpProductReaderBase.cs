@@ -10,7 +10,7 @@ namespace NetTransfer.Infrastructure.ErpReaders.Base
 {
     public abstract class ErpProductReaderBase : IErpProductReader
     {
-        public abstract List<ProductDto> GetProducts();
+        public abstract Task<List<ProductDto>> GetProductsAsync();
 
         protected decimal SafeDecimal(object val)
         {

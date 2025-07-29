@@ -18,14 +18,14 @@ namespace NetTransfer.Infrastructure.ErpReaders.Logo
             _connectionString = connectionString;
         }
 
-        public override List<ProductDto> GetProducts()
+        public override async Task<List<ProductDto>> GetProductsAsync()
         {
             var products = new List<ProductDto>();
             using var conn = new SqlConnection(_connectionString);
-            conn.Open();
+            await conn.OpenAsync();
 
             var cmd = new SqlCommand("SELECT CODE, NAME, PRICE, STOCK FROM PRODUCTS", conn);
-            using var reader = cmd.ExecuteReader();
+            using var reader = await cmd.ExecuteReaderAsync();
             while (reader.Read())
             {
                 products.Add(new ProductDto

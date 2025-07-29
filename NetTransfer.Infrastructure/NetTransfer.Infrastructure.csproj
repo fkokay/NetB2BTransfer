@@ -11,8 +11,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="CommerceReaders\Base\" />
+    <Folder Include="CommerceReaders\Interfaces\" />
     <Folder Include="ErpReaders\Netsis\" />
     <Folder Include="ErpReaders\Opak\" />
+    <Folder Include="ErpWriters\" />
   </ItemGroup>
 
   <ItemGroup>

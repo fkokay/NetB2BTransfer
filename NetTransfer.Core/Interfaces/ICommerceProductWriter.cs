@@ -9,6 +9,6 @@ namespace NetTransfer.Core.Interfaces
 {
     public interface ICommerceProductWriter
     {
-        void UpsertProduct(ProductDto product);
+        Task<bool> SendProductsAsync(List<ProductDto> products);
     }
 }

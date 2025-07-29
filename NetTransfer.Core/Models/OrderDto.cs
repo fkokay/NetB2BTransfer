@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Core.Interfaces
+namespace NetTransfer.Core.Models
 {
-    public interface ISyncService
+    public class OrderDto
     {
-        Task SyncAsync();
     }
 }

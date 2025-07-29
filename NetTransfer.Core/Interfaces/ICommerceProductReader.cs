@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace NetTransfer.Core.Interfaces
 {
-    public interface IErpProductReader
+    public interface ICommerceProductReader
     {
         Task<List<ProductDto>> GetProductsAsync();
     }
