@@ -1,6 +1,6 @@
 ﻿using Microsoft.Data.SqlClient;
+using NetTransfer.Core.Dtos;
 using NetTransfer.Core.Interfaces;
-using NetTransfer.Core.Models;
 using NetTransfer.Infrastructure.ErpReaders.Base;
 using System;
 using System.Collections.Generic;

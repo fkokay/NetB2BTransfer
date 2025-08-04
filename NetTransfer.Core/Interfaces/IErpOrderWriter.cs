@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Core.Models
+namespace NetTransfer.Core.Interfaces
 {
-    public class OrderDto
+    internal class IErpOrderWriter
     {
     }
 }

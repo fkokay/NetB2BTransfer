@@ -1,5 +1,5 @@
-﻿using NetTransfer.Core.Interfaces;
-using NetTransfer.Core.Models;
+﻿using NetTransfer.Core.Dtos;
+using NetTransfer.Core.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;

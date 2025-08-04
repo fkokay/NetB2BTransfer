@@ -6,11 +6,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Infrastructure.CommerceReaders.Smartstore
+namespace NetTransfer.Infrastructure.ErpReaders.Opak
 {
-    internal class SmartStoreOrderReader : ICommerceOrderReader
+    public class OpakProductReader : IErpProductReader
     {
-        public Task<List<OrderDto>> GetNewOrdersAsync()
+        public OpakProductReader()
+        {
+        }
+
+        public Task<List<ProductDto>> GetProductsAsync()
         {
             throw new NotImplementedException();
         }

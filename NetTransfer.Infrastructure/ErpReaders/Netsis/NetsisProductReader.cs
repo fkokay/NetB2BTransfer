@@ -6,11 +6,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Infrastructure.CommerceReaders.Smartstore
+namespace NetTransfer.Infrastructure.ErpReaders.Netsis
 {
-    internal class SmartStoreOrderReader : ICommerceOrderReader
+    public class NetsisProductReader : IErpProductReader
     {
-        public Task<List<OrderDto>> GetNewOrdersAsync()
+        public Task<List<ProductDto>> GetProductsAsync()
         {
             throw new NotImplementedException();
         }

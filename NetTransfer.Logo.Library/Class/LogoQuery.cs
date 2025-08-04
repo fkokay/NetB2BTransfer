@@ -251,7 +251,6 @@ namespace NetTransfer.Logo.Library.Class
                     " LEFT OUTER JOIN " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "ITEMS") + " AS ITEMS WITH(NOLOCK) ON PRCLIST .CARDREF = ITEMS.LOGICALREF " +
                     " WHERE PRCLIST.PTYPE = 2 AND (PRCLIST.LOGICALREF IN (SELECT MAX(LOGICALREF) FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "PRCLIST") + " AS F GROUP BY CARDREF)) " + param.filter;
         }
-
         public static string GetOrderFicheNoQuery(LogoQueryParam param)
         {
             return "SELECT FICHENO FROM " + LogoUtils.TableNameWithFirmPlusPeriod(param.DbName, param.firmnr, param.periodnr, "ORFICHE") + " WHERE GENEXP4 = '" + param.datareference + "'";

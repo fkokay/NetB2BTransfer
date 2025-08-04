@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NetTransfer.Core.Models
+namespace NetTransfer.Core.Dtos
 {
     public class ProductDto
     {
