@@ -940,7 +940,86 @@ namespace NetTransfer.Integration
 
         public async Task SanalPosTransfer()
         {
+            string errorMessage = string.Empty;
+            try
+            {
+                object? paymentList = null;
 
+                switch (_virtualStoreSetting.VirtualStore)
+                {
+                    case "B2B":
+                        if (!_b2BClient.IsAccessToken())
+                        {
+                            var resultAccessToken = await _b2BClient.GetAccessTokenAsync();
+                            if (resultAccessToken != null)
+                            {
+                                _b2BClient.SetAccessToken(resultAccessToken.token);
+                            }
+                        }
+
+                        paymentList = await _b2BClient.Odemeler();
+                        break;
+                    case "Smartstore":
+                        break;
+                }
+
+                if (paymentList == null)
+                {
+                    _logger.LogError("Ödeme yüklenirken bir hata oluştu");
+                }
+
+
+                switch (_erpSetting.Erp)
+                {
+                    case "Logo":
+                        break;
+                    case "Netsis":
+                        NetsisService netsisService = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
+
+                        _logger.LogInformation("Aktarılacak ödeme sayısı :" + (paymentList as B2BResponseList<B2BOdeme>).List.Count);
+                        foreach (var item in (paymentList as B2BResponseList<B2BOdeme>).List)
+                        {
+                            var result = await netsisService.OdemeKaydet(item);
+                            if (!result)
+                            {
+                                _logger.LogError($"{item.durum_mesaj}. Ödeme No: {item.odeme_no}");
+                            }
+                            else
+                            {
+                                var siparisDurumGunceleResult = await _b2BClient.OdemeDurumGunncelle(item.odeme_no, true);
+                                if (siparisDurumGunceleResult == null)
+                                {
+                                    _logger.LogError("Ödeme durumu güncellenemedi. Ödeme ID: {odeme_no}", item.odeme_no);
+                                }
+                                else
+                                {
+                                    if (siparisDurumGunceleResult.Code == 200)
+                                    {
+                                        _logger.LogWarning("Ödeme durumu güncellendi. Ödeme NO : {siparisNo}", item.odeme_no, result);
+                                    }
+                                    else
+                                    {
+                                        _logger.LogError(siparisDurumGunceleResult.Message);
+                                    }
+                                }
+                            }
+
+                        }
+                        break;
+                    case "Opak":
+
+                        break;
+                    default:
+                        break;
+                }
+                
+
+                _logger.LogInformation("Sanalpos transferi bitti.");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "");
+            }
         }
 
         public async Task SevkiyatTransfer()

@@ -507,7 +507,22 @@ namespace NetTransfer.Integration.Services.Erp
                         int sira = 0;
                         foreach (var item in siparisDetay.siparis_kalemler)
                         {
-                            if (DataReader.GetExecuteScalarToInt(connectionString, "SELECT COUNT(*) FROM TBLSTSABIT WHERE STOK_KODU='" + NetsisUtils.Cevir(item.urun_kodu) + "'", ref errorMessage) == 0)
+
+                            //Urun
+                            string stokkodu = "";
+                            string yapkod = "";
+
+                            if (netsisSetting.NetsisEsnekYap == 1)
+                            {
+                                stokkodu = item.model_no;
+                                yapkod = item.urun_kodu;
+                            }
+                            else
+                            {
+                                stokkodu = item.urun_kodu;
+                            }
+
+                            if (DataReader.GetExecuteScalarToInt(connectionString, "SELECT COUNT(*) FROM TBLSTSABIT WHERE STOK_KODU='" + NetsisUtils.Cevir(stokkodu) + "'", ref errorMessage) == 0)
                             {
                                 throw new Exception($"'{item.urun_kodu}' stok kodu ERP de bulunmadı.");
                             }
@@ -557,8 +572,6 @@ namespace NetTransfer.Integration.Services.Erp
                                 bf_fiyat = item.liste_fiyat;
                                 nf_fiyat = item.net_fiyat;
                             }
-                            string stokkodu = item.urun_kodu;
-                            string yapkod = "";
 
                             SqlCommand cmd_sipatra = new SqlCommand(
 
@@ -902,6 +915,30 @@ namespace NetTransfer.Integration.Services.Erp
 
                 return "";
             }
+        }
+
+        public async Task<bool> OdemeKaydet(B2BOdeme odeme)
+        {
+            DataTable tblsanalposlog = await DataReader.GetDbDataTable(connectionString,
+                            " EXEC "
+                            + "SP_B2BSANALPOS_KAYIT" + " " +
+                            "'" + NetsisUtils.CevirNetsis(odeme.musteri_erp_kodu) + "'," +
+                            "'" + NetsisUtils.CevirNetsis(odeme.odeme_no) + "'," +
+                            "'" + NetsisUtils.CevirNetsis(odeme.odeme_notu) + "'," +
+                            "'" + NetsisUtils.CevirNetsis(odeme.odeme_sistem) + "'," +
+                            "'" + NetsisUtils.CevirNetsis(odeme.doviz_kodu) + "'," +
+                            "" + NetsisUtils.CevirNetsis(odeme.doviz_kuru) + "," +
+                            "" + NetsisUtils.CevirNetsis(odeme.musteri_erp_kodu) + "," +
+                            "'" + NetsisUtils.CevirNetsis(odeme.odeme_turu) + "'," +
+                            "'" + NetsisUtils.CevirNetsis(odeme.islem_tarihi) + "'," +
+                            "" + NetsisUtils.CevirNetsis(odeme.hesaba_islenecek_tutar) + "," +
+                            "" + NetsisUtils.CevirNetsis(odeme.takist_orani) + "," +
+                            "" + NetsisUtils.CevirNetsis(odeme.musteri_erp_kodu) + "," +
+                            "" + NetsisUtils.CevirNetsis(odeme.banka_komisyon_orani) + "," +
+                            "'" + NetsisUtils.CevirNetsis(odeme.durum_mesaj) + "'");
+
+            return tblsanalposlog.Rows[0]["durum"].ToString() == "true";
+
         }
 
         private int getOdemeGunu(B2BSiparis siparis, ref string errorMessage)

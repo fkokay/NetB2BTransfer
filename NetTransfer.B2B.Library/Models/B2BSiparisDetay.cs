@@ -107,6 +107,7 @@ namespace NetTransfer.B2B.Library.Models
         public string siparis_kalem_yazi_renk_kodu { get; set; }
         public double kalan_miktar { get; set; }
         public string doviz_kodu { get; set; }
+        public string model_no { get; set; }
     }
 
     public class B2BSiparisDurum

@@ -2,6 +2,7 @@
 using Microsoft.Data.SqlClient;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -63,6 +64,28 @@ namespace NetTransfer.Core.Data
                     return int.TryParse(value?.ToString(), out int result) ? result : 0;
                 }
             }
+        }
+
+        public static async Task<DataTable> GetDbDataTable(string connectionString, string query)
+        {
+            DataTable dataTable = new DataTable();
+
+            using (SqlConnection connection = new SqlConnection(connectionString))
+            {
+                await connection.OpenAsync();
+
+                using (SqlCommand sorgu = new SqlCommand(query, connection))
+                {
+                    sorgu.CommandTimeout = 500;
+
+                    using (SqlDataReader reader = await sorgu.ExecuteReaderAsync())
+                    {
+                        dataTable.Load(reader);
+                    }
+                }
+            }
+
+            return dataTable;
         }
 
     }

@@ -279,6 +279,62 @@ namespace NetTransfer.B2B.Library
                 throw;
             }
         }
-    }
 
+        public async Task<B2BResponseList<B2BOdeme>?> Odemeler()
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var response = await client.GetAsync(_b2BSetting.Url + $"/entegrasyon/odemeler/list?durum=basarili&erp_aktarma_durumu=0");
+                    string value = await response.Content.ReadAsStringAsync();
+                    B2BResponseList<B2BOdeme>? result = JsonConvert.DeserializeObject<B2BResponseList<B2BOdeme>>(value: value);
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<B2BResponse?> OdemeDurumGunncelle(string odeme_no, bool durum)
+        {
+            try
+            {
+                using (var client = new HttpClient())
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var data = new JObject(new JProperty("data"), new JArray(
+                        new JObject(
+                            new JProperty("odeme_no", odeme_no),
+                            new JProperty("durum", durum)
+                        )
+                    ));
+
+
+
+                    string json = data.ToString(Newtonsoft.Json.Formatting.None);
+
+                    var response = await client.PostAsync(_b2BSetting.Url + $"/entegrasyon/odemeler/erp_aktarma_durumu", new StringContent(json, Encoding.UTF8, "application/json"));
+                    string value = await response.Content.ReadAsStringAsync();
+                    B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
+
+
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+    }
 }
