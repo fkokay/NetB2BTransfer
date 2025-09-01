@@ -1,18 +1,19 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using NetTransfer.B2B.Library;
+using NetTransfer.B2B.Library.Models;
 using NetTransfer.Core.Entities;
 using NetTransfer.Core.Utils;
-using NetTransfer.Smartstore.Library.Models;
-using NetTransfer.Smartstore.Library;
-using NetTransfer.Integration.Models;
-using NetTransfer.B2B.Library.Models;
-using NetTransfer.B2B.Library;
-using System.Data;
 using NetTransfer.Data;
-using NetTransfer.Opak.Library.Models;
-using Microsoft.EntityFrameworkCore;
+using NetTransfer.Integration.Models;
 using NetTransfer.Integration.Services.Erp;
 using NetTransfer.Integration.Services.VirtualStore;
 using NetTransfer.Netsis.Library.Models;
+using NetTransfer.Opak.Library.Models;
+using NetTransfer.Smartstore.Library;
+using NetTransfer.Smartstore.Library.Models;
+using Newtonsoft.Json;
+using System.Data;
 
 namespace NetTransfer.Integration
 {
@@ -327,6 +328,8 @@ namespace NetTransfer.Integration
                         {
                             var productList = PaginationBuilder.GetPage(b2bList, i, 25).ToList();
 
+                            var json = @" {  ""data"":  " + JsonConvert.SerializeObject(productList) + "  }  ";
+                            _logger.LogInformation($"Ürünler : {json}");
                             var result = await _b2BClient.UrunTopluTransferAsync(productList);
 
                             if (result == null)
@@ -411,7 +414,7 @@ namespace NetTransfer.Integration
                         {
                             var skus = PaginationBuilder.GetPage(activeProductSkuList, i, 50).ToList();
                             var products = await _smartStoreClient.GetProducts(skus);
-                            if (products != null)
+                            if (products != null && products.value != null)
                             {
                                 foreach (var item in products.value)
                                 {

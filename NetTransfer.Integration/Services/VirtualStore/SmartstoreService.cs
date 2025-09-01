@@ -161,49 +161,6 @@ namespace NetTransfer.Integration.Services.VirtualStore
 
                 var resultProductCategory = await CreateProductCategory(data);
             }
-
-            SmartstoreCategory? category1 = null;
-            if (!string.IsNullOrEmpty(product.Category1))
-            {
-                category1 = await CreateCategory(MappingCategory(product.Category1, null));
-            }
-
-            SmartstoreCategory? category2 = null;
-            if (category1 != null)
-            {
-                if (!string.IsNullOrEmpty(product.Category2))
-                {
-                    category2 = await CreateCategory(MappingCategory(product.Category2, category1.Id));
-                }
-            }
-
-            SmartstoreProductCategory? productCategory2 = null;
-            if (category2 != null)
-            {
-                SmartstoreProductCategory data = new SmartstoreProductCategory();
-                data.ProductId = result.Id;
-                data.CategoryId = category2.Id;
-                data.IsFeaturedProduct = false;
-                data.DisplayOrder = 0;
-                data.IsSystemMapping = false;
-                data.Id = 0;
-
-                productCategory2 = await CreateProductCategory(data);
-            }
-
-            SmartstoreProductCategory? productCategory1 = null;
-            if (category1 != null)
-            {
-                SmartstoreProductCategory data = new SmartstoreProductCategory();
-                data.ProductId = result.Id;
-                data.CategoryId = category1.Id;
-                data.IsFeaturedProduct = false;
-                data.DisplayOrder = productCategory2 == null ? 0 : 1;
-                data.IsSystemMapping = false;
-                data.Id = 0;
-
-                productCategory1 = await CreateProductCategory(data);
-            }
             #endregion
 
             #region Image
@@ -933,7 +890,8 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 product.GroupedProductConfiguration = null;
                 product.ManufacturerCode = item.STGRPCODE;
                 product.ManufacturerName = item.STGRPNAME;
-                product.Category1 = item.STGRPNAME;
+                if (!item.STGRPNAME.IsNullOrEmpty())
+                    product.Categories.Add(item.STGRPNAME);
 
                 productList.Add(product);
             }
@@ -1056,8 +1014,6 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 product.GroupedProductConfiguration = null;
                 product.ManufacturerCode = item.marka_kod;
                 product.ManufacturerName = item.marka_adi;
-                product.Category1 = "";
-                product.Category2 = "";
 
                 if (item.EvrakList != null)
                 {
@@ -1204,8 +1160,15 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 product.GroupedProductConfiguration = null;
                 product.ManufacturerCode = item.MARKA;
                 product.ManufacturerName = item.MARKA;
-                product.Category1 = item.KOD1;
-                product.Category2 = item.KOD2;
+
+                if (!item.KOD1.IsNullOrEmpty())
+                    product.Categories.Add(item.KOD1);
+                if (!item.KOD2.IsNullOrEmpty())
+                    product.Categories.Add(item.KOD2);
+                if (!item.KOD3.IsNullOrEmpty())
+                    product.Categories.Add(item.KOD3);
+                if (!item.KOD4.IsNullOrEmpty())
+                    product.Categories.Add(item.KOD4);
 
                 if (item.MalzemeResimList != null)
                 {

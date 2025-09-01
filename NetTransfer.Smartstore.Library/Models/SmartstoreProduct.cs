@@ -350,10 +350,6 @@ namespace NetTransfer.Smartstore.Library.Models
         [JsonIgnore]
         public string ManufacturerName { get; set; }
         [JsonIgnore]
-        public string Category1 { get; set; }
-        [JsonIgnore]
-        public string Category2 { get; set; }
-        [JsonIgnore]
         public List<string> Categories { get; set; } = new List<string>();
 
         [JsonIgnore]

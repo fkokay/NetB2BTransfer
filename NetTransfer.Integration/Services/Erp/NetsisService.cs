@@ -152,7 +152,7 @@ namespace NetTransfer.Integration.Services.Erp
                         string aciklama13 = siparisDetay.ust_bilgiler.aciklama_13;
                         string aciklama14 = siparisDetay.ust_bilgiler.aciklama_14;
                         string aciklama15 = siparisDetay.ust_bilgiler.aciklama_15;
-                        string aciklama16 = siparisDetay.ust_bilgiler.aciklama_16;
+                        string aciklama16 = siparis.siparis_id.ToString();
 
                         #region TBLSIPAMAS
                         SqlCommand cmd_sipamas = new SqlCommand(
@@ -785,7 +785,7 @@ namespace NetTransfer.Integration.Services.Erp
                             cmd_sipatra.Parameters.Add("@STHAR_KDV", SqlDbType.Decimal).Value = item.kdv_oran;
                             cmd_sipatra.Parameters.Add("@DEPO_KODU", SqlDbType.Int).Value = depoKodu;
                             cmd_sipatra.Parameters.Add("@STHAR_ACIKLAMA", SqlDbType.NVarChar).Value = carikod;
-                            cmd_sipatra.Parameters.Add("@STHAR_SATISK", SqlDbType.Decimal).Value = isk_1;
+                            cmd_sipatra.Parameters.Add("@STHAR_SATISK", SqlDbType.Decimal).Value = isk_1 > 0 ? isk_1 / 100000 : 0;
                             cmd_sipatra.Parameters.Add("@STHAR_MALFISK", SqlDbType.Decimal).Value = 0;
                             cmd_sipatra.Parameters.Add("@STHAR_FTIRSIP", SqlDbType.NVarChar).Value = "6";
                             cmd_sipatra.Parameters.Add("@STHAR_SATISK2", SqlDbType.Decimal).Value = isk_2;

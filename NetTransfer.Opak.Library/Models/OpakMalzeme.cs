@@ -13,6 +13,7 @@ namespace NetTransfer.Opak.Library.Models
         public string KOD1 { get; set; }
         public string KOD2 { get; set; }
         public string KOD3 { get; set; }
+        public string KOD4 { get; set; }
         public string MARKA { get; set; }
         public double KDV { get; set; }
         public string AKTIF { get; set; }

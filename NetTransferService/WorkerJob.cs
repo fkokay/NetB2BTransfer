@@ -19,14 +19,12 @@ namespace NetTransferService
     {
         private readonly ISchedulerFactory _schedulerFactory;
         private readonly IJobFactory _jobFactory;
-        private readonly NetTransferContext _context;
         private readonly ILogger<Worker> _logger;
 
-        public WorkerJob(ISchedulerFactory schedulerFactory, IJobFactory jobFactory, NetTransferContext context, ILogger<Worker> logger)
+        public WorkerJob(ISchedulerFactory schedulerFactory, IJobFactory jobFactory, ILogger<Worker> logger)
         {
             _schedulerFactory = schedulerFactory;
             _jobFactory = jobFactory;
-            _context = context;
             _logger = logger;
         }
 

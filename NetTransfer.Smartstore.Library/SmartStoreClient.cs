@@ -496,7 +496,7 @@ namespace NetTransfer.Smartstore.Library
 
             using (var httpClient = new HttpClient())
             {
-                string filter = parentId.HasValue ? $"parentId eq {parentId.Value} and Name eq '{name}'" : $"Name eq '{name}'";
+                string filter = parentId.HasValue ? $"parentId eq {parentId.Value} and Name eq '{Uri.EscapeDataString(name)}'" : $"Name eq '{Uri.EscapeDataString(name)}'";
                 using (var request = new HttpRequestMessage(new HttpMethod("GET"), $"{_b2BSetting.Url}/categories?count=true&filter={filter}"))
                 {
                     request.Headers.TryAddWithoutValidation("accept", "application/json");

@@ -137,6 +137,7 @@ namespace NetTransfer.B2B.Library
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
                     var json = @" {  ""data"":  " + JsonConvert.SerializeObject(urunler) + "  }  ";
+
                     var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/toplu/urun/tanim", new StringContent(json, Encoding.UTF8, "application/json"));
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
