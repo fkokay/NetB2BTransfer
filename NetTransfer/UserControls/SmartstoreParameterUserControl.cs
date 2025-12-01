@@ -31,6 +31,7 @@ namespace NetTransfer.UserControls
                 txtProductTransferMinute.Value = smartStoreParameter.ProductTransferMinute;
                 txtProductFilter.Text = smartStoreParameter.ProductFilter;
                 toggleSwitchProduct.IsOn = smartStoreParameter.ProductSync;
+                toggleSwitchProductImage.IsOn = smartStoreParameter.ProductImageSync;
 
                 txtProductStockTransferMinute.Value = smartStoreParameter.ProductStockTransferMinute;
                 txtProductStockFilter.Text = smartStoreParameter.ProductStockFilter;
@@ -53,6 +54,7 @@ namespace NetTransfer.UserControls
                 smartStoreParameter.ProductTransferMinute = (int)txtProductTransferMinute.Value;
                 smartStoreParameter.ProductFilter = txtProductFilter.Text;
                 smartStoreParameter.ProductSync = toggleSwitchProduct.IsOn;
+                smartStoreParameter.ProductImageSync = toggleSwitchProductImage.IsOn;
                 smartStoreParameter.ProductStockTransferMinute = (int)txtProductStockTransferMinute.Value;
                 smartStoreParameter.ProductStockFilter = txtProductStockFilter.Text;
                 smartStoreParameter.ProductStockSync = toggleSwitchProductStock.IsOn;
@@ -69,6 +71,7 @@ namespace NetTransfer.UserControls
                     ProductTransferMinute = (int)txtProductTransferMinute.Value,
                     ProductFilter = txtProductFilter.Text,
                     ProductSync = toggleSwitchProduct.IsOn,
+                    ProductImageSync = toggleSwitchProductImage.IsOn,
                     ProductStockTransferMinute = (int)txtProductStockTransferMinute.Value,
                     ProductStockFilter = txtProductStockFilter.Text,
                     ProductStockSync = toggleSwitchProductStock.IsOn,

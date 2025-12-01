@@ -36,6 +36,7 @@
             labelControl10 = new DevExpress.XtraEditors.LabelControl();
             labelControl9 = new DevExpress.XtraEditors.LabelControl();
             groupControl1 = new DevExpress.XtraEditors.GroupControl();
+            toggleSwitchProductStock = new DevExpress.XtraEditors.ToggleSwitch();
             txtProductStockTransferMinute = new DevExpress.XtraEditors.SpinEdit();
             labelControl1 = new DevExpress.XtraEditors.LabelControl();
             txtProductStockFilter = new DevExpress.XtraEditors.TextEdit();
@@ -53,7 +54,8 @@
             labelControl7 = new DevExpress.XtraEditors.LabelControl();
             txtOrderTransferMinute = new DevExpress.XtraEditors.SpinEdit();
             labelControl15 = new DevExpress.XtraEditors.LabelControl();
-            toggleSwitchProductStock = new DevExpress.XtraEditors.ToggleSwitch();
+            toggleSwitchProductImage = new DevExpress.XtraEditors.ToggleSwitch();
+            labelControl8 = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)groupControlCustomer).BeginInit();
             groupControlCustomer.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)toggleSwitchProduct.Properties).BeginInit();
@@ -61,6 +63,7 @@
             ((System.ComponentModel.ISupportInitialize)txtProductFilter.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)groupControl1).BeginInit();
             groupControl1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)toggleSwitchProductStock.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductStockTransferMinute.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtProductStockFilter.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)groupControl2).BeginInit();
@@ -72,11 +75,13 @@
             groupControl4.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)txtOrderStatusId.Properties).BeginInit();
             ((System.ComponentModel.ISupportInitialize)txtOrderTransferMinute.Properties).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)toggleSwitchProductStock.Properties).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)toggleSwitchProductImage.Properties).BeginInit();
             SuspendLayout();
             // 
             // groupControlCustomer
             // 
+            groupControlCustomer.Controls.Add(toggleSwitchProductImage);
+            groupControlCustomer.Controls.Add(labelControl8);
             groupControlCustomer.Controls.Add(toggleSwitchProduct);
             groupControlCustomer.Controls.Add(txtProductTransferMinute);
             groupControlCustomer.Controls.Add(labelControl11);
@@ -87,7 +92,7 @@
             groupControlCustomer.Location = new System.Drawing.Point(0, 0);
             groupControlCustomer.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             groupControlCustomer.Name = "groupControlCustomer";
-            groupControlCustomer.Size = new System.Drawing.Size(825, 115);
+            groupControlCustomer.Size = new System.Drawing.Size(825, 132);
             groupControlCustomer.TabIndex = 2;
             groupControlCustomer.Text = "Malzeme Aktarım Ayarları";
             // 
@@ -155,12 +160,22 @@
             groupControl1.Controls.Add(labelControl2);
             groupControl1.Controls.Add(labelControl3);
             groupControl1.Dock = System.Windows.Forms.DockStyle.Top;
-            groupControl1.Location = new System.Drawing.Point(0, 115);
+            groupControl1.Location = new System.Drawing.Point(0, 132);
             groupControl1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             groupControl1.Name = "groupControl1";
             groupControl1.Size = new System.Drawing.Size(825, 115);
             groupControl1.TabIndex = 3;
             groupControl1.Text = "Malzeme Stok Aktarım Ayarları";
+            // 
+            // toggleSwitchProductStock
+            // 
+            toggleSwitchProductStock.Location = new System.Drawing.Point(191, 81);
+            toggleSwitchProductStock.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            toggleSwitchProductStock.Name = "toggleSwitchProductStock";
+            toggleSwitchProductStock.Properties.OffText = "Hayır";
+            toggleSwitchProductStock.Properties.OnText = "Evet";
+            toggleSwitchProductStock.Size = new System.Drawing.Size(102, 18);
+            toggleSwitchProductStock.TabIndex = 16;
             // 
             // txtProductStockTransferMinute
             // 
@@ -216,7 +231,7 @@
             groupControl2.Controls.Add(labelControl5);
             groupControl2.Controls.Add(labelControl6);
             groupControl2.Dock = System.Windows.Forms.DockStyle.Top;
-            groupControl2.Location = new System.Drawing.Point(0, 230);
+            groupControl2.Location = new System.Drawing.Point(0, 247);
             groupControl2.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             groupControl2.Name = "groupControl2";
             groupControl2.Size = new System.Drawing.Size(825, 115);
@@ -285,7 +300,7 @@
             groupControl4.Controls.Add(txtOrderTransferMinute);
             groupControl4.Controls.Add(labelControl15);
             groupControl4.Dock = System.Windows.Forms.DockStyle.Top;
-            groupControl4.Location = new System.Drawing.Point(0, 345);
+            groupControl4.Location = new System.Drawing.Point(0, 362);
             groupControl4.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             groupControl4.Name = "groupControl4";
             groupControl4.Size = new System.Drawing.Size(825, 98);
@@ -329,15 +344,24 @@
             labelControl15.TabIndex = 10;
             labelControl15.Text = "Aktarım Süresi (Dakika)";
             // 
-            // toggleSwitchProductStock
+            // toggleSwitchProductImage
             // 
-            toggleSwitchProductStock.Location = new System.Drawing.Point(191, 81);
-            toggleSwitchProductStock.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            toggleSwitchProductStock.Name = "toggleSwitchProductStock";
-            toggleSwitchProductStock.Properties.OffText = "Hayır";
-            toggleSwitchProductStock.Properties.OnText = "Evet";
-            toggleSwitchProductStock.Size = new System.Drawing.Size(102, 18);
-            toggleSwitchProductStock.TabIndex = 16;
+            toggleSwitchProductImage.Location = new System.Drawing.Point(191, 105);
+            toggleSwitchProductImage.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            toggleSwitchProductImage.Name = "toggleSwitchProductImage";
+            toggleSwitchProductImage.Properties.OffText = "Hayır";
+            toggleSwitchProductImage.Properties.OnText = "Evet";
+            toggleSwitchProductImage.Size = new System.Drawing.Size(102, 18);
+            toggleSwitchProductImage.TabIndex = 11;
+            // 
+            // labelControl8
+            // 
+            labelControl8.Location = new System.Drawing.Point(14, 108);
+            labelControl8.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            labelControl8.Name = "labelControl8";
+            labelControl8.Size = new System.Drawing.Size(99, 13);
+            labelControl8.TabIndex = 10;
+            labelControl8.Text = "Resimler Aktarılsın Mı";
             // 
             // SmartstoreParameterUserControl
             // 
@@ -360,6 +384,7 @@
             ((System.ComponentModel.ISupportInitialize)groupControl1).EndInit();
             groupControl1.ResumeLayout(false);
             groupControl1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)toggleSwitchProductStock.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductStockTransferMinute.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtProductStockFilter.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)groupControl2).EndInit();
@@ -373,7 +398,7 @@
             groupControl4.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)txtOrderStatusId.Properties).EndInit();
             ((System.ComponentModel.ISupportInitialize)txtOrderTransferMinute.Properties).EndInit();
-            ((System.ComponentModel.ISupportInitialize)toggleSwitchProductStock.Properties).EndInit();
+            ((System.ComponentModel.ISupportInitialize)toggleSwitchProductImage.Properties).EndInit();
             ResumeLayout(false);
         }
 
@@ -405,5 +430,7 @@
         private DevExpress.XtraEditors.ToggleSwitch toggleSwitchProduct;
         private DevExpress.XtraEditors.ToggleSwitch toggleSwitchProductPrice;
         private DevExpress.XtraEditors.ToggleSwitch toggleSwitchProductStock;
+        private DevExpress.XtraEditors.ToggleSwitch toggleSwitchProductImage;
+        private DevExpress.XtraEditors.LabelControl labelControl8;
     }
 }

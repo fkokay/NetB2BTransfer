@@ -1,8 +1,10 @@
-﻿using NetTransfer.B2B.Library;
+﻿using Microsoft.Extensions.Logging;
+using NetTransfer.B2B.Library;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.Integration.Models;
 using NetTransfer.Logo.Library.Models;
 using NetTransfer.Netsis.Library.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace NetTransfer.Integration.Services.VirtualStore
 {
-    public class B2BService(B2BClient _b2bClient)
+    public class B2BService(ILogger _logger, B2BClient _b2bClient)
     {
         public async Task<B2BResponse?> UpdateProductPrice(List<BaseMalzemeFiyatModel> malzemeFiyatList)
         {
@@ -66,13 +68,15 @@ namespace NetTransfer.Integration.Services.VirtualStore
                         }).ToList()
                     };
 
-                    await _b2bClient.UrunFiyatTrasnferAsync(b2BUrunFiyat);
+                    var response = await _b2bClient.UrunFiyatTrasnferAsync(b2BUrunFiyat);
+
+                    _logger.LogInformation("Updated price list {PriceListCode} with response: {ResponseMessage}", b2BUrunFiyat.kod, response?.Message);
+
                 }
             }
             catch (Exception ex)
             {
-                // Log exception
-                throw new ApplicationException("Error updating product prices", ex);
+                _logger.LogError(ex, "Error updating product prices");
             }
         }
 
@@ -262,7 +266,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
                     depo_kodu = "",
                     erp_kodu = item.CODE,
                     odeme_sekilleri = "",
-                    musteri_kosul_kodu = item.SPECODE,
+                    //musteri_kosul_kodu = item.SPECODE,
                     grup_kodu = "TURKUAZ",
                     fiyat_listesi_kodu = "",
                     email = item.CODE.Replace("Ş", "S").Replace("Ğ", "G").Replace("İ", "I").Replace("Ü", "U").Replace("Ç", "C").Replace("Ö", "O")
@@ -292,7 +296,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 var musteri = new B2BMusteri();
                 musteri.il = item.il;
                 musteri.ilce = item.ilce;
-                musteri.musteri_ozellik = "kurumsal";
+                musteri.musteri_ozellik = string.IsNullOrEmpty(item.tc_no) ? "kurumsal" : "bireysel";
                 musteri.unvan = item.unvan;
                 musteri.cari_kod = item.cari_kod;
                 musteri.adi = item.adi;
@@ -306,7 +310,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 musteri.depo_kodu = item.depo_kodu;
                 musteri.erp_kodu = item.erp_kodu;
                 musteri.odeme_sekilleri = item.odeme_sekilleri;
-                musteri.musteri_kosul_kodu = item.musteri_kosul_kodu;
+                //musteri.musteri_kosul_kodu = item.musteri_kosul_kodu;
                 musteri.grup_kodu = item.grup_kodu;
                 musteri.fiyat_listesi_kodu = item.fiyat_listesi_kodu;
                 musteri.email = item.email;

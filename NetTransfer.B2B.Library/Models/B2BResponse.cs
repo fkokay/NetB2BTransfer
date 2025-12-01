@@ -12,6 +12,6 @@ namespace NetTransfer.B2B.Library.Models
         public string Message { get; set; }
         public string Type { get; set; }
         public object Validation { get; set; }
-        public object Detay { get; set; }
+        public dynamic Detay { get; set; }
     }
 }

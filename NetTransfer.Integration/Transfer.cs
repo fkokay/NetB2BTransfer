@@ -14,6 +14,7 @@ using NetTransfer.Smartstore.Library;
 using NetTransfer.Smartstore.Library.Models;
 using Newtonsoft.Json;
 using System.Data;
+using System.Net;
 
 namespace NetTransfer.Integration
 {
@@ -42,7 +43,7 @@ namespace NetTransfer.Integration
             _erpSetting = erpSetting;
             _virtualStoreSetting = virtualStoreSetting;
             _b2BClient = new B2BClient(virtualStoreSetting);
-            _b2BTransfer = new B2BService(_b2BClient);
+            _b2BTransfer = new B2BService(_logger, _b2BClient);
             _b2bParameter = b2BParameter;
 
             InitializeContext();
@@ -110,7 +111,7 @@ namespace NetTransfer.Integration
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
-                        B2BService b2BTransfer = new B2BService(_b2BClient);
+                        B2BService b2BTransfer = new B2BService(_logger,_b2BClient);
                         List<B2BMusteri>? b2bList = b2BTransfer.MappingMusteri(_erpSetting.Erp, musteriList);
 
                         if (b2bList == null)
@@ -201,7 +202,7 @@ namespace NetTransfer.Integration
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
-                        B2BService b2BTransfer = new B2BService(_b2BClient);
+                        B2BService b2BTransfer = new B2BService(_logger, _b2BClient);
                         List<B2BMusteriBakiye>? b2bList = b2BTransfer.MappingMusteriBakiye(_erpSetting.Erp, musteriList);
 
                         if (b2bList == null)
@@ -323,10 +324,10 @@ namespace NetTransfer.Integration
                             }
                         }
 
-                        int count = PaginationBuilder.GetPageCount(b2bList, 25);
+                        int count = PaginationBuilder.GetPageCount(b2bList, 1000);
                         for (int i = 1; i <= count; i++)
                         {
-                            var productList = PaginationBuilder.GetPage(b2bList, i, 25).ToList();
+                            var productList = PaginationBuilder.GetPage(b2bList, i, 1000).ToList();
 
                             var json = @" {  ""data"":  " + JsonConvert.SerializeObject(productList) + "  }  ";
                             _logger.LogInformation($"Ürünler : {json}");
@@ -335,10 +336,10 @@ namespace NetTransfer.Integration
                             if (result == null)
                             {
                                 _logger.LogError("Ürün transferi sırasında hata oluştu.");
-                                break;
+                                continue;
                             }
 
-                            int pagetotal = i == 1 ? 0 : ((i - 1) * 25);
+                            int pagetotal = i == 1 ? 0 : ((i - 1) * 1000);
                             int total = pagetotal + productList.Count;
 
                             _logger.LogInformation($"Ürün aktarım durumu : {total}/{b2bList.Count} aktarıldı");
@@ -435,7 +436,7 @@ namespace NetTransfer.Integration
                         {
                             try
                             {
-                                var product = await _smartstoreTransfer.CreateProduct(item);
+                                var product = await _smartstoreTransfer.CreateProduct(item, _smartstoreParameter.ProductImageSync);
                                 if (product == null)
                                 {
                                     _logger.LogError($"Ürün güncellenmedi - UpdateProductPublished : {item.Id} - {item.Sku}");
@@ -526,12 +527,21 @@ namespace NetTransfer.Integration
                             _b2BClient.SetAccessToken(resultAccessToken.token);
                         }
 
-                        int count = PaginationBuilder.GetPageCount(malzemeStokList, 100);
+                        int count = PaginationBuilder.GetPageCount(malzemeStokList, 5000);
                         for (int i = 1; i <= count; i++)
                         {
-                            var stokList = PaginationBuilder.GetPage(malzemeStokList, i, 100).ToList();
-                            await _b2BTransfer.UpdateProductStock(stokList);
+                            var stokList = PaginationBuilder.GetPage(malzemeStokList, i, 5000).ToList();
+                            var result = await _b2BTransfer.UpdateProductStock(stokList);
+
+                            int pagetotal = i == 1 ? 0 : ((i - 1) * 5000);
+                            int total = pagetotal + stokList.Count;
+                            _logger.LogInformation($"Malzeme stok aktarım durumu : {total}/{malzemeStokList.Count} aktarıldı");
+                            _logger.LogInformation($"Malzeme stok aktarım detay : {result?.Detay["kayitsiz_urunler"]}");
+
+                            Thread.Sleep(500);
                         }
+
+                        _logger.LogInformation("Malzeme stok aktarım tamalandı");
                         break;
                     case "Smartstore":
                         await _smartstoreTransfer.UpdateProductStock(malzemeStokList.Where(m => m.StokType == "S").ToList());
@@ -606,14 +616,17 @@ namespace NetTransfer.Integration
 
                         if (malzemeFiyatList is List<BaseMalzemeFiyatModel>)
                         {
+                            _logger.LogWarning("Malzeme fiyat listesi BaseMalzemeFiyatModel tipinde.");
+
+
                             var b2bBaseList = malzemeFiyatList as List<BaseMalzemeFiyatModel>;
 
                             _logger.LogWarning("Malzeme fiyat liste miktarı : " + b2bBaseList.Count);
 
-                            int count = PaginationBuilder.GetPageCount(b2bBaseList, 100);
+                            int count = PaginationBuilder.GetPageCount(b2bBaseList, 5000);
                             for (int i = 1; i <= count; i++)
                             {
-                                var data = PaginationBuilder.GetPage(b2bBaseList, i, 100).ToList();
+                                var data = PaginationBuilder.GetPage(b2bBaseList, i, 5000).ToList();
                                 var result = await _b2BTransfer.UpdateProductPrice(data);
                                 if (result == null)
                                 {
@@ -622,23 +635,28 @@ namespace NetTransfer.Integration
                                 else
                                 {
                                     _logger.LogWarning(result.Message);
-                                    _logger.LogWarning("Malzeme fiyat aktarım detay : " + result.Detay);
+                                    _logger.LogInformation($"Malzeme fiyat aktarım detay : {result?.Detay["kayitsiz_urunler"]}");
                                 }
                             }
                         }
                         else if (malzemeFiyatList is List<MalzemeFiyatModel>)
                         {
+                            _logger.LogWarning("Malzeme fiyat listesi MalzemeFiyatModel tipinde.");
                             var b2bNetsisList = malzemeFiyatList as List<MalzemeFiyatModel>;
 
+                            
                             _logger.LogWarning("Malzeme fiyat liste miktarı : " + b2bNetsisList.Count);
 
-                            int count = PaginationBuilder.GetPageCount(b2bNetsisList, 100);
+                            int count = PaginationBuilder.GetPageCount(b2bNetsisList, 1000);
                             for (int i = 1; i <= count; i++)
                             {
-                                var data = PaginationBuilder.GetPage(b2bNetsisList, i, 100).ToList();
+                                var data = PaginationBuilder.GetPage(b2bNetsisList, i, 1000).ToList();
                                 await _b2BTransfer.UpdateProductPrice(data);
 
+                                _logger.LogInformation($"Malzeme fiyat aktarım durumu : {Math.Min(i * 1000, b2bNetsisList.Count)}/{b2bNetsisList.Count} aktarıldı");
                             }
+
+                            _logger.LogWarning("Malzeme fiyat aktarımı tamamlandı");
                         }
 
 
@@ -774,7 +792,7 @@ namespace NetTransfer.Integration
                                     }
                                 }
                             }
-                            
+
                         }
                         break;
                     case "Opak":
@@ -1015,7 +1033,7 @@ namespace NetTransfer.Integration
                     default:
                         break;
                 }
-                
+
 
                 _logger.LogInformation("Sanalpos transferi bitti.");
             }

@@ -28,7 +28,7 @@ namespace NetTransfer.Netsis.Library.Class
 
         public static string GetMalzemeFiyatQuery()
         {
-            return @"SELECT STOK_KODU,ISNULL(SATIS_FIAT3,0) AS SATIS_FIAT3,ISNULL(SATIS_FIAT4,0) AS SATIS_FIAT4 FROM TBLSTSABIT WHERE 1=1 AND TBLSTSABIT.KOD_3 IS NOT NULL AND TBLSTSABIT.KOD_4 IS NOT NULL AND TBLSTSABIT.KOD_5 IS NOT NULL";
+            return @"SELECT * FROM OZGUR_B2B_FIYATLISTELERI";
         }
 
         public static string GetEvrakQuery(string stok_kodu)

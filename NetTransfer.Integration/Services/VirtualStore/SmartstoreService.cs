@@ -59,7 +59,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
             return result;
         }
 
-        public async Task<SmartstoreProduct?> CreateProduct(SmartstoreProduct product)
+        public async Task<SmartstoreProduct?> CreateProduct(SmartstoreProduct product, bool isImageSync)
         {
             #region Product
             _logger.LogInformation($"Ürün transferi başladı : {product.Name}");
@@ -164,31 +164,34 @@ namespace NetTransfer.Integration.Services.VirtualStore
             #endregion
 
             #region Image
-            if (product.Files != null)
+            if (isImageSync)
             {
-                _ = await DeleteProductMediaFile(result.Id);
-
-                foreach (var file in product.Files)
+                if (product.Files != null)
                 {
-                    SmartstoreFileItemInfo? fileItemInfo = await CreateMediaFile(file);
+                    _ = await DeleteProductMediaFile(result.Id);
 
-                    int i = 0;
-                    if (fileItemInfo != null)
+                    foreach (var file in product.Files)
                     {
-                        SmartstoreProductMediaFile smartstoreProductMediaFile = new SmartstoreProductMediaFile();
-                        smartstoreProductMediaFile.ProductId = result.Id;
-                        smartstoreProductMediaFile.MediaFileId = fileItemInfo.Id;
-                        smartstoreProductMediaFile.DisplayOrder = i;
+                        SmartstoreFileItemInfo? fileItemInfo = await CreateMediaFile(file);
 
-                        _ = await CreateProductMediaFile(smartstoreProductMediaFile);
+                        int i = 0;
+                        if (fileItemInfo != null)
+                        {
+                            SmartstoreProductMediaFile smartstoreProductMediaFile = new SmartstoreProductMediaFile();
+                            smartstoreProductMediaFile.ProductId = result.Id;
+                            smartstoreProductMediaFile.MediaFileId = fileItemInfo.Id;
+                            smartstoreProductMediaFile.DisplayOrder = i;
 
-                        i++;
+                            _ = await CreateProductMediaFile(smartstoreProductMediaFile);
+
+                            i++;
+                        }
                     }
                 }
-            }
-            else
-            {
-                _ = await DeleteProductMediaFile(result.Id);
+                else
+                {
+                    _ = await DeleteProductMediaFile(result.Id);
+                }
             }
             #endregion
 
@@ -260,6 +263,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
                         index++;
                     }
 
+                    List<SmartstoreProductVariantAttributeCombination> temp = new List<SmartstoreProductVariantAttributeCombination>();
                     foreach (var combination in product.ProductVariantAttributeCombinations.Select(m => new { m.Sku, m.Price, m.IsActive, m.StockQuantity, m.AllowOutOfStockOrders, m.Weight }).Distinct().ToList())
                     {
                         SmartstoreProductVariantAttributeCombination model = new SmartstoreProductVariantAttributeCombination();
@@ -305,6 +309,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
                         model.HashCode = GetHashCode(rawAttribute);
 
                         SmartstoreProductVariantAttributeCombination? smartstoreProductVariantAttributeCombination = await CreateProductVariantAttributeCombination(model);
+                        temp.Add(smartstoreProductVariantAttributeCombination);
                     }
                 }
             }

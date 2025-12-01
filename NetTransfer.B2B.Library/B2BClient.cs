@@ -1,5 +1,6 @@
 ﻿using Azure.Core;
 using Microsoft.Data.SqlClient;
+using Microsoft.SqlServer.Server;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.Core.Entities;
 using Newtonsoft.Json;
@@ -27,7 +28,9 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new HttpClientHandler();
+                handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12;
+                using (var client = new HttpClient(handler))
                 {
                     //client.BaseAddress = new Uri(txtUrl.Text);
                     var formData = new MultipartFormDataContent
@@ -61,7 +64,14 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -84,7 +94,14 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -107,7 +124,14 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -131,7 +155,11 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new HttpClientHandler();
+                handler.SslProtocols =
+         System.Security.Authentication.SslProtocols.Tls12 |
+         System.Security.Authentication.SslProtocols.Tls13;
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -152,11 +180,56 @@ namespace NetTransfer.B2B.Library
                 throw;
             }
         }
+
+        public async Task<B2BResponse?> UrunResimTransferAsync(B2BUrunResim b2BUrunResim)
+        {
+            try
+            {
+                var handler = new HttpClientHandler();
+                handler.SslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13;
+                using (var client = new HttpClient(handler))
+                {
+                    if (!IsAccessToken())
+                    {
+                       var token = await GetAccessTokenAsync();
+                        _accessToken = token?.token;
+                    }
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var multipartContent = new MultipartFormDataContent();
+                    var fileContent = new ByteArrayContent(b2BUrunResim.Image);
+                    multipartContent.Add(fileContent, "resimler[]", "image.png");
+                    string[] urunKodlari = { b2BUrunResim.UrunKodu };
+
+                    multipartContent.Add(new StringContent(JsonConvert.SerializeObject(urunKodlari, Formatting.Indented)), "urun_kodlari");
+
+                    var response = await client.PostAsync(_b2BSetting.Url + "/entegrasyon/urunler/toplu/resim/yukleme", multipartContent);
+                    string value = await response.Content.ReadAsStringAsync();
+                    B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
+
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
         public async Task<B2BResponse?> UrunStokTransferAsync(B2BDepoMiktar depoMiktar)
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -180,7 +253,14 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -204,7 +284,14 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -227,7 +314,14 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -251,7 +345,14 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -285,7 +386,14 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
@@ -306,17 +414,28 @@ namespace NetTransfer.B2B.Library
         {
             try
             {
-                using (var client = new HttpClient())
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
                 {
                     client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
-                    var data = new JObject(new JProperty("data"), new JArray(
-                        new JObject(
-                            new JProperty("odeme_no", odeme_no),
-                            new JProperty("durum", durum)
+                    var data = new JObject(
+                        new JProperty("data",
+                            new JArray(
+                                new JObject(
+                                    new JProperty("odeme_no", odeme_no),
+                                    new JProperty("durum", durum)
+                                )
+                            )
                         )
-                    ));
+                    );
 
 
 

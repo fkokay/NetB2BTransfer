@@ -36,6 +36,34 @@ namespace NetTransferService
                 scheduler.JobFactory = _jobFactory;
                 await scheduler.Start(stoppingToken);
 
+                IJobDetail jobCustomer = JobBuilder
+                   .Create<CustomerSyncJob>()
+                   .WithIdentity("customerSyncJob", "defaultGroup")
+                   .Build();
+
+                ITrigger triggerCustomer = TriggerBuilder
+                    .Create()
+                    .WithIdentity("customerSyncTrigger", "defaultGroup")
+                    .StartNow()
+                    .WithSimpleSchedule(x => x.WithIntervalInMinutes(2).RepeatForever())
+                .Build();
+
+                await scheduler.ScheduleJob(jobCustomer, triggerCustomer, stoppingToken);
+
+                IJobDetail jobCustomerBalance = JobBuilder
+                 .Create<CustomerBalanceSyncJob>()
+                 .WithIdentity("customerBalanceSyncJob", "defaultGroup")
+                 .Build();
+
+                ITrigger triggerCustomerBalance = TriggerBuilder
+                    .Create()
+                    .WithIdentity("customerBalanceSyncTrigger", "defaultGroup")
+                    .StartNow()
+                    .WithSimpleSchedule(x => x.WithIntervalInMinutes(2).RepeatForever())
+                .Build();
+
+                await scheduler.ScheduleJob(jobCustomerBalance, triggerCustomerBalance, stoppingToken);
+
                 IJobDetail jobProduct = JobBuilder
                     .Create<ProductSyncJob>()
                     .WithIdentity("productSyncJob", "defaultGroup")

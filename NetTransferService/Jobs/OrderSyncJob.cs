@@ -25,7 +25,7 @@ namespace NetTransferService.Jobs
         {
             using (IServiceScope scope = _serviceProvider.CreateScope())
             {
-                var logger = scope.ServiceProvider.GetRequiredService<ILogger<ProductSyncJob>>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<OrderSyncJob>>();
 
                 logger.LogInformation($"Sipariş aktarım görevi başladı : {DateTime.Now}");
 
@@ -42,7 +42,7 @@ namespace NetTransferService.Jobs
             }
         }
 
-        public async Task<Transfer?> InitializeSettingAsync(ILogger<ProductSyncJob> logger)
+        public async Task<Transfer?> InitializeSettingAsync(ILogger<OrderSyncJob> logger)
         {
             try
             {

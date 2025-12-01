@@ -57,10 +57,10 @@ namespace NetTransfer.Integration.Services.Erp
                 return null;
             }
 
-            foreach (var item in malzemeList)
-            {
-                item.EvrakList = DataReader.ReadData<EvrakModel>(connectionString, NetsisQuery.GetEvrakQuery(item.urun_kodu), ref errorMessage);
-            }
+            //foreach (var item in malzemeList)
+            //{
+            //    item.EvrakList = DataReader.ReadData<EvrakModel>(connectionString, NetsisQuery.GetEvrakQuery(item.urun_kodu), ref errorMessage);
+            //}
 
             return malzemeList;
         }
@@ -927,14 +927,14 @@ namespace NetTransfer.Integration.Services.Erp
                             "'" + NetsisUtils.CevirNetsis(odeme.odeme_notu) + "'," +
                             "'" + NetsisUtils.CevirNetsis(odeme.odeme_sistem) + "'," +
                             "'" + NetsisUtils.CevirNetsis(odeme.doviz_kodu) + "'," +
-                            "" + NetsisUtils.CevirNetsis(odeme.doviz_kuru) + "," +
-                            "" + NetsisUtils.CevirNetsis(odeme.musteri_erp_kodu) + "," +
+                            "" + odeme.doviz_kuru + "," +
+                            "" + odeme.komisyon_orani + "," +
                             "'" + NetsisUtils.CevirNetsis(odeme.odeme_turu) + "'," +
-                            "'" + NetsisUtils.CevirNetsis(odeme.islem_tarihi) + "'," +
-                            "" + NetsisUtils.CevirNetsis(odeme.hesaba_islenecek_tutar) + "," +
-                            "" + NetsisUtils.CevirNetsis(odeme.takist_orani) + "," +
-                            "" + NetsisUtils.CevirNetsis(odeme.musteri_erp_kodu) + "," +
-                            "" + NetsisUtils.CevirNetsis(odeme.banka_komisyon_orani) + "," +
+                            "'" + Convert.ToDateTime(odeme.islem_tarihi).ToString("yyyy-MM-dd") + "'," +
+                            "" + odeme.hesaba_islenecek_tutar + "," +
+                            "" + 1 + "," +
+                            "" + odeme.cekilecek_tutar + "," +
+                            "" + odeme.banka_komisyon_orani + "," +
                             "'" + NetsisUtils.CevirNetsis(odeme.durum_mesaj) + "'");
 
             return tblsanalposlog.Rows[0]["durum"].ToString() == "true";

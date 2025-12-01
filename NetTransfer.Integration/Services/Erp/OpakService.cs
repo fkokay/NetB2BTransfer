@@ -211,7 +211,7 @@ namespace NetTransfer.Integration.Services.Erp
                     {
                         try
                         {
-                            string cariKod = string.IsNullOrEmpty(item.OrderCustomer.CustomerNumber) ? "H01" : item.OrderCustomer.CustomerNumber;
+                            string cariKod = item.OrderCustomer == null ? "H01" :  string.IsNullOrEmpty(item.OrderCustomer.CustomerNumber) ? "H01" : item.OrderCustomer.CustomerNumber;
                             string odemeTuru = "";
                             if (item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico")
                             {

@@ -13,6 +13,7 @@ namespace NetTransfer.Core.Entities
         public int ProductTransferMinute { get; set; } = 0;
         public string? ProductFilter { get; set; }
         public bool ProductSync { get; set; } = true;
+        public bool ProductImageSync { get; set; } = true;
 
         public int ProductStockTransferMinute { get; set; } = 0;
         public string? ProductStockFilter { get; set; }
