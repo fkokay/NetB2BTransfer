@@ -225,7 +225,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
 
             return urunList;
         }
-        public List<B2BMusteri>? MappingMusteri(string erp, object? musteriList)
+        public List<B2BMusteriKosulKodu>? MappingMusteri(string erp, object? musteriList)
         {
             switch (erp)
             {
@@ -239,16 +239,16 @@ namespace NetTransfer.Integration.Services.VirtualStore
 
             return null;
         }
-        private List<B2BMusteri>? MappingMusteriLogo(List<LogoMusteriModel>? data)
+        private List<B2BMusteriKosulKodu>? MappingMusteriLogo(List<LogoMusteriModel>? data)
         {
-            List<B2BMusteri> musteriList = new List<B2BMusteri>();
+            List<B2BMusteriKosulKodu> musteriList = new List<B2BMusteriKosulKodu>();
 
             if (data == null)
                 return null; ;
 
             foreach (var item in data)
             {
-                var musteri = new B2BMusteri
+                var musteri = new B2BMusteriKosulKodu
                 {
                     musteri_ozellik = "kurumsal",
                     unvan = item.DEFINITION_,
@@ -266,7 +266,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
                     depo_kodu = "",
                     erp_kodu = item.CODE,
                     odeme_sekilleri = "",
-                    //musteri_kosul_kodu = item.SPECODE,
+                    musteri_kosul_kodu = item.SPECODE,
                     grup_kodu = "TURKUAZ",
                     fiyat_listesi_kodu = "",
                     email = item.CODE.Replace("Ş", "S").Replace("Ğ", "G").Replace("İ", "I").Replace("Ü", "U").Replace("Ç", "C").Replace("Ö", "O")
@@ -284,16 +284,17 @@ namespace NetTransfer.Integration.Services.VirtualStore
 
             return musteriList;
         }
-        private List<B2BMusteri>? MappingMusteriNetsis(List<CariModel>? data)
+
+        private List<B2BMusteriKosulKodu>? MappingMusteriNetsis(List<CariModel>? data)
         {
-            List<B2BMusteri> musteriList = new List<B2BMusteri>();
+            List<B2BMusteriKosulKodu> musteriList = new List<B2BMusteriKosulKodu>();
 
             if (data == null)
                 return null; ;
 
             foreach (var item in data)
             {
-                var musteri = new B2BMusteri();
+                var musteri = new B2BMusteriKosulKodu();
                 musteri.il = item.il;
                 musteri.ilce = item.ilce;
                 musteri.musteri_ozellik = string.IsNullOrEmpty(item.tc_no) ? "kurumsal" : "bireysel";
@@ -310,7 +311,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 musteri.depo_kodu = item.depo_kodu;
                 musteri.erp_kodu = item.erp_kodu;
                 musteri.odeme_sekilleri = item.odeme_sekilleri;
-                //musteri.musteri_kosul_kodu = item.musteri_kosul_kodu;
+                musteri.musteri_kosul_kodu = item.musteri_kosul_kodu;
                 musteri.grup_kodu = item.grup_kodu;
                 musteri.fiyat_listesi_kodu = item.fiyat_listesi_kodu;
                 musteri.email = item.email;
@@ -331,7 +332,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
             switch (erp)
             {
                 case "Logo":
-                    return MappingMusteriBakiyeLogo(musteriList as List<LogoMusteriModel>);
+                    return MappingMusteriBakiyeLogo(musteriList as List<LogoMusteriBakiye>);
                 case "Netsis":
                     return MappingMusteriBakiyeNetsis(musteriList as List<CariBakiyeModel>);
                 case "Opak":
@@ -340,7 +341,7 @@ namespace NetTransfer.Integration.Services.VirtualStore
 
             return null;
         }
-        private List<B2BMusteriBakiye>? MappingMusteriBakiyeLogo(List<LogoMusteriModel>? data)
+        private List<B2BMusteriBakiye>? MappingMusteriBakiyeLogo(List<LogoMusteriBakiye>? data)
         {
             List<B2BMusteriBakiye> musteriBakiyeList = new List<B2BMusteriBakiye>();
 
@@ -353,12 +354,12 @@ namespace NetTransfer.Integration.Services.VirtualStore
             {
                 var musteriBakiye = new B2BMusteriBakiye
                 {
-                    cari_kod = item.CODE,
-                    doviz_kodu = "TRY",
-                    bakiye = Math.Round(item.BALANCE, 2),
-                    gecikmis_gun = 0,
-                    gecikmis_bakiye = 0,
-                    borc_alacak_tipi = item.BALANCE > 0 ? "B" : "A",
+                    cari_kod = item.cari_kod,
+                    doviz_kodu = item.doviz_kodu,
+                    bakiye = Math.Round(item.bakiye, 2),
+                    gecikmis_gun = item.gecikmis_gun,
+                    gecikmis_bakiye = item.gecikmis_bakiye,
+                    borc_alacak_tipi = item.borc_alacak_tipi,
                 }
             ;
 

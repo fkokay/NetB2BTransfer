@@ -49,6 +49,7 @@ namespace NetTransfer.Data
         public DbSet<SmartstoreParameter> SmartstoreParameter { get; set; }
         public DbSet<NetsisSetting> NetsisSetting { get; set; }
         public DbSet<ErpDovizTip> ErpDovizTip { get; set; }
+        public DbSet<Salesman> Salesman { get; set; }
 
     }
 }

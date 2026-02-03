@@ -8,12 +8,17 @@ using NetTransfer.Data;
 using NetTransfer.Integration.Models;
 using NetTransfer.Integration.Services.Erp;
 using NetTransfer.Integration.Services.VirtualStore;
+using NetTransfer.Logo.Library.Class;
+using NetTransfer.Logo.Library.Models;
 using NetTransfer.Netsis.Library.Models;
 using NetTransfer.Opak.Library.Models;
 using NetTransfer.Smartstore.Library;
 using NetTransfer.Smartstore.Library.Models;
 using Newtonsoft.Json;
+using RestSharp;
+using System.ComponentModel;
 using System.Data;
+using System.Globalization;
 using System.Net;
 
 namespace NetTransfer.Integration
@@ -92,7 +97,7 @@ namespace NetTransfer.Integration
                 {
                     case "Logo":
                         LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
-                        musteriList = logoService.GetArps();
+                        musteriList = logoService.GetArps().Data;
 
                         if (!string.IsNullOrEmpty(errorMessage))
                             throw new Exception(errorMessage);
@@ -111,8 +116,8 @@ namespace NetTransfer.Integration
                 switch (_virtualStoreSetting.VirtualStore)
                 {
                     case "B2B":
-                        B2BService b2BTransfer = new B2BService(_logger,_b2BClient);
-                        List<B2BMusteri>? b2bList = b2BTransfer.MappingMusteri(_erpSetting.Erp, musteriList);
+                        B2BService b2BTransfer = new B2BService(_logger, _b2BClient);
+                        List<B2BMusteriKosulKodu>? b2bList = b2BTransfer.MappingMusteri(_erpSetting.Erp, musteriList);
 
                         if (b2bList == null)
                         {
@@ -644,7 +649,7 @@ namespace NetTransfer.Integration
                             _logger.LogWarning("Malzeme fiyat listesi MalzemeFiyatModel tipinde.");
                             var b2bNetsisList = malzemeFiyatList as List<MalzemeFiyatModel>;
 
-                            
+
                             _logger.LogWarning("Malzeme fiyat liste miktarı : " + b2bNetsisList.Count);
 
                             int count = PaginationBuilder.GetPageCount(b2bNetsisList, 1000);
@@ -743,7 +748,8 @@ namespace NetTransfer.Integration
                             }
                         }
 
-                        orderList = await _b2BClient.Siparisler(Convert.ToInt32(_netsisSetting.SiparisAktarimDurumKodu));
+                        //orderList = await _b2BClient.Siparisler(Convert.ToInt32(_netsisSetting.SiparisAktarimDurumKodu));
+                        orderList = await _b2BClient.Siparisler(2);
                         break;
                     case "Smartstore":
                         orderList = await _smartstoreTransfer.GetSmartstoreOrder(orderStatusId: _smartstoreParameter.OrderStatusId);
@@ -754,28 +760,92 @@ namespace NetTransfer.Integration
                 {
                     _logger.LogError("Siparişler yüklenirken bir hata oluştu");
                 }
-
-
-                switch (_erpSetting.Erp)
+                else
                 {
-                    case "Logo":
-                        break;
-                    case "Netsis":
-                        NetsisService netsisService = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
+                    _logger.LogInformation("Sipariş sayısı : " + ((orderList is B2BResponseList<B2BSiparis> ? (orderList as B2BResponseList<B2BSiparis>).List.Count : (orderList as List<SmartstoreOrder>) .Count) ) );
+                }
 
-                        _logger.LogInformation("Aktarılacak sipariş sayısı :" + (orderList as B2BResponseList<B2BSiparis>).List.Count);
-                        foreach (var item in (orderList as B2BResponseList<B2BSiparis>).List)
-                        {
-                            var siparisDetayResult = await _b2BClient.SiparisDetay(item.siparis_id);
 
-                            var result = netsisService.SiparisKaydet(item, siparisDetayResult, ref errorMessage);
-                            if (string.IsNullOrEmpty(result))
+                    switch (_erpSetting.Erp)
+                    {
+                        case "Logo":
+                            _logger.LogInformation("Aktarılacak sipariş sayısı :" + (orderList as B2BResponseList<B2BSiparis>).List.Count);
+
+                            LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
+                            foreach (var item in (orderList as B2BResponseList<B2BSiparis>).List)
                             {
-                                _logger.LogError($"{errorMessage}. Sipariş No: {item.siparis_id}");
-                            }
-                            else
-                            {
-                                var siparisDurumGunceleResult = await _b2BClient.SiparisDurumGunncelle(item.siparis_id, result);
+                                var siparisDetayResult = await _b2BClient.SiparisDetay(item.siparis_id);
+                                if (siparisDetayResult == null)
+                                {
+                                    _logger.LogError("Sipariş detay bilgisi alınamadı. Sipariş ID: {siparisId}", item.siparis_id);
+                                    break;
+                                }
+
+                                var id = logoService.SiparisKaydet(siparisDetayResult, ref errorMessage);
+                                var sipariNo = logoService.GetSipariNo(item.siparis_id, ref errorMessage);
+                                int index = 1;
+                                foreach (var kalem in siparisDetayResult.siparis_kalemler)
+                                {
+                                    int kalemId = logoService.SiparisKalemKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, ref errorMessage);
+                                    index++;
+                                    double tutar = kalem.liste_fiyat * kalem.miktar;
+
+                                    if (kalem.iskonto_1 > 0)
+                                    {
+                                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_1 * 0.01)));
+                                        tutar = tutar - isk_tutar;
+                                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_1, ref errorMessage);
+
+                                        index++;
+                                    }
+
+                                    if (kalem.iskonto_2 > 0)
+                                    {
+                                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_2 * 0.01)));
+                                        tutar = tutar - isk_tutar;
+                                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_2, ref errorMessage);
+
+                                        index++;
+                                    }
+
+                                    if (kalem.iskonto_3 > 0)
+                                    {
+                                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_3 * 0.01)));
+                                        tutar = tutar - isk_tutar;
+                                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_3, ref errorMessage);
+
+                                        index++;
+                                    }
+
+                                    if (kalem.iskonto_4 > 0)
+                                    {
+                                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_4 * 0.01)));
+                                        tutar = tutar - isk_tutar;
+                                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_4, ref errorMessage);
+
+                                        index++;
+                                    }
+
+                                    if (kalem.iskonto_5 > 0)
+                                    {
+                                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_5 * 0.01)));
+                                        tutar = tutar - isk_tutar;
+                                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_5, ref errorMessage);
+
+                                        index++;
+                                    }
+
+                                    if (kalem.iskonto_6 > 0)
+                                    {
+                                        double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_6 * 0.01)));
+                                        tutar = tutar - isk_tutar;
+                                        logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_6, ref errorMessage);
+
+                                        index++;
+                                    }
+                                }
+
+                                var siparisDurumGunceleResult = await _b2BClient.SiparisDurumGunncelle(item.siparis_id, sipariNo);
                                 if (siparisDurumGunceleResult == null)
                                 {
                                     _logger.LogError("Sipariş durumu güncellenemedi. Sipariş ID: {siparisId}", item.siparis_id);
@@ -784,7 +854,7 @@ namespace NetTransfer.Integration
                                 {
                                     if (siparisDurumGunceleResult.Code == 200)
                                     {
-                                        _logger.LogWarning("Sipariş durumu güncellendi. Sipariş ID: {siparisId} Sipariş NO : {siparisNo}", item.siparis_id, result);
+                                        _logger.LogWarning("Sipariş durumu güncellendi. Sipariş ID: {siparisId} Sipariş NO : {siparisNo}", id, sipariNo);
                                     }
                                     else
                                     {
@@ -793,169 +863,88 @@ namespace NetTransfer.Integration
                                 }
                             }
 
-                        }
-                        break;
-                    case "Opak":
-                        OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+                            break;
+                        case "Netsis":
+                            NetsisService netsisService = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
 
-                        List<OpakSiparis>? opakList = opakService.MappingOrder(_virtualStoreSetting, orderList);
-                        if (opakList == null)
-                        {
-                            _logger.LogError("Opak sipariş mapping hatası");
-                            return;
-                        }
-
-                        _logger.LogWarning("Aktarılacak sipariş sayısı: " + opakList.Count);
-
-                        foreach (var item in opakList)
-                        {
-                            if (item.KALEMSAYISI > 0)
+                            _logger.LogInformation("Aktarılacak sipariş sayısı :" + (orderList as B2BResponseList<B2BSiparis>).List.Count);
+                            foreach (var item in (orderList as B2BResponseList<B2BSiparis>).List)
                             {
-                                var result = await opakService.SaveOrderAsync(item);
-                                if (result == null)
-                                {
-                                    _logger.LogError("Bilinmeyen bir hata oluştu. Sipariş No: " + item.BELGENO);
-                                    continue;
-                                }
+                                var siparisDetayResult = await _b2BClient.SiparisDetay(item.siparis_id);
 
-                                if (result.Hata)
+                                var result = netsisService.SiparisKaydet(item, siparisDetayResult, ref errorMessage);
+                                if (string.IsNullOrEmpty(result))
                                 {
-                                    _logger.LogError($"{result.HataMesaj}. Sipariş No: {item.BELGENO}");
+                                    _logger.LogError($"{errorMessage}. Sipariş No: {item.siparis_id}");
                                 }
                                 else
                                 {
-                                    _logger.LogWarning($"{item.BELGENO} nolu sipariş aktarıldı");
+                                    var siparisDurumGunceleResult = await _b2BClient.SiparisDurumGunncelle(item.siparis_id, result);
+                                    if (siparisDurumGunceleResult == null)
+                                    {
+                                        _logger.LogError("Sipariş durumu güncellenemedi. Sipariş ID: {siparisId}", item.siparis_id);
+                                    }
+                                    else
+                                    {
+                                        if (siparisDurumGunceleResult.Code == 200)
+                                        {
+                                            _logger.LogWarning("Sipariş durumu güncellendi. Sipariş ID: {siparisId} Sipariş NO : {siparisNo}", item.siparis_id, result);
+                                        }
+                                        else
+                                        {
+                                            _logger.LogError(siparisDurumGunceleResult.Message);
+                                        }
+                                    }
+                                }
+
+                            }
+                            break;
+                        case "Opak":
+                            OpakService opakService = new OpakService(_erpSetting, _smartstoreParameter);
+
+                            List<OpakSiparis>? opakList = opakService.MappingOrder(_virtualStoreSetting, orderList);
+                            if (opakList == null)
+                            {
+                                _logger.LogError("Opak sipariş mapping hatası");
+                                return;
+                            }
+
+                            _logger.LogWarning("Aktarılacak sipariş sayısı: " + opakList.Count);
+
+                            foreach (var item in opakList)
+                            {
+                                if (item.KALEMSAYISI > 0)
+                                {
+                                    var result = await opakService.SaveOrderAsync(item);
+                                    if (result == null)
+                                    {
+                                        _logger.LogError("Bilinmeyen bir hata oluştu. Sipariş No: " + item.BELGENO);
+                                        continue;
+                                    }
+
+                                    if (result.Hata)
+                                    {
+                                        _logger.LogError($"{result.HataMesaj}. Sipariş No: {item.BELGENO}");
+                                    }
+                                    else
+                                    {
+                                        _logger.LogWarning($"{item.BELGENO} nolu sipariş aktarıldı");
+                                    }
                                 }
                             }
-                        }
 
+                            break;
+                        default:
+                            _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);
                         break;
-                    default:
-                        break;
-                }
+                    }
 
-                //LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
-
-                //if (!_b2BClient.IsAccessToken())
-                //{
-                //    var resultAccessToken = await _b2BClient.GetAccessTokenAsync();
-                //    if (resultAccessToken != null)
-                //    {
-                //        _b2BClient.SetAccessToken(resultAccessToken.token);
-                //    }
-                //}
-
-                //var result = await _b2BClient.Siparisler(2);
-                //if (result == null)
-                //{
-                //    _logger.LogError("Siparişler alınamadı.");
-                //    return;
-                //}
-
-                //if (result.Code == 200)
-                //{
-                //    foreach (var item in result.List)
-                //    {
-                //        var siparisDetayResult = await _b2BClient.SiparisDetay(item.siparis_id);
-                //        if (siparisDetayResult == null)
-                //        {
-                //            _logger.LogError("Sipariş detay bilgisi alınamadı. Sipariş ID: {siparisId}", item.siparis_id);
-                //            break;
-                //        }
-
-                //        var id = logoService.SiparisKaydet(siparisDetayResult, ref errorMessage);
-                //        var sipariNo = logoService.GetSipariNo(item.siparis_id, ref errorMessage);
-                //        int index = 1;
-                //        foreach (var kalem in siparisDetayResult.siparis_kalemler)
-                //        {
-                //            int kalemId = logoService.SiparisKalemKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, ref errorMessage);
-                //            index++;
-                //            double tutar = kalem.liste_fiyat * kalem.miktar;
-
-                //            if (kalem.iskonto_1 > 0)
-                //            {
-                //                double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_1 * 0.01)));
-                //                tutar = tutar - isk_tutar;
-                //                logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_1, ref errorMessage);
-
-                //                index++;
-                //            }
-
-                //            if (kalem.iskonto_2 > 0)
-                //            {
-                //                double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_2 * 0.01)));
-                //                tutar = tutar - isk_tutar;
-                //                logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_2, ref errorMessage);
-
-                //                index++;
-                //            }
-
-                //            if (kalem.iskonto_3 > 0)
-                //            {
-                //                double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_3 * 0.01)));
-                //                tutar = tutar - isk_tutar;
-                //                logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_3, ref errorMessage);
-
-                //                index++;
-                //            }
-
-                //            if (kalem.iskonto_4 > 0)
-                //            {
-                //                double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_4 * 0.01)));
-                //                tutar = tutar - isk_tutar;
-                //                logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_4, ref errorMessage);
-
-                //                index++;
-                //            }
-
-                //            if (kalem.iskonto_5 > 0)
-                //            {
-                //                double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_5 * 0.01)));
-                //                tutar = tutar - isk_tutar;
-                //                logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_5, ref errorMessage);
-
-                //                index++;
-                //            }
-
-                //            if (kalem.iskonto_6 > 0)
-                //            {
-                //                double isk_tutar = tutar - (tutar * (1 - (kalem.iskonto_6 * 0.01)));
-                //                tutar = tutar - isk_tutar;
-                //                logoService.SiparisKalemIskontoKaydet(siparisDetayResult.ust_bilgiler, kalem, id, index, kalemId, isk_tutar, kalem.iskonto_6, ref errorMessage);
-
-                //                index++;
-                //            }
-                //        }
-
-                //        var siparisDurumGunceleResult = await _b2BClient.SiparisDurumGunncelle(item.siparis_id, sipariNo);
-                //        if (siparisDurumGunceleResult == null)
-                //        {
-                //            _logger.LogError("Sipariş durumu güncellenemedi. Sipariş ID: {siparisId}", item.siparis_id);
-                //        }
-                //        else
-                //        {
-                //            if (siparisDurumGunceleResult.Code == 200)
-                //            {
-                //                _logger.LogWarning("Sipariş durumu güncellendi. Sipariş ID: {siparisId} Sipariş NO : {siparisNo}", id, sipariNo);
-                //            }
-                //            else
-                //            {
-                //                _logger.LogError(siparisDurumGunceleResult.Message);
-                //            }
-                //        }
-                //    }
-                //}
-                //else
-                //{
-                //    _logger.LogError(result.Message);
-
-                //}
-
+                
                 _logger.LogInformation("Sipariş transferi bitti.");
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "");
+                _logger.LogError(ex, "Bilinmeyen bir hata oluştu");
             }
         }
 
@@ -993,6 +982,76 @@ namespace NetTransfer.Integration
                 switch (_erpSetting.Erp)
                 {
                     case "Logo":
+                        foreach (var item in (paymentList as B2BResponseList<B2BOdeme>).List)
+                        {
+                            if (item.durum == "basarili" && item.islem_tipi == "uyelikli")
+                            {
+                                if (item.musteri_erp_kodu.Contains("120.AŞ") || item.musteri_erp_kodu.Contains("120.MK") || item.musteri_erp_kodu.Contains("120.SG") || item.musteri_erp_kodu.Contains("120.EM"))
+                                {
+                                    ClFicheModel clFiche = new ClFicheModel();
+                                    clFiche.FICHENO = "~";
+                                    clFiche.APPROVEDATE = DateTime.Now.ToShortDateString();
+                                    clFiche.DOCDATE = item.islem_tarihi;
+                                    clFiche.DATE_ = item.islem_tarihi;
+                                    clFiche.TRCODE = 70;
+                                    clFiche.CUSTOMERCODE = item.musteri_erp_kodu;
+                                    clFiche.SALESMAN_CODE = "";
+                                    clFiche.GENEXP1 = item.odeme_notu;
+                                    clFiche.APPROVE = 1;
+                                    clFiche.BANKACCCODE = _erpSetting.DefaultBankCode ?? "";
+                                    clFiche.CREDIT = item.hesaba_islenecek_tutar;
+                                    clFiche.AFFECTRISK = 1;
+                                    clFiche.STATUS = 0;
+
+                                    ClfLineModel clfLine = new ClfLineModel();
+                                    clfLine.SIGN = 1;
+                                    clfLine.CREDIT = item.hesaba_islenecek_tutar;
+                                    clfLine.TRNET = item.hesaba_islenecek_tutar;
+                                    clfLine.TRRATE = 1;
+                                    clfLine.REPORTRATE = 1;
+                                    clfLine.REPORTNET = item.hesaba_islenecek_tutar;
+                                    clfLine.BANKACCCODE = _erpSetting.DefaultBankCode ?? "";
+                                    clfLine.CUSTOMERCODE = item.musteri_erp_kodu;
+                                    clfLine.DOCODE = item.odeme_no;
+                                    clfLine.AFFECTRISK = 1;
+                                    clfLine.SALESMANCODE = "";
+
+                                    clFiche.GetClfLine.Add(clfLine);
+
+                                    QueryParam queryParam = new QueryParam();
+                                    queryParam.firmnr = _erpSetting.FirmNo ?? "";
+                                    queryParam.periodnr = _erpSetting.PeriodNo ?? "";
+                                    queryParam.data = JsonConvert.SerializeObject(clFiche);
+                                    queryParam.DbName = _erpSetting.SqlDatabase ?? "";
+
+
+                                    var id = ClFiche(queryParam, _erpSetting.RestUrl);
+                                    if (id > 0)
+                                    {
+                                        var siparisDurumGunceleResult = await _b2BClient.OdemeDurumGunncelle(item.odeme_no, true);
+                                        if (siparisDurumGunceleResult == null)
+                                        {
+                                            _logger.LogError("Ödeme durumu güncellenemedi. Ödeme ID: {odeme_no}", item.odeme_no);
+                                        }
+                                        else
+                                        {
+                                            if (siparisDurumGunceleResult.Code == 200)
+                                            {
+                                                _logger.LogWarning("Ödeme durumu güncellendi. Ödeme NO : {siparisNo}", item.odeme_no, true);
+                                            }
+                                            else
+                                            {
+                                                _logger.LogError(siparisDurumGunceleResult.Message);
+                                            }
+                                        }
+                                    }
+                                    else
+                                    {
+                                        _logger.LogError($"{item.durum_mesaj}. Ödeme No: {item.odeme_no}");
+                                    }
+                                }
+                            }
+                        }
                         break;
                     case "Netsis":
                         NetsisService netsisService = new NetsisService(_erpSetting, _netsisSetting, _erpDovizTip);
@@ -1110,6 +1169,186 @@ namespace NetTransfer.Integration
             }
         }
 
+        public async Task TahsilatTrasnfer()
+        {
+            string errorMessage = string.Empty;
+            try
+            {
+                object? paymentList = null;
+
+                switch (_virtualStoreSetting.VirtualStore)
+                {
+                    case "B2B":
+                        if (!_b2BClient.IsAccessToken())
+                        {
+                            var resultAccessToken = await _b2BClient.GetAccessTokenAsync();
+                            if (resultAccessToken != null)
+                            {
+                                _b2BClient.SetAccessToken(resultAccessToken.token);
+                            }
+                        }
+
+                        paymentList = await _b2BClient.Tahsilatlar();
+                        break;
+                    case "Smartstore":
+                        break;
+                }
+
+                if (paymentList == null)
+                {
+                    _logger.LogError("Ödeme yüklenirken bir hata oluştu");
+                    return;
+                }
+
+                switch (_erpSetting.Erp)
+                {
+                    case "Logo":
+                        var b2bResponseList = paymentList as B2BResponse2List<B2BTahsilat>;
+                        if (b2bResponseList != null && b2bResponseList.list != null)
+                        {
+                            foreach (var item in b2bResponseList.list)
+                            {
+                                if (item.tahsilat_tipi == "nakit" && item.durum == 1)//2 reddedildi - 1 onaylandı
+                                {
+                                    LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
+
+                                    var cyphCode = logoService.GetArpCyphCode(item.musteri_erp_kodu, ref errorMessage);
+
+                                    var salesman = await _context.Salesman.Where(m => m.SalesmanCode == cyphCode).FirstOrDefaultAsync();
+                                    if (salesman == null)
+                                    {
+                                        _logger.LogError($"{item.plasiyer_erp_kodu} kodlu satış elemanı - kasa bağlantısı bulunamadı");
+                                        break;
+                                    }
+
+
+                                    SdSlipModel sdSlip = new SdSlipModel();
+                                    sdSlip.TRCODE = 11;
+                                    sdSlip.KSCARDCODE = salesman.CashierCode;
+                                    sdSlip.DATE_ = DateTime.Now.ToShortDateString();
+                                    sdSlip.AMOUNT = item.tutar;
+                                    sdSlip.CUSTTITLE = item.musteri_adi;
+                                    sdSlip.LINEEXP = item.not;
+                                    sdSlip.STATUS = 0;
+                                    sdSlip.SPECODE = "";
+                                    sdSlip.DOCNUMBER = item.id.ToString();
+                                    sdSlip.AFFECTRISK = 1;
+                                    sdSlip.CUSTOMERCODE = item.musteri_erp_kodu;
+                                    sdSlip.SALESMANCODE = salesman.SalesmanCode;
+
+
+                                    QueryParam queryParam = new QueryParam();
+                                    queryParam.firmnr = _erpSetting.FirmNo ?? "";
+                                    queryParam.periodnr = _erpSetting.PeriodNo ?? "";
+                                    queryParam.data = JsonConvert.SerializeObject(sdSlip);
+                                    queryParam.DbName = _erpSetting.SqlDatabase ?? "";
+
+                                    var id = SdSlip(queryParam, _erpSetting.RestUrl);
+                                    if (id > 0)
+                                    {
+                                        var tahsilatDurumResult = await _b2BClient.TahsilatDurumGuncelle(item.id, true);
+                                        if (tahsilatDurumResult == null)
+                                        {
+                                            _logger.LogError("Tahsilat durumu güncellenemedi. TahsilatId ID: {id}", item.id);
+                                        }
+                                        else
+                                        {
+                                            if (tahsilatDurumResult.Code == 200)
+                                            {
+                                                _logger.LogWarning("Tahsilat durumu güncellendi. TahsilatId ID : {id}", item.id);
+                                            }
+                                            else
+                                            {
+                                                _logger.LogError(tahsilatDurumResult.Message);
+                                            }
+                                        }
+                                    }
+                                }
+                                if (item.tahsilat_tipi == "pos" && item.durum == 1)//2 reddedildi - 1 onaylandı
+                                {
+                                    LogoService logoService = new LogoService(_erpSetting, _b2bParameter);
+
+                                    var cyphCode = logoService.GetArpCyphCode(item.musteri_erp_kodu, ref errorMessage);
+
+                                    var salesman = await _context.Salesman.Where(m => m.SalesmanCode == cyphCode).FirstOrDefaultAsync();
+
+                                    ClFicheModel clFiche = new ClFicheModel();
+                                    clFiche.FICHENO = "~";
+                                    clFiche.APPROVEDATE = DateTime.Now.ToShortDateString();
+                                    clFiche.DOCDATE = DateTime.Now.ToShortDateString();
+                                    clFiche.DATE_ = DateTime.Now.ToShortDateString();
+                                    clFiche.TRCODE = 70;
+                                    clFiche.CUSTOMERCODE = item.musteri_erp_kodu;
+                                    clFiche.SALESMAN_CODE = salesman.SalesmanCode;
+                                    clFiche.GENEXP1 = item.not;
+                                    clFiche.APPROVE = 1;
+                                    clFiche.BANKACCCODE = _erpSetting.DefaultBankCode ?? "";
+                                    clFiche.CREDIT = item.tutar;
+                                    clFiche.AFFECTRISK = 1;
+                                    clFiche.STATUS = 0;
+                                    clFiche.GENEXP1 = $"{item.plasiyer_adi} SANAL POS TAHSİLATI - {item.id}";
+
+                                    ClfLineModel clfLine = new ClfLineModel();
+                                    clfLine.SIGN = 1;
+                                    clfLine.CREDIT = item.tutar;
+                                    clfLine.TRNET = item.tutar;
+                                    clfLine.TRRATE = 1;
+                                    clfLine.REPORTRATE = 1;
+                                    clfLine.REPORTNET = item.tutar;
+                                    clfLine.BANKACCCODE = _erpSetting.DefaultBankCode ?? "";
+                                    clfLine.CUSTOMERCODE = item.musteri_erp_kodu;
+                                    clfLine.DOCODE = item.id.ToString();
+                                    clfLine.AFFECTRISK = 1;
+                                    clfLine.SALESMANCODE = salesman.SalesmanCode;
+                                    clfLine.LINEEXP = $"{item.plasiyer_adi} SANAL POS TAHSİLATI - {item.id}";
+
+                                    clFiche.GetClfLine.Add(clfLine);
+
+                                    QueryParam queryParam = new QueryParam();
+                                    queryParam.firmnr = _erpSetting.FirmNo ?? "";
+                                    queryParam.periodnr = _erpSetting.PeriodNo ?? "";
+                                    queryParam.data = JsonConvert.SerializeObject(clFiche);
+                                    queryParam.DbName = _erpSetting.SqlDatabase ?? "";
+
+
+                                    var id = ClFiche(queryParam, _erpSetting.RestUrl);
+                                    if (id > 0)
+                                    {
+                                        var tahsilatDurumResult = await _b2BClient.TahsilatDurumGuncelle(item.id, true);
+                                        if (tahsilatDurumResult == null)
+                                        {
+                                            _logger.LogError("Tahsilat durumu güncellenemedi. TahsilatId ID: {id}", item.id);
+                                        }
+                                        else
+                                        {
+                                            if (tahsilatDurumResult.Code == 200)
+                                            {
+                                                _logger.LogWarning("Tahsilat durumu güncellendi. TahsilatId ID : {id}", item.id);
+                                            }
+                                            else
+                                            {
+                                                _logger.LogError(tahsilatDurumResult.Message);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            _logger.LogError("B2BResponseList<B2BOdeme> veya List null.");
+                        }
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Tahsilat Aktarımı Sırasında Bir Hata Oluştu");
+            }
+
+            _logger.LogInformation("Tahsilat Aktarımı Tamamlandı.");
+        }
+
         private async Task UpdateCustomerLastTransfer(DateTime transferDatetime)
         {
             try
@@ -1189,5 +1428,97 @@ namespace NetTransfer.Integration
                 _logger.LogError(ex, "UpdateOrderShipmentLastTransfer Error");
             }
         }
+
+        public int SdSlip(QueryParam param, string url)
+        {
+            var client = new RestClient(url);
+
+            var request = new RestRequest($"{param.Path}logo/sdslips/", Method.Post)
+                .AddJsonBody(param);
+
+            try
+            {
+                var response = client.Execute(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    if (response.Content == null)
+                    {
+                        throw new Exception("Bilinmeyen hata oluştu.");
+                    }
+                    return JsonConvert.DeserializeObject<int>(response.Content);
+                }
+                else
+                {
+                    ErrorFault? fault = null;
+
+                    try
+                    {
+                        if (response.Content == null)
+                        {
+                            throw new Exception("Bilinmeyen hata oluştu.");
+                        }
+
+                        fault = JsonConvert.DeserializeObject<ErrorFault>(response.Content);
+                    }
+                    catch
+                    {
+                        throw new Exception("Servisten beklenmeyen bir hata formatı döndü: " + response.Content);
+                    }
+
+                    throw new Exception(fault?.ErrMessage ?? "Bilinmeyen hata oluştu.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("SdSlip çağrısında hata oluştu: " + ex.Message, ex);
+            }
+        }
+        public int ClFiche(QueryParam param, string url)
+        {
+            var client = new RestClient(url);
+
+            var request = new RestRequest($"{param.Path}logo/setcreditcardslips/", Method.Post)
+                .AddJsonBody(param);
+
+            try
+            {
+                var response = client.Execute(request);
+
+                if (response.StatusCode == HttpStatusCode.OK)
+                {
+                    if (response.Content == null)
+                    {
+                        throw new Exception("Bilinmeyen hata oluştu.");
+                    }
+                    return JsonConvert.DeserializeObject<int>(response.Content);
+                }
+                else
+                {
+                    ErrorFault? fault = null;
+
+                    try
+                    {
+                        if (response.Content == null)
+                        {
+                            throw new Exception("Bilinmeyen hata oluştu.");
+                        }
+
+                        fault = JsonConvert.DeserializeObject<ErrorFault>(response.Content);
+                    }
+                    catch
+                    {
+                        throw new Exception("Servisten beklenmeyen bir hata formatı döndü: " + response.Content);
+                    }
+
+                    throw new Exception(fault?.ErrMessage ?? "Bilinmeyen hata oluştu.");
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("SdSlip çağrısında hata oluştu: " + ex.Message, ex);
+            }
+        }
+
     }
 }

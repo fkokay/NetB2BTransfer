@@ -90,7 +90,7 @@ namespace NetTransfer.B2B.Library
                 throw;
             }
         }
-        public async Task<B2BResponse?> MusteriTopluTransferAsync(List<B2BMusteri> musteriAll)
+        public async Task<B2BResponse?> MusteriTopluTransferAsync(List<B2BMusteriKosulKodu> musteriAll)
         {
             try
             {
@@ -399,6 +399,7 @@ namespace NetTransfer.B2B.Library
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
 
                     var response = await client.GetAsync(_b2BSetting.Url + $"/entegrasyon/odemeler/list?durum=basarili&erp_aktarma_durumu=0");
+                    //var response = await client.GetAsync(_b2BSetting.Url + $"/entegrasyon/odemeler/list?durum=basarili&erp_aktarma_durumu=1");
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponseList<B2BOdeme>? result = JsonConvert.DeserializeObject<B2BResponseList<B2BOdeme>>(value: value);
 
@@ -442,6 +443,80 @@ namespace NetTransfer.B2B.Library
                     string json = data.ToString(Newtonsoft.Json.Formatting.None);
 
                     var response = await client.PostAsync(_b2BSetting.Url + $"/entegrasyon/odemeler/erp_aktarma_durumu", new StringContent(json, Encoding.UTF8, "application/json"));
+                    string value = await response.Content.ReadAsStringAsync();
+                    B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
+
+
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
+            }
+        }
+        public async Task<B2BResponse2List<B2BTahsilat>?> Tahsilatlar()
+        {
+            try
+            {
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var response = await client.GetAsync(_b2BSetting.Url + $"/entegrasyon/tahsilatlar/list?entegrasyon_aktarim_durum=0");
+                    string value = await response.Content.ReadAsStringAsync();
+                    B2BResponse2List<B2BTahsilat>? result = JsonConvert.DeserializeObject<B2BResponse2List<B2BTahsilat>>(value: value);
+
+                    return result;
+                }
+            }
+            catch (Exception)
+            {
+                throw;
+            }
+        }
+        public async Task<B2BResponse?> TahsilatDurumGuncelle(int tahsilat_id, bool durum)
+        {
+            try
+            {
+                var handler = new SocketsHttpHandler
+                {
+                    SslOptions = new System.Net.Security.SslClientAuthenticationOptions
+                    {
+                        EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12
+                    }
+                };
+                using (var client = new HttpClient(handler))
+                {
+                    client.DefaultRequestHeaders.Add("Authorization", $"Bearer {_accessToken}");
+                    client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                    var data = new JObject(
+                        new JProperty("data",
+                            new JArray(
+                                new JObject(
+                                    new JProperty("tahsilat_id", tahsilat_id),
+                                    new JProperty("entegrasyon_aktarim_durum", durum)
+                                )
+                            )
+                        )
+                    );
+
+
+
+                    string json = data.ToString(Newtonsoft.Json.Formatting.None);
+
+                    var response = await client.PostAsync(_b2BSetting.Url + $"/entegrasyon/tahsilatlar/entegrasyon_aktarim_durum/guncelle", new StringContent(json, Encoding.UTF8, "application/json"));
                     string value = await response.Content.ReadAsStringAsync();
                     B2BResponse? result = JsonConvert.DeserializeObject<B2BResponse>(value: value);
 

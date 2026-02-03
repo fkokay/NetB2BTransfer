@@ -20,6 +20,8 @@ namespace NetTransfer.Core.Entities
         public string? ErpPassword { get; set; }
         public string? FirmNo { get; set; }
         public string? PeriodNo { get; set; }
+        public string? DefaultCashierCode { get; set; }
+        public string? DefaultBankCode { get; set; }
         public bool Active { get; set; }
     }
 }

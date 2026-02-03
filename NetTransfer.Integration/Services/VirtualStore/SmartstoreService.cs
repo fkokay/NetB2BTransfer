@@ -1104,20 +1104,52 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 product.TaxCategoryId = 1;
                 product.ManageInventoryMethodId = item.STOKMIKTAR == "E" ? item.VARYANTLIURUN == "E" ? 2 : 1 : 0;
                 product.StockQuantity = Convert.ToInt32(item.MIKTAR);
-                product.DisplayStockAvailability = false;
-                product.DisplayStockQuantity = false;
-                product.MinStockQuantity = 0;
-                product.LowStockActivityId = 0;
-                product.NotifyAdminForQuantityBelow = 0;
-                product.BackorderModeId = 0;
-                product.AllowBackInStockSubscriptions = false;
-                product.OrderMinimumQuantity = 1;
-                product.OrderMaximumQuantity = int.MaxValue;
+                if (product.ManageInventoryMethodId == 0)
+                {
+                    product.DisplayStockAvailability = false;
+                    product.DisplayStockQuantity = false;
+                    product.MinStockQuantity = 0;
+                    product.LowStockActivityId = 0;
+                    product.NotifyAdminForQuantityBelow = 0;
+                    product.BackorderModeId = 0;
+                    product.AllowBackInStockSubscriptions = false;
+                    product.OrderMinimumQuantity = 1;
+                    product.OrderMaximumQuantity = int.MaxValue;
+                }
+                else
+                {
+                    product.DisplayStockAvailability = true;
+                    product.DisplayStockQuantity = false;
+                    product.MinStockQuantity = 0;
+                    product.LowStockActivityId = 1;
+                    product.NotifyAdminForQuantityBelow = 0;
+                    product.BackorderModeId = 0;
+                    product.AllowBackInStockSubscriptions = false;
+                    product.OrderMinimumQuantity = 1;
+                    product.OrderMaximumQuantity = int.MaxValue;
+                }
+
+
                 product.QuantityStep = 1;
                 product.QuantityControlType = "Spinner";
                 product.HideQuantityControl = false;
                 product.AllowedQuantities = null;
-                product.DisableBuyButton = false;
+                if (product.ManageInventoryMethodId == 0)
+                {
+                    product.DisableBuyButton = false;
+                }
+                else
+                {
+                    if (product.StockQuantity > 0)
+                    {
+                        product.DisableBuyButton = false;
+                    }
+                    else
+                    {
+                        product.DisableBuyButton = true;
+                    }
+                }
+
                 product.DisableWishlistButton = false;
                 product.AvailableForPreOrder = false;
                 product.CallForPrice = false;

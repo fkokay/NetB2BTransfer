@@ -211,7 +211,7 @@ namespace NetTransfer.Integration.Services.Erp
                     {
                         try
                         {
-                            string cariKod = item.OrderCustomer == null ? "H01" :  string.IsNullOrEmpty(item.OrderCustomer.CustomerNumber) ? "H01" : item.OrderCustomer.CustomerNumber;
+                            string cariKod = item.OrderCustomer == null ? "H01" : string.IsNullOrEmpty(item.OrderCustomer.CustomerNumber) ? "H01" : item.OrderCustomer.CustomerNumber;
                             string odemeTuru = "";
                             if (item.PaymentMethodSystemName == "Payments.CreditCard" || item.PaymentMethodSystemName == "Payments.Iyzico")
                             {
@@ -291,7 +291,7 @@ namespace NetTransfer.Integration.Services.Erp
                             opakSiparis.DEPOID = 1;
                             opakSiparis.CARIKOD = cariKod;
                             opakSiparis.CARIADI = "";
-                            opakSiparis.ALTHESAP = "001";
+                            opakSiparis.ALTHESAP = "01"; // 001-HÜNERİŞ 
                             opakSiparis.BELGENO = $"B2C{item.OrderNumber ?? item.Id.ToString()}";
                             opakSiparis.TARIH = item.CreatedOnUtc.ToString("yyyy-MM-dd");
                             opakSiparis.SAAT = item.CreatedOnUtc.ToString("HH:mm:ss");
@@ -319,16 +319,19 @@ namespace NetTransfer.Integration.Services.Erp
                             }
 
                             opakSiparis.ADSOYAD = adsoyad;
-                            opakSiparis.TEL = item.BillingAddress.PhoneNumber;
-                            opakSiparis.FAX = "";
-                            opakSiparis.CEPTEL = item.BillingAddress.PhoneNumber;
-                            opakSiparis.MAIL = item.BillingAddress.Email;
-                            opakSiparis.ADRES = item.BillingAddress.Address1;
-                            opakSiparis.ILCE = item.BillingAddress.Town!.Name;
-                            opakSiparis.IL = item.BillingAddress.City!.Name;
-                            opakSiparis.VERGIDAIRESI = item.BillingAddress.TaxOffice.IsNullOrEmpty() ? "" : item.BillingAddress.TaxOffice;
-                            opakSiparis.VERGINO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? item.BillingAddress.TaxNumber : "";
-                            opakSiparis.TCNO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber;
+                            if (item.BillingAddress != null)
+                            {
+                                opakSiparis.TEL = item.BillingAddress.PhoneNumber;
+                                opakSiparis.FAX = "";
+                                opakSiparis.CEPTEL = item.BillingAddress.PhoneNumber;
+                                opakSiparis.MAIL = item.BillingAddress.Email;
+                                opakSiparis.ADRES = item.BillingAddress.Address1;
+                                opakSiparis.ILCE = item.BillingAddress.Town == null ? "" : item.BillingAddress.Town.Name;
+                                opakSiparis.IL = item.BillingAddress.City == null ? "" : item.BillingAddress.City.Name;
+                                opakSiparis.VERGIDAIRESI = item.BillingAddress.TaxOffice.IsNullOrEmpty() ? "" : item.BillingAddress.TaxOffice;
+                                opakSiparis.VERGINO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? item.BillingAddress.TaxNumber : "";
+                                opakSiparis.TCNO = item.BillingAddress.TaxNumber.IsNullOrEmpty() ? "" : item.BillingAddress.TaxNumber.Length == 10 ? "" : item.BillingAddress.TaxNumber;
+                            }
                             if (item.PaymentTransaction != null && item.PaymentTransaction.Installment > 1)
                             {
                                 opakSiparis.KARGOBEDELI = item.OrderShippingExclTax + item.OrderShippingExclTax / 100 * 7;

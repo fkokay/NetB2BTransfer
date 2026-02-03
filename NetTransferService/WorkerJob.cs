@@ -19,9 +19,9 @@ namespace NetTransferService
     {
         private readonly ISchedulerFactory _schedulerFactory;
         private readonly IJobFactory _jobFactory;
-        private readonly ILogger<Worker> _logger;
+        private readonly ILogger<WorkerJob> _logger;
 
-        public WorkerJob(ISchedulerFactory schedulerFactory, IJobFactory jobFactory, ILogger<Worker> logger)
+        public WorkerJob(ISchedulerFactory schedulerFactory, IJobFactory jobFactory, ILogger<WorkerJob> logger)
         {
             _schedulerFactory = schedulerFactory;
             _jobFactory = jobFactory;
@@ -136,6 +136,21 @@ namespace NetTransferService
                 await scheduler.ScheduleJob(jobShippment, triggerShippment, stoppingToken);
 
 
+                IJobDetail jobPayment = JobBuilder
+                .Create<PaymentJob>()
+                .WithIdentity("paymentJob", "defaultGroup")
+                .Build();
+
+                ITrigger triggerPayment = TriggerBuilder
+                    .Create()
+                    .WithIdentity("paymentSyncTrigger", "defaultGroup")
+                    .StartNow()
+                    .WithSimpleSchedule(x => x.WithIntervalInMinutes(2).RepeatForever())
+                .Build();
+
+                await scheduler.ScheduleJob(jobPayment, triggerPayment, stoppingToken);
+
+
                 await Task.Delay(Timeout.Infinite, stoppingToken);
             }
             catch (Exception ex)
@@ -144,6 +159,6 @@ namespace NetTransferService
             }
         }
 
-        
+
     }
 }

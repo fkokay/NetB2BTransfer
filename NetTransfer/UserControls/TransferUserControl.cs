@@ -74,7 +74,8 @@ namespace NetTransfer.UserControls
                         "Malzeme Stok Aktarım",
                         "Malzeme Fiyat Aktarım",
                         "Sipariş Aktarım",
-                        "SanalPos Aktarım"
+                        "SanalPos Aktarım",
+                        "Tahsilat Aktarım"
                     }
                 );
 
@@ -187,6 +188,13 @@ namespace NetTransfer.UserControls
                     await Task.Run(async () =>
                     {
                         await transfer.SanalPosTransfer();
+                    }, cancellationTransfer.Token);
+                }
+                else if (cmbTransferType.SelectedItem.ToString() == "Tahsilat Aktarım")
+                {
+                    await Task.Run(async () =>
+                    {
+                        await transfer.TahsilatTrasnfer();
                     }, cancellationTransfer.Token);
                 }
             }

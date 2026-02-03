@@ -32,7 +32,7 @@ namespace NetTransfer.Opak.Library.Class
 
         public static string GetMalzemeStokQuery(bool sync = true)
         {
-            string query = $"SELECT * FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek]";
+            string query = $"SELECT * FROM [VOW_STOKBAKIYEENTEGRASYON_ozgurtek] WHERE 1=1";
             if (sync)
             {
                 query += " AND STOKKOD IN (SELECT STOK_KODU FROM [TBL_B2C_STOKSYNC] WHERE DURUM=0 AND (TIP=0 OR TIP=1))";

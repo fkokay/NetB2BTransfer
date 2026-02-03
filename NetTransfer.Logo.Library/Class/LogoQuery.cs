@@ -255,5 +255,10 @@ namespace NetTransfer.Logo.Library.Class
         {
             return "SELECT FICHENO FROM " + LogoUtils.TableNameWithFirmPlusPeriod(param.DbName, param.firmnr, param.periodnr, "ORFICHE") + " WHERE GENEXP4 = '" + param.datareference + "'";
         }
+
+        public static string GetArpCyphCodeQuery(LogoQueryParam param)
+        {
+            return "SELECT CYPHCODE FROM " + LogoUtils.TableNameWithFirm(param.DbName, param.firmnr, "CLCARD") + " WHERE CODE = '" + param.datareference + "'";
+        }
     }
 }

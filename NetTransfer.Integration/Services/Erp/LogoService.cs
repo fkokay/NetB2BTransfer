@@ -66,7 +66,7 @@ namespace NetTransfer.Integration.Services.Erp
 
             return result;
         }
-        public List<LogoMusteriModel> GetArpBalances(ref string errorMessage)
+        public List<LogoMusteriBakiye> GetArpBalances(ref string errorMessage)
         {
             LogoQueryParam param = new LogoQueryParam
             {
@@ -80,7 +80,7 @@ namespace NetTransfer.Integration.Services.Erp
                 ascdesc = "ASC",
             };
 
-            var arpList = DataReader.ReadData<LogoMusteriModel>(connectionString, LogoQuery.GetArpBalanceQuery(param), ref errorMessage);
+            var arpList = DataReader.ReadData<LogoMusteriBakiye>(connectionString, "SELECT * FROM OZGUR_B2B_CARIBAKIYELERI", ref errorMessage);
 
             if (!string.IsNullOrEmpty(errorMessage))
                 throw new Exception(errorMessage);
@@ -393,6 +393,17 @@ namespace NetTransfer.Integration.Services.Erp
             param.datareference = id.ToString();
 
             return DataReader.GetExecuteScalar(connectionString, LogoQuery.GetOrderFicheNoQuery(param), ref errorMessage);
+        }
+
+        public string GetArpCyphCode(string customerCode, ref string errorMessage)
+        {
+            LogoQueryParam param = new LogoQueryParam();
+            param.DbName = erpSetting.SqlDatabase!;
+            param.firmnr = erpSetting.FirmNo!.ToString();
+            param.periodnr = erpSetting.PeriodNo!.ToString();
+            param.datareference = customerCode;
+
+            return DataReader.GetExecuteScalar(connectionString, LogoQuery.GetArpCyphCodeQuery(param), ref errorMessage);
         }
     }
 }
