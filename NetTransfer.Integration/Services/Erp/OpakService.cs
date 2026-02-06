@@ -291,7 +291,7 @@ namespace NetTransfer.Integration.Services.Erp
                             opakSiparis.DEPOID = 1;
                             opakSiparis.CARIKOD = cariKod;
                             opakSiparis.CARIADI = "";
-                            opakSiparis.ALTHESAP = "01"; // 001-HÜNERİŞ 
+                            opakSiparis.ALTHESAP = "001"; // 001-HÜNERİŞ 
                             opakSiparis.BELGENO = $"B2C{item.OrderNumber ?? item.Id.ToString()}";
                             opakSiparis.TARIH = item.CreatedOnUtc.ToString("yyyy-MM-dd");
                             opakSiparis.SAAT = item.CreatedOnUtc.ToString("HH:mm:ss");

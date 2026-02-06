@@ -231,7 +231,7 @@
             // cmbErp
             // 
             cmbErp.FormattingEnabled = true;
-            cmbErp.Items.AddRange(new object[] { "Netsis", "Logo", "Opak" });
+            cmbErp.Items.AddRange(new object[] { "Netsis", "Logo", "Opak", "Mikro" });
             cmbErp.Location = new System.Drawing.Point(139, 50);
             cmbErp.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             cmbErp.Name = "cmbErp";

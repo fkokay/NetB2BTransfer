@@ -108,6 +108,12 @@ namespace NetTransfer.Integration
                         break;
                     case "Opak":
                         break;
+                    case "Mikro":
+                        MikroService mikroService = new MikroService(_erpSetting);
+                        musteriList = mikroService.GetCariList(ref errorMessage);
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            throw new Exception(errorMessage);
+                        break;
                     default:
                         _logger.LogError("Geçersiz ERP ayarı: CariTransfer.{erp}", _erpSetting.Erp);
                         break;
@@ -150,6 +156,7 @@ namespace NetTransfer.Integration
                                 int pagetotal = i == 1 ? 0 : ((i - 1) * 25);
                                 int total = pagetotal + customerList.Count;
 
+                                _logger.LogError($"Müşteri aktarım detay : {result.Detay}");
                                 _logger.LogInformation($"Müşteri aktarım durumu : {total}/{b2bList.Count} aktarıldı");
                             }
                             else
@@ -198,6 +205,12 @@ namespace NetTransfer.Integration
                         musteriList = netsisService.GetCariBakiyeList(ref errorMessage);
                         break;
                     case "Opak":
+                        break;
+                    case "Mikro":
+                        MikroService mikroService = new MikroService(_erpSetting);
+                        musteriList = mikroService.GetCariBakiyeList(ref errorMessage);
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            throw new Exception(errorMessage);
                         break;
                     default:
                         _logger.LogError("Geçersiz ERP ayarı: CariTransfer.{erp}", _erpSetting.Erp);
@@ -299,6 +312,12 @@ namespace NetTransfer.Integration
                             malzemeList = opakService.GetMalzemeList(ref errorMessage);
                         }
 
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
+                        break;
+                    case "Mikro":
+                        MikroService mikroService = new MikroService(_erpSetting);
+                        malzemeList = mikroService.GetMalzemeList(ref errorMessage);
                         if (!string.IsNullOrEmpty(errorMessage))
                             _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
@@ -510,6 +529,12 @@ namespace NetTransfer.Integration
                         if (!string.IsNullOrEmpty(errorMessage))
                             _logger.LogError("Malzeme Stok Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
+                    case "Mikro":
+                        MikroService mikroService = new MikroService(_erpSetting);
+                        malzemeStokList = mikroService.GetMalzemeStokList(ref errorMessage);
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Stok Listesi alınamadı. Hata: {error}", errorMessage);
+                        break;
                     default:
                         _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);
                         break;
@@ -602,6 +627,12 @@ namespace NetTransfer.Integration
                         if (!string.IsNullOrEmpty(errorMessage))
                             _logger.LogError("Malzeme Listesi alınamadı. Hata: {error}", errorMessage);
 
+                        break;
+                    case "Mikro":
+                        MikroService mikroService = new MikroService(_erpSetting);
+                        malzemeFiyatList = mikroService.GetMalzemeFiyatList(ref errorMessage);
+                        if (!string.IsNullOrEmpty(errorMessage))
+                            _logger.LogError("Malzeme Fiyat Listesi alınamadı. Hata: {error}", errorMessage);
                         break;
                     default:
                         _logger.LogError("Geçersiz ERP ayarı: {erp}", _erpSetting.Erp);

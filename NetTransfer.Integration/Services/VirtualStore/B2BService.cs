@@ -3,6 +3,7 @@ using NetTransfer.B2B.Library;
 using NetTransfer.B2B.Library.Models;
 using NetTransfer.Integration.Models;
 using NetTransfer.Logo.Library.Models;
+using NetTransfer.Mikro.Library.Models;
 using NetTransfer.Netsis.Library.Models;
 using Newtonsoft.Json;
 using System;
@@ -79,7 +80,6 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 _logger.LogError(ex, "Error updating product prices");
             }
         }
-
         public async Task<B2BResponse?> UpdateProductStock(List<BaseMalzemeStokModel> malzemeStokList)
         {
             try
@@ -109,7 +109,6 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 throw new ApplicationException("Error updating product stock", ex);
             }
         }
-
         public List<B2BUrun>? MappingProduct(string erp, object? malzemeList)
         {
             switch (erp)
@@ -120,17 +119,71 @@ namespace NetTransfer.Integration.Services.VirtualStore
                     return MappingProductNetsis(malzemeList as List<MalzemeModel>);
                 case "Opak":
                     return MappingProductOpak(malzemeList as List<ItemModel>);
+                case "Mikro":
+                    return MappingProductMikro(malzemeList as List<MikroMalzemeModel>);
             }
 
             return null;
         }
-
         private List<B2BUrun> MappingProductOpak(List<ItemModel>? ıtemModels)
         {
             throw new NotImplementedException();
         }
-
         private List<B2BUrun> MappingProductNetsis(List<MalzemeModel>? malzemeler)
+        {
+            List<B2BUrun> urunList = new List<B2BUrun>();
+
+            if (malzemeler == null)
+                return urunList;
+
+            foreach (var item in malzemeler)
+            {
+                B2BUrun urun = new B2BUrun
+                {
+                    marka = new B2BMarka { kod = item.marka_kod, baslik = item.marka_adi },
+                    grup = new B2BGrup { kod = item.grup_kod, baslik = item.grup_baslik },
+                    birim = new B2BBirim { kod = item.birim_kodu, baslik = item.birim_baslik },
+                    barkod_no = item.barkod_no,
+                    urun_kodu = item.urun_kodu,
+                    doviz_kodu = item.doviz_kodu,
+                    baslik = item.baslik,
+                    aciklama = item.aciklama,
+                    icerik = item.icerik,
+                    kdv_durumu = item.kdv_durumu,
+                    kdv_orani = item.kdv_orani,
+                    liste_fiyati = item.liste_fiyati,
+                    durum = item.durum,
+                    yeni_urun = item.yeni_urun,
+                    yeni_urun_tarih = item.yeni_urun_tarih,
+                    minimum_satin_alma_miktari = item.minimum_satin_alma_miktari,
+                    sepete_eklenme_miktari = item.sepete_eklenme_miktari,
+                    varyant_durumu = item.varyant_durumu,
+                    asorti_durumu = item.asorti_durumu,
+                    model_no = item.model_no,
+                    varyant_1 = new B2BVaryant
+                    {
+                        kod = item.varyant_1_kod,
+                        baslik = item.varyant_1_baslik,
+                        deger_kod = item.varyant_1_deger,
+                        deger_baslik = item.varyant_1_deger_baslik,
+                    },
+                    varyant_2 = new B2BVaryant
+                    {
+                        kod = item.varyant_2_kod,
+                        baslik = item.varyant_2_baslik,
+                        deger_kod = item.varyant_2_deger,
+                        deger_baslik = item.varyant_2_deger_baslik
+                    },
+                    asorti_miktar = item.asorti_miktar,
+                    asorti_kod = item.asorti_kod,
+                    kategoriler = new List<B2BKategori>()
+                };
+                urunList.Add(urun);
+            }
+
+            return urunList;
+        }
+        private List<B2BUrun> MappingProductMikro(List<MikroMalzemeModel>? malzemeler)
         {
             List<B2BUrun> urunList = new List<B2BUrun>();
 
@@ -235,6 +288,8 @@ namespace NetTransfer.Integration.Services.VirtualStore
                     return MappingMusteriNetsis(musteriList as List<CariModel>);
                 case "Opak":
                     return null;
+                case "Mikro":
+                    return MappingMusteriMikro(musteriList as List<MikroCariModel>);
             }
 
             return null;
@@ -284,8 +339,49 @@ namespace NetTransfer.Integration.Services.VirtualStore
 
             return musteriList;
         }
-
         private List<B2BMusteriKosulKodu>? MappingMusteriNetsis(List<CariModel>? data)
+        {
+            List<B2BMusteriKosulKodu> musteriList = new List<B2BMusteriKosulKodu>();
+
+            if (data == null)
+                return null; ;
+
+            foreach (var item in data)
+            {
+                var musteri = new B2BMusteriKosulKodu();
+                musteri.il = item.il;
+                musteri.ilce = item.ilce;
+                musteri.musteri_ozellik = string.IsNullOrEmpty(item.tc_no) ? "kurumsal" : "bireysel";
+                musteri.unvan = item.unvan;
+                musteri.cari_kod = item.cari_kod;
+                musteri.adi = item.adi;
+                musteri.soyadi = item.soyadi;
+                musteri.telefon = item.telefon;
+                musteri.adres = item.adres;
+                musteri.vergi_dairesi = item.vergi_dairesi;
+                musteri.vergi_no = item.vergi_no;
+                musteri.tc_no = item.tc_no;
+                musteri.plasiyer = item.plasiyer;
+                musteri.depo_kodu = item.depo_kodu;
+                musteri.erp_kodu = item.erp_kodu;
+                musteri.odeme_sekilleri = item.odeme_sekilleri;
+                musteri.musteri_kosul_kodu = item.musteri_kosul_kodu;
+                musteri.grup_kodu = item.grup_kodu;
+                musteri.fiyat_listesi_kodu = item.fiyat_listesi_kodu;
+                musteri.email = item.email;
+                musteri.kullanici_adi = item.kullanici_adi;
+                musteri.sifre = item.sifre;
+                musteri.email_durum_bildirimi = item.email_durum_bildirimi;
+                musteri.musteri_durumu = item.musteri_durumu.ToString();
+
+
+
+                musteriList.Add(musteri);
+            }
+
+            return musteriList;
+        }
+        private List<B2BMusteriKosulKodu>? MappingMusteriMikro(List<MikroCariModel>? data)
         {
             List<B2BMusteriKosulKodu> musteriList = new List<B2BMusteriKosulKodu>();
 
@@ -337,6 +433,8 @@ namespace NetTransfer.Integration.Services.VirtualStore
                     return MappingMusteriBakiyeNetsis(musteriList as List<CariBakiyeModel>);
                 case "Opak":
                     return null;
+                case "Mikro":
+                    return MappingMusteriBakiyeMikro(musteriList as List<MikroCariBakiyeModel>);
             }
 
             return null;
@@ -370,6 +468,33 @@ namespace NetTransfer.Integration.Services.VirtualStore
             return musteriBakiyeList;
         }
         private List<B2BMusteriBakiye>? MappingMusteriBakiyeNetsis(List<CariBakiyeModel>? data)
+        {
+            List<B2BMusteriBakiye> musteriBakiyeList = new List<B2BMusteriBakiye>();
+
+            if (data == null)
+            {
+                return null;
+            }
+
+            foreach (var item in data)
+            {
+                var musteriBakiye = new B2BMusteriBakiye
+                {
+                    bakiye = item.bakiye,
+                    borc_alacak_tipi = item.borc_alacak_tipi,
+                    cari_kod = item.cari_kod,
+                    doviz_kodu = item.doviz_kodu,
+                    gecikmis_gun = item.gecikmis_gun,
+                    gecikmis_bakiye = item.gecikmis_bakiye,
+                };
+
+                musteriBakiyeList.Add(musteriBakiye);
+
+            }
+
+            return musteriBakiyeList;
+        }
+        private List<B2BMusteriBakiye>? MappingMusteriBakiyeMikro(List<MikroCariBakiyeModel>? data)
         {
             List<B2BMusteriBakiye> musteriBakiyeList = new List<B2BMusteriBakiye>();
 

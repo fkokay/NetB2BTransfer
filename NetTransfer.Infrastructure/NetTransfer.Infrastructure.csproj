@@ -7,19 +7,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="ECommerce\**" />
+    <Compile Remove="ErpWriters\**" />
+    <Compile Remove="Smartstore\**" />
+    <EmbeddedResource Remove="ECommerce\**" />
+    <EmbeddedResource Remove="ErpWriters\**" />
+    <EmbeddedResource Remove="Smartstore\**" />
+    <None Remove="ECommerce\**" />
+    <None Remove="ErpWriters\**" />
+    <None Remove="Smartstore\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NetTransfer.Core\NetTransfer.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="CommerceReaders\Base\" />
     <Folder Include="CommerceReaders\Interfaces\" />
-    <Folder Include="ECommerce\B2B\" />
-    <Folder Include="ECommerce\Trendyol\" />
-    <Folder Include="ECommerce\Smartstore\" />
-    <Folder Include="ErpWriters\" />
+    <Folder Include="ErpReaders\Mikro\" />
+    <Folder Include="ErpReaders\Netsis\" />
     <Folder Include="Erp\Logo\" />
     <Folder Include="Erp\Opak\" />
-    <Folder Include="Smartstore\" />
   </ItemGroup>
 
   <ItemGroup>

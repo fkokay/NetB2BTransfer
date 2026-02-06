@@ -74,8 +74,6 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 updateProduct.Name = product.Name;
                 updateProduct.ShortDescription = product.ShortDescription;
                 updateProduct.FullDescription = product.FullDescription;
-                //updateProduct.StockQuantity = product.StockQuantity;
-                //updateProduct.Price = product.Price;
                 updateProduct.ShowOnHomePage = product.ShowOnHomePage;
                 updateProduct.Weight = product.Weight;
                 updateProduct.ManageInventoryMethodId = product.ManageInventoryMethodId;
@@ -90,13 +88,13 @@ namespace NetTransfer.Integration.Services.VirtualStore
                 if (product.Published)
                 {
                     result = await _smartStoreClient.ProductTransfer(product);
-
-                    _logger.LogError("ProductTransfer Is Null");
                 }
             }
 
             if (result == null)
             {
+                _logger.LogError("ProductTransfer Is Null");
+
                 return null;
             }
             #endregion
@@ -309,7 +307,10 @@ namespace NetTransfer.Integration.Services.VirtualStore
                         model.HashCode = GetHashCode(rawAttribute);
 
                         SmartstoreProductVariantAttributeCombination? smartstoreProductVariantAttributeCombination = await CreateProductVariantAttributeCombination(model);
-                        temp.Add(smartstoreProductVariantAttributeCombination);
+                        if (smartstoreProductVariantAttributeCombination != null)
+                        {
+                            temp.Add(smartstoreProductVariantAttributeCombination);
+                        }
                     }
                 }
             }
